@@ -1,0 +1,504 @@
+#+STARTUP: overview
+#+REVEAL_THEME: sky
+* interface tweaks
+#+BEGIN_SRC emacs-lisp
+  (setq inhibit-startup-message t)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (blink-cursor-mode -1)
+  (fset 'yes-or-no-p 'y-or-n-p)
+  (global-set-key (kbd "<f5>") 'revert-buffer)
+#+END_SRC
+
+* load prefer newer
+  #+BEGIN_SRC emacs-lisp
+    (setq load-prefer-newer t)
+  #+END_SRC
+* try
+#+BEGIN_SRC emacs-lisp
+  (use-package try
+    :ensure t)
+#+END_SRC
+
+* which-key
+#+BEGIN_SRC elisp
+  (use-package which-key
+    :ensure t
+    :config
+    (which-key-mode))
+#+END_SRC
+
+* Org-mode
+  #+BEGIN_SRC emacs-lisp
+    (use-package org-bullets
+      :ensure t
+      :config
+      (add-hook 'org-mode-hook 'org-bullets-mode)
+      ;; The following lines are always needed.  Choose your own keys.
+      (global-set-key "\C-cl" 'org-store-link)
+      (global-set-key "\C-ca" 'org-agenda)
+      (global-set-key "\C-cc" 'org-capture)
+      (global-set-key "\C-cb" 'org-iswitchb))
+
+    (setq org-agenda-files (list "~/Dropbox/notes/schedule.org"))
+  #+END_SRC
+
+* Ido commented
+#+BEGIN_SRC emacs-lisp
+;; ;; ido-mode
+;; (setq ido-enable-flex-matching t)
+;; (setq ido-everywhere t)
+;; (ido-mode 1)
+
+#+END_SRC
+* IBUFFER
+#+BEGIN_SRC emacs-lisp
+  ;;(defalias 'list-buffers 'ibuffer)
+  (defalias 'list-buffers 'ibuffer-other-window)
+#+END_SRC
+
+* Ace window for easy window switching
+
+Swiper gives us a really efficient incremental search with regular
+expressions and Ivy / Counsel replace a lot of ido or helms completion
+functionality
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ace-window
+    :ensure t
+    :init
+    (global-set-key [remap other-window] 'ace-window)
+    (custom-set-faces
+     '(aw-leading-char-face
+       ((t (:inherit ace-jump-face-foreground :height 3.0))))))
+#+END_SRC
+
+* Swiper / Ivy / Counsel
+  [[https://www.reddit.com/r/emacs/comments/910pga/tip_how_to_use_ivy_and_its_utilities_in_your/][TIP: How to use Ivy and its utilities in your workflow]]
+
+  #+BEGIN_SRC emacs-lisp
+    (use-package counsel
+      :ensure t
+      :after ivy
+      :bind
+      ("M-y" . counsel-yank-pop))
+      ;; (("M-y" . counsel-yank-pop)
+      ;;  :map ivy-minibuffer-map
+      ;;  ("M-y" . ivy-next-line)))
+
+    (use-package ivy
+      :ensure t
+      :diminish (ivy-mode)
+      :config
+      (setq ivy-count-format "%d/%d "))
+
+    ;; Swiper
+    (use-package swiper
+      :ensure t
+      :bind
+       ("C-s" . swiper)
+       ("C-r" . swiper)
+       ("C-c C-r" . ivy-resume)
+       ("M-x" . counsel-M-x)
+       ("C-x C-f" . counsel-find-file)
+       ("C-x b" . ivy-switch-buffer)
+       ("C-c g" . counsel-git)
+       ("C-c j" . counsel-git-grep)
+       ("C-c k" . counsel-ag)
+       ("C-x l" . counsel-locate)
+       ("C-S-o" . counsel-rhythmbox)
+      :config
+      (ivy-mode 1)
+      (setq ivy-use-virtual-buffers t)
+      ;; (setq ivy-display-style 'fancy)
+      (define-key read-expression-map (kbd "C-r") 'counsel-expression-history))
+  #+END_SRC
+
+* Avy - navigate by searching for a letter on the screen and jumping to it
+  See https://github.com/abo-abo/avy for more info
+#+BEGIN_SRC emacs-lisp
+  (use-package avy
+    :ensure t
+    :bind
+    ("M-s" . avy-goto-char))
+#+END_SRC
+
+* Company
+  #+BEGIN_SRC emacs-lisp
+      (use-package company
+	:ensure t
+	:config
+	(setq company-idle-delay 0)
+	(setq company-minimum-prefix-lenth 3)
+	(global-company-mode t))
+
+      ;; (use-package company-jedi
+      ;;   :ensure t
+      ;;   :config
+      ;;   (add-hook 'python-mode-hook 'jedi:setup))
+
+      ;; (defun zhaoweipu/python-mode-hook ()
+      ;;   (add-to-list 'company-backends 'company-jedi))
+
+      ;; (add-hook 'python-mode-hook 'zhaoweipu/python-mode-hook)
+  #+END_SRC
+
+* Themes
+** Color theme modern
+   #+BEGIN_SRC emacs-lisp
+     (use-package color-theme-modern
+       :ensure t)
+   #+END_SRC
+** Moe 
+   #+BEGIN_SRC emacs-lisp
+   (use-package moe-theme
+       :ensure t)
+   #+END_SRC
+** leuven
+    # #+BEGIN_SRC emacs-lisp
+    #   (use-package leuven-theme
+    # 	:ensure t)
+    # #+END_SRC
+** Sanityinc tomorrow
+   #+BEGIN_SRC emacs-lisp
+     (use-package color-theme-sanityinc-tomorrow
+       :ensure t)
+   #+END_SRC
+** Zenburn
+   #+BEGIN_SRC emacs-lisp
+     (use-package zenburn-theme
+       :ensure t)
+   #+END_SRC
+** Doom
+   #+BEGIN_SRC emacs-lisp
+     (use-package doom-themes
+       :ensure t)
+   #+END_SRC
+** load theme
+   #+BEGIN_SRC emacs-lisp
+     (load-theme 'sanityinc-tomorrow-bright t)
+   #+END_SRC
+
+* Reveal.js
+  [[https://github.com/yjwen/org-reveal/tree/001567cc12d50ba07612edd1718b86a12e8c2547][yjwen/org-reveal]]
+  [[https://cdn.jsdelivr.net/npm/reveal.js@3.6.0][reveal.js]]
+  [[https://github.com/hakimel/reveal.js][hakimel/reveal.js]]
+  [[https://github.com/hakimel/reveal.js/blob/master/js/reveal.js]]
+  [[https://github.com/yjwen/org-reveal/issues/324][error "Need package ‘org-20150330’]]
+** Reveal theme
+  [[https://github.com/hakimel/reveal.js/tree/master/css/theme][check the themes]]
+
+  #+BEGIN_SRC emacs-lisp
+    (use-package ox-reveal
+      :load-path "~/workspace/git/org-reveal")
+
+    ;;(setq org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
+    (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/")
+    ;;(setq org-reveal-root "file:/Users/zhaoweipu/workspace/git/reveal.js/")
+    (setq org-reveal-mathjax t)
+
+    (use-package htmlize
+      :ensure t)
+  #+END_SRC
+* Flaycheck
+  #+BEGIN_SRC emacs-lisp
+    (use-package flycheck
+      :ensure t
+      :init
+      (global-flycheck-mode t))
+      :hook
+      (prog-mode)
+  #+END_SRC
+** flycheck-color-mode-line
+   #+BEGIN_SRC emacs-lisp
+     (use-package flycheck-color-mode-line
+       :ensure t
+       :hook (prog-mode . flycheck-color-mode-line-mode))
+   #+END_SRC
+* linum-mode
+  #+BEGIN_SRC emacs-lisp
+    (use-package linum-mode
+      :hook
+      (prog-mode))
+  #+END_SRC
+* Python
+** slince the guess indent warning
+   #+BEGIN_SRC emacs-lisp
+     (setq python-indent-guess-indent-offset t)
+     (setq python-indent-guess-indent-offset-verbose nil)
+   #+END_SRC
+** pyvenv
+   #+BEGIN_SRC emacs-lisp
+     (use-package pyvenv
+       :ensure t)
+
+     (setenv "WORKON_HOME" "/usr/local/anaconda3/envs")
+     (pyvenv-workon "py3")
+
+   #+END_SRC
+** Elpy
+   #+BEGIN_SRC emacs-lisp
+     (use-package elpy
+       :ensure t
+       :defer t
+       :hook
+       (python-mode . elpy-enable)
+       :config
+       (when (require 'flycheck nil t)
+	 (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))))
+
+     ;; force it to use balck, as there this function in elpy.el seems
+     ;; can't find black
+     (defun elpy-format-code ()
+       "Format code using the available formatter."
+       (interactive)
+       (elpy-black-fix-code))
+   #+END_SRC
+* Yasnippet
+  #+BEGIN_SRC emacs-lisp
+    (use-package yasnippet
+      :ensure t
+      :init
+      (yas-global-mode 1))
+
+    (use-package yasnippet-snippets
+      :ensure t)
+  #+END_SRC
+* Magit
+  #+BEGIN_SRC emacs-lisp
+    (use-package magit
+      :ensure t
+      :bind
+      ("C-x g" . magit-status)
+      ("C-x M-g" . magit-dispatch-popup))
+  #+END_SRC
+* Undo tree
+  - use C-x u to see the visual undo tree
+  - use C-x p / n / f b
+  - q to quit the undo tree visualizer
+  #+BEGIN_SRC emacs-lisp
+    (use-package undo-tree
+      :ensure t
+      :init
+      (global-undo-tree-mode))
+  #+END_SRC
+
+* Misc packages
+** enable-recursive-minibuffer
+   This makes M-y also works at minibuffer when using swiper 
+   [[https://github.com/abo-abo/swiper/issues/31][Unable to do query-replace in swiper]]
+   #+BEGIN_SRC emacs-lisp
+   (setq enable-recursive-minibuffers t)
+   #+END_SRC
+** Highlight line mode
+   # #+BEGIN_SRC emacs-lisp
+   #   (global-hl-line-mode t)
+   # #+END_SRC
+
+** Beacon mode
+   # #+BEGIN_SRC emacs-lisp
+   #   (use-package beacon
+   #     :ensure t
+   #     :config
+   #     (beacon-mode 1))
+   #   ;; may need to change the color with differnt themes
+   #   (setq beacon-color "#666600")
+   # #+END_SRC
+** Hungry Delete mode
+   #+BEGIN_SRC emacs-lisp
+     (use-package hungry-delete
+       :ensure t
+       :config
+       (global-hungry-delete-mode))
+   #+END_SRC
+** Expand Region
+   #+BEGIN_SRC emacs-lisp
+     (use-package expand-region
+       :ensure t
+       :config
+       (global-set-key (kbd "C-=") 'er/expand-region))
+   #+END_SRC
+** iedit
+   #+BEGIN_SRC emacs-lisp
+     (use-package iedit
+       :ensure t)
+   #+END_SRC
+** Narrowing
+   [[http://endlessparentheses.com/emacs-narrow-or-widen-dwim.html][Emacs narrow-or-widen-dwim Endless Parentheses]]
+   #+BEGIN_SRC emacs-lisp
+     (defun narrow-or-widen-dwim (p)
+       "Widen if buffer is narrowed, narrow-dwim otherwise.
+     Dwim means: region, org-src-block, org-subtree, or
+     defun, whichever applies first. Narrowing to
+     org-src-block actually calls `org-edit-src-code'.
+
+     With prefix P, don't widen, just narrow even if buffer
+     is already narrowed."
+       (interactive "P")
+       (declare (interactive-only))
+       (cond ((and (buffer-narrowed-p) (not p)) (widen))
+	     ((region-active-p)
+	      (narrow-to-region (region-beginning)
+				(region-end)))
+	     ((derived-mode-p 'org-mode)
+	      ;; `org-edit-src-code' is not a real narrowing
+	      ;; command. Remove this first conditional if
+	      ;; you don't want it.
+	      (cond ((ignore-errors (org-edit-src-code) t)
+		     (delete-other-windows))
+		    ((ignore-errors (org-narrow-to-block) t))
+		    (t (org-narrow-to-subtree))))
+	     ((derived-mode-p 'latex-mode)
+	      (LaTeX-narrow-to-environment))
+	     (t (narrow-to-defun))))
+
+     ;; (define-key endless/toggle-map "n #'narrow-or-widen-dwim)
+     ;; This line actually replaces Emacs' entire narrowing
+     ;; keymap, that's how much I like this command. Only
+     ;; copy it if that's what you want.
+     (define-key ctl-x-map "n" #'narrow-or-widen-dwim)
+     (add-hook 'LaTeX-mode-hook
+	       (lambda ()
+		 (define-key LaTeX-mode-map "\C-xn"
+		   nil)))
+     (eval-after-load 'org-src
+       '(define-key org-src-mode-map
+	  "\C-x\C-s" #'org-edit-src-exit))
+   #+END_SRC
+
+   #+BEGIN_SRC emacs-lisp
+
+   #+END_SRC
+** [[http://pragmaticemacs.com/emacs/add-the-system-clipboard-to-the-emacs-kill-ring/][ADD THE SYSTEM CLIPBOARD TO THE EMACS KILL-RING]]
+   #+BEGIN_SRC emacs-lisp
+     (setq save-interprogram-paste-before-kill t)
+   #+END_SRC
+** auto revert mode
+   #+BEGIN_SRC emacs-lisp
+     (global-auto-revert-mode 1) ;; you might not want this
+     (setq auto-revert-verbose nil) ;; or this
+   #+END_SRC
+** Diminish
+   #+BEGIN_SRC emacs-lisp
+   (use-package diminish
+     :ensure t)
+   #+END_SRC
+
+* Load other files
+  #+BEGIN_SRC emacs-lisp
+    (defun load-if-exists (f)
+      "load the elisp file only if it exists and is readable"
+      (if (file-readable-p f)
+	  (load-file f)))
+    ;; some example:
+    ;; (load-if-exists "~/Sync/shared/mu4econfig.el")
+    ;; (load-if-exists "~/Sync/shared/not-for-github.el")
+    ;; it actually equals
+    ;; (load "~/Sync/shared/mu4econfig.el" t)
+  #+END_SRC
+* Tramp
+#   #+BEGIN_SRC emacs-lisp
+#   (setq tramp-shell-prompt-pattern "\\(?:^\\|\\)[^]#$%>
+# ]*#?[]#$%>].* *\\(\\[[0-9;]*[a-zA-Z] *\\)*")
+#   #+END_SRC
+* Projectile
+  #+BEGIN_SRC emacs-lisp
+    (use-package projectile
+    :ensure t
+    :bind
+    ("C-c p" . projectile-command-map)
+    ("s-p" . projectile-command-map)
+    :config
+    (projectile-mode +1)
+    (setq projectile-completion-system 'ivy))
+
+    ;; (use-package counsel-projectile
+    ;; :ensure t
+    ;; :config
+    ;; (counsel-projectile-on))
+  #+END_SRC
+
+* Treemacs
+  [[https://github.com/Alexander-Miller/treemacs][treeemacs]]
+  #+BEGIN_SRC emacs-lisp
+    (use-package treemacs
+      :ensure t
+      :defer t
+      :init
+      (with-eval-after-load 'winum
+	(define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+      :config
+      (progn
+	(setq treemacs-collapse-dirs                 (if (executable-find "python3") 3 0)
+	      treemacs-deferred-git-apply-delay      0.5
+	      treemacs-display-in-side-window        t
+	      treemacs-eldoc-display                 t
+	      treemacs-file-event-delay              5000
+	      treemacs-file-follow-delay             0.2
+	      treemacs-follow-after-init             t
+	      treemacs-git-command-pipe              ""
+	      treemacs-goto-tag-strategy             'refetch-index
+	      treemacs-indentation                   2
+	      treemacs-indentation-string            " "
+	      treemacs-is-never-other-window         nil
+	      treemacs-max-git-entries               5000
+	      treemacs-missing-project-action        'ask
+	      treemacs-no-png-images                 nil
+	      treemacs-no-delete-other-windows       t
+	      treemacs-project-follow-cleanup        nil
+	      treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+	      treemacs-recenter-distance             0.1
+	      treemacs-recenter-after-file-follow    nil
+	      treemacs-recenter-after-tag-follow     nil
+	      treemacs-recenter-after-project-jump   'always
+	      treemacs-recenter-after-project-expand 'on-distance
+	      treemacs-show-cursor                   nil
+	      treemacs-show-hidden-files             t
+	      treemacs-silent-filewatch              nil
+	      treemacs-silent-refresh                nil
+	      treemacs-sorting                       'alphabetic-desc
+	      treemacs-space-between-root-nodes      t
+	      treemacs-tag-follow-cleanup            t
+	      treemacs-tag-follow-delay              1.5
+	      treemacs-width                         35)
+
+	;; The default width and height of the icons is 22 pixels. If you are
+	;; using a Hi-DPI display, uncomment this to double the icon size.
+	;;(treemacs-resize-icons 44)
+
+	(treemacs-follow-mode t)
+	(treemacs-filewatch-mode t)
+	(treemacs-fringe-indicator-mode t)
+	(pcase (cons (not (null (executable-find "git")))
+		     (not (null (executable-find "python3"))))
+	  (`(t . t)
+	   (treemacs-git-mode 'deferred))
+	  (`(t . _)
+	   (treemacs-git-mode 'simple))))
+      :bind
+      (:map global-map
+	    ("M-0"       . treemacs-select-window)
+	    ("C-x t 1"   . treemacs-delete-other-windows)
+	    ("C-x t t"   . treemacs)
+	    ("C-x t B"   . treemacs-bookmark)
+	    ("C-x t C-t" . treemacs-find-file)
+	    ("C-x t M-t" . treemacs-find-tag)))
+
+    (use-package treemacs-projectile
+      :after treemacs projectile
+      :ensure t)
+
+    (use-package treemacs-icons-dired
+      :after treemacs dired
+      :ensure t
+      :config (treemacs-icons-dired-mode))
+
+    (use-package treemacs-magit
+      :after treemacs magit
+      :ensure t)
+  #+END_SRC
+* Trouble Shoot
+** Failed to initialize color list unarchiver
+   #+BEGIN_SRC emacs-lisp
+     (delete-file "~/Library/Colors/Emacs.clr")
+   #+END_SRC
