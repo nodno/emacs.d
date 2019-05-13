@@ -20,15 +20,16 @@
  ;; If there is more than one, they won't work right.
  '(ansi-color-faces-vector
    [default bold shadow italic underline bold bold-italic bold])
+ '(auth-source-save-behavior nil)
  '(beacon-color "#d54e53")
  '(custom-safe-themes
    (quote
-    ("1b8d67b43ff1723960eb5e0cba512a2c7a2ad544ddb2533a90101fd1852b426e" default)))
+    ("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" "1b8d67b43ff1723960eb5e0cba512a2c7a2ad544ddb2533a90101fd1852b426e" default)))
  '(flycheck-color-mode-line-face-to-color (quote mode-line-buffer-id))
  '(frame-background-mode (quote dark))
  '(package-selected-packages
    (quote
-    (diminish moe-theme zenburn-theme yasnippet-snippets which-key use-package undo-tree try poet-theme org-bullets magit leuven-theme iedit hungry-delete htmlize flycheck-color-mode-line expand-region elpy doom-themes doom-modeline counsel company-jedi color-theme-sanityinc-tomorrow color-theme-modern beacon ace-window)))
+    (mu4e-alert org-pdfview nginx-mode smart-mode-line lua-mode lua git-gutter deft diminish moe-theme zenburn-theme yasnippet-snippets which-key use-package undo-tree try poet-theme org-bullets magit leuven-theme iedit hungry-delete htmlize flycheck-color-mode-line expand-region elpy doom-themes doom-modeline counsel company-jedi color-theme-sanityinc-tomorrow color-theme-modern beacon ace-window)))
  '(tramp-shell-prompt-pattern
    "\\(?:^\\|\\)[^]#$%>
 ]*#?[]#$%>].* *\\(\\[[0-9;]*[a-zA-Z] *\\)*"))

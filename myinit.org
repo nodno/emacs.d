@@ -1,5 +1,16 @@
 #+STARTUP: overview
 #+REVEAL_THEME: sky
+
+* Setting up
+  #+BEGIN_SRC emacs-lisp
+    (setq use-package-always-ensure t)
+  #+END_SRC
+* exec path
+  #+BEGIN_SRC emacs-lisp
+    (use-package exec-path-from-shell)
+    (when (memq window-system '(mac ns x))
+      (exec-path-from-shell-initialize))
+  #+END_SRC
 * interface tweaks
 #+BEGIN_SRC emacs-lisp
   (setq inhibit-startup-message t)
@@ -10,14 +21,31 @@
   (global-set-key (kbd "<f5>") 'revert-buffer)
 #+END_SRC
 
+* Display
+  #+BEGIN_SRC emacs-lisp
+  (defun sanityinc/adjust-opacity (frame incr)
+      (let* ((oldalpha (or (frame-parameter frame 'alpha) 100))
+	     (newalpha (+ incr oldalpha)))
+	(when (and (<= frame-alpha-lower-limit newalpha) (>= 100 newalpha))
+	  (modify-frame-parameters frame (list (cons 'alpha newalpha))))))
+
+    (global-set-key
+     (kbd "M-C-8")
+     (lambda () (interactive) (sanityinc/adjust-opacity nil -2)))
+    (global-set-key
+     (kbd "M-C-9")
+     (lambda () (interactive) (sanityinc/adjust-opacity nil 2)))
+    (global-set-key
+     (kbd "M-C-0")
+     (lambda () (interactive) (modify-frame-parameters nil `((alpha . 100)))))
+  #+END_SRC
 * load prefer newer
   #+BEGIN_SRC emacs-lisp
     (setq load-prefer-newer t)
   #+END_SRC
 * try
 #+BEGIN_SRC emacs-lisp
-  (use-package try
-    :ensure t)
+  (use-package try)
 #+END_SRC
 
 * which-key
@@ -28,10 +56,11 @@
     (which-key-mode))
 #+END_SRC
 
-* Org-mode
+* Orgn-mode
+  [[https://zzamboni.org/post/beautifying-org-mode-in-emacs/][maybe try this]]
+
   #+BEGIN_SRC emacs-lisp
     (use-package org-bullets
-      :ensure t
       :config
       (add-hook 'org-mode-hook 'org-bullets-mode)
       ;; The following lines are always needed.  Choose your own keys.
@@ -41,8 +70,23 @@
       (global-set-key "\C-cb" 'org-iswitchb))
 
     (setq org-agenda-files (list "~/Dropbox/notes/schedule.org"))
-  #+END_SRC
+    (add-to-list 'org-structure-template-alist
+		 '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))
+    (add-hook 'org-mode-hook
+	      '(lambda ()
+		 (visual-line-mode 1)))
+    (setq org-hide-emphasis-markers t)
+    (require 'cl)				;for delete*
+    (setq org-emphasis-alist
+	  (cons '("+" '(:strike-through t :foreground "gray"))
+			    (delete* "+" org-emphasis-alist :key 'car :test 'equal)))
+    (setq org-emphasis-alist
+	  (cons '("*" '(:emphasis t :foreground "orange"))
+		(delete* "*" org-emphasis-alist :key 'car :test 'equal)))
 
+    ;; 使得中英文表格对其, 需要先安装https://www.google.co.kr/get/noto/
+    (set-face-attribute 'org-table nil :family "Noto Sans Mono CJk SC")
+  #+END_SRC
 * Ido commented
 #+BEGIN_SRC emacs-lisp
 ;; ;; ido-mode
@@ -65,9 +109,10 @@ functionality
 
 #+BEGIN_SRC emacs-lisp
   (use-package ace-window
-    :ensure t
     :init
     (global-set-key [remap other-window] 'ace-window)
+    (global-set-key (kbd "M-o") 'ace-swap-window)
+    (setq aw-swap-invert t)
     (custom-set-faces
      '(aw-leading-char-face
        ((t (:inherit ace-jump-face-foreground :height 3.0))))))
@@ -78,7 +123,6 @@ functionality
 
   #+BEGIN_SRC emacs-lisp
     (use-package counsel
-      :ensure t
       :after ivy
       :bind
       ("M-y" . counsel-yank-pop))
@@ -87,18 +131,16 @@ functionality
       ;;  ("M-y" . ivy-next-line)))
 
     (use-package ivy
-      :ensure t
       :diminish (ivy-mode)
       :config
       (setq ivy-count-format "%d/%d "))
 
     ;; Swiper
     (use-package swiper
-      :ensure t
       :bind
        ("C-s" . swiper)
        ("C-r" . swiper)
-       ("C-c C-r" . ivy-resume)
+       ;; ("C-c C-r" . ivy-resume)
        ("M-x" . counsel-M-x)
        ("C-x C-f" . counsel-find-file)
        ("C-x b" . ivy-switch-buffer)
@@ -118,7 +160,6 @@ functionality
   See https://github.com/abo-abo/avy for more info
 #+BEGIN_SRC emacs-lisp
   (use-package avy
-    :ensure t
     :bind
     ("M-s" . avy-goto-char))
 #+END_SRC
@@ -126,53 +167,37 @@ functionality
 * Company
   #+BEGIN_SRC emacs-lisp
       (use-package company
-	:ensure t
+	:diminish (company-mode)
 	:config
 	(setq company-idle-delay 0)
 	(setq company-minimum-prefix-lenth 3)
 	(global-company-mode t))
-
-      ;; (use-package company-jedi
-      ;;   :ensure t
-      ;;   :config
-      ;;   (add-hook 'python-mode-hook 'jedi:setup))
-
-      ;; (defun zhaoweipu/python-mode-hook ()
-      ;;   (add-to-list 'company-backends 'company-jedi))
-
-      ;; (add-hook 'python-mode-hook 'zhaoweipu/python-mode-hook)
   #+END_SRC
 
 * Themes
 ** Color theme modern
    #+BEGIN_SRC emacs-lisp
-     (use-package color-theme-modern
-       :ensure t)
+     (use-package color-theme-modern)
    #+END_SRC
 ** Moe 
    #+BEGIN_SRC emacs-lisp
-   (use-package moe-theme
-       :ensure t)
+   (use-package moe-theme)
    #+END_SRC
 ** leuven
     # #+BEGIN_SRC emacs-lisp
-    #   (use-package leuven-theme
-    # 	:ensure t)
+    #   (use-package leuven-theme)
     # #+END_SRC
 ** Sanityinc tomorrow
    #+BEGIN_SRC emacs-lisp
-     (use-package color-theme-sanityinc-tomorrow
-       :ensure t)
+     (use-package color-theme-sanityinc-tomorrow)
    #+END_SRC
 ** Zenburn
    #+BEGIN_SRC emacs-lisp
-     (use-package zenburn-theme
-       :ensure t)
+     (use-package zenburn-theme)
    #+END_SRC
 ** Doom
    #+BEGIN_SRC emacs-lisp
-     (use-package doom-themes
-       :ensure t)
+     (use-package doom-themes)
    #+END_SRC
 ** load theme
    #+BEGIN_SRC emacs-lisp
@@ -197,23 +222,21 @@ functionality
     ;;(setq org-reveal-root "file:/Users/zhaoweipu/workspace/git/reveal.js/")
     (setq org-reveal-mathjax t)
 
-    (use-package htmlize
-      :ensure t)
+    (use-package htmlize)
   #+END_SRC
 * Flaycheck
   #+BEGIN_SRC emacs-lisp
     (use-package flycheck
-      :ensure t
+      :diminish (flycheck-mode)
       :init
       (global-flycheck-mode t))
-      :hook
-      (prog-mode)
+      ;; :hook
+      ;; (prog-mode))
   #+END_SRC
 ** flycheck-color-mode-line
    #+BEGIN_SRC emacs-lisp
      (use-package flycheck-color-mode-line
-       :ensure t
-       :hook (prog-mode . flycheck-color-mode-line-mode))
+       :hook (flycheck-mode . flycheck-color-mode-line-mode))
    #+END_SRC
 * linum-mode
   #+BEGIN_SRC emacs-lisp
@@ -229,8 +252,7 @@ functionality
    #+END_SRC
 ** pyvenv
    #+BEGIN_SRC emacs-lisp
-     (use-package pyvenv
-       :ensure t)
+     (use-package pyvenv)
 
      (setenv "WORKON_HOME" "/usr/local/anaconda3/envs")
      (pyvenv-workon "py3")
@@ -238,47 +260,64 @@ functionality
    #+END_SRC
 ** Elpy
    #+BEGIN_SRC emacs-lisp
-     (use-package elpy
-       :ensure t
-       :defer t
-       :hook
-       (python-mode . elpy-enable)
-       :config
-       (when (require 'flycheck nil t)
-	 (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))))
+	  (use-package elpy
+	    :ensure t
+	    :defer t
+	    :hook
+	    (python-mode . elpy-mode)
+	    :config
+	    (when (require 'flycheck nil t)
+	      (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)))
 
-     ;; force it to use balck, as there this function in elpy.el seems
-     ;; can't find black
-     (defun elpy-format-code ()
-       "Format code using the available formatter."
-       (interactive)
-       (elpy-black-fix-code))
+	      ;; force it to use balck, as there this function in elpy.el seems
+	      ;; can't find black
+	    (defun elpy-format-code ()
+	      "Format code using the available formatter."
+	      (interactive)
+	      (elpy-black-fix-code)))
    #+END_SRC
+* Lua
+  #+BEGIN_SRC emacs-lisp
+    (use-package lua-mode
+      :config
+      (setq lua-indent-level 4))
+  #+END_SRC
+* nginx mode
+  #+BEGIN_SRC emacs-lisp
+    (use-package nginx-mode)
+  #+END_SRC
 * Yasnippet
   #+BEGIN_SRC emacs-lisp
     (use-package yasnippet
-      :ensure t
+      :diminish (yas-minor-mode)
+      ;;:after flycheck
       :init
       (yas-global-mode 1))
 
-    (use-package yasnippet-snippets
-      :ensure t)
+    (use-package yasnippet-snippets)
   #+END_SRC
-* Magit
+* Git
+** Magit
   #+BEGIN_SRC emacs-lisp
     (use-package magit
-      :ensure t
       :bind
       ("C-x g" . magit-status)
       ("C-x M-g" . magit-dispatch-popup))
   #+END_SRC
+** Git gutter
+   #+BEGIN_SRC emacs-lisp
+     (use-package git-gutter
+       :diminish git-gutter-mode
+       :init
+       (global-git-gutter-mode +1))
+   #+END_SRC
 * Undo tree
   - use C-x u to see the visual undo tree
   - use C-x p / n / f b
   - q to quit the undo tree visualizer
   #+BEGIN_SRC emacs-lisp
     (use-package undo-tree
-      :ensure t
+      :diminish (undo-tree-mode)
       :init
       (global-undo-tree-mode))
   #+END_SRC
@@ -289,6 +328,14 @@ functionality
    [[https://github.com/abo-abo/swiper/issues/31][Unable to do query-replace in swiper]]
    #+BEGIN_SRC emacs-lisp
    (setq enable-recursive-minibuffers t)
+   #+END_SRC
+** Smart mode line
+   #+BEGIN_SRC emacs-lisp
+     (use-package smart-mode-line
+       :init
+       (setq sml/no-confirm-load-theme t)
+       :config
+       (sml/setup))
    #+END_SRC
 ** Highlight line mode
    # #+BEGIN_SRC emacs-lisp
@@ -307,21 +354,18 @@ functionality
 ** Hungry Delete mode
    #+BEGIN_SRC emacs-lisp
      (use-package hungry-delete
-       :ensure t
        :config
        (global-hungry-delete-mode))
    #+END_SRC
 ** Expand Region
    #+BEGIN_SRC emacs-lisp
      (use-package expand-region
-       :ensure t
        :config
        (global-set-key (kbd "C-=") 'er/expand-region))
    #+END_SRC
 ** iedit
    #+BEGIN_SRC emacs-lisp
-     (use-package iedit
-       :ensure t)
+     (use-package iedit)
    #+END_SRC
 ** Narrowing
    [[http://endlessparentheses.com/emacs-narrow-or-widen-dwim.html][Emacs narrow-or-widen-dwim Endless Parentheses]]
@@ -380,8 +424,7 @@ functionality
    #+END_SRC
 ** Diminish
    #+BEGIN_SRC emacs-lisp
-   (use-package diminish
-     :ensure t)
+   (use-package diminish)
    #+END_SRC
 
 * Load other files
@@ -390,11 +433,12 @@ functionality
       "load the elisp file only if it exists and is readable"
       (if (file-readable-p f)
 	  (load-file f)))
-    ;; some example:
-    ;; (load-if-exists "~/Sync/shared/mu4econfig.el")
-    ;; (load-if-exists "~/Sync/shared/not-for-github.el")
-    ;; it actually equals
-    ;; (load "~/Sync/shared/mu4econfig.el" t)
+  #+END_SRC
+* mu4e
+  [[file+emacs:~/.mbsyncrc][mbsyncrc]]
+  [[file+emacs:~/Dropbox/mu4econfig.el][mu4eConfig.el]]
+  #+BEGIN_SRC emacs-lisp
+    (load "~/Dropbox/mu4econfig.el" t)
   #+END_SRC
 * Tramp
 #   #+BEGIN_SRC emacs-lisp
@@ -404,7 +448,6 @@ functionality
 * Projectile
   #+BEGIN_SRC emacs-lisp
     (use-package projectile
-    :ensure t
     :bind
     ("C-c p" . projectile-command-map)
     ("s-p" . projectile-command-map)
@@ -413,92 +456,137 @@ functionality
     (setq projectile-completion-system 'ivy))
 
     ;; (use-package counsel-projectile
-    ;; :ensure t
     ;; :config
     ;; (counsel-projectile-on))
   #+END_SRC
 
 * Treemacs
   [[https://github.com/Alexander-Miller/treemacs][treeemacs]]
+  # #+BEGIN_SRC emacs-lisp
+  #   (use-package treemacs
+  #     :defer t
+  #     :init
+  #     (with-eval-after-load 'winum
+  # 	(define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+  #     :config
+  #     (progn
+  # 	(setq treemacs-collapse-dirs                 (if (executable-find "python3") 3 0)
+  # 	      treemacs-deferred-git-apply-delay      0.5
+  # 	      treemacs-display-in-side-window        t
+  # 	      treemacs-eldoc-display                 t
+  # 	      treemacs-file-event-delay              5000
+  # 	      treemacs-file-follow-delay             0.2
+  # 	      treemacs-follow-after-init             t
+  # 	      treemacs-git-command-pipe              ""
+  # 	      treemacs-goto-tag-strategy             'refetch-index
+  # 	      treemacs-indentation                   2
+  # 	      treemacs-indentation-string            " "
+  # 	      treemacs-is-never-other-window         nil
+  # 	      treemacs-max-git-entries               5000
+  # 	      treemacs-missing-project-action        'ask
+  # 	      treemacs-no-png-images                 nil
+  # 	      treemacs-no-delete-other-windows       t
+  # 	      treemacs-project-follow-cleanup        nil
+  # 	      treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+  # 	      treemacs-recenter-distance             0.1
+  # 	      treemacs-recenter-after-file-follow    nil
+  # 	      treemacs-recenter-after-tag-follow     nil
+  # 	      treemacs-recenter-after-project-jump   'always
+  # 	      treemacs-recenter-after-project-expand 'on-distance
+  # 	      treemacs-show-cursor                   nil
+  # 	      treemacs-show-hidden-files             t
+  # 	      treemacs-silent-filewatch              nil
+  # 	      treemacs-silent-refresh                nil
+  # 	      treemacs-sorting                       'alphabetic-desc
+  # 	      treemacs-space-between-root-nodes      t
+  # 	      treemacs-tag-follow-cleanup            t
+  # 	      treemacs-tag-follow-delay              1.5
+  # 	      treemacs-width                         35)
+
+  # 	;; The default width and height of the icons is 22 pixels. If you are
+  # 	;; using a Hi-DPI display, uncomment this to double the icon size.
+  # 	;;(treemacs-resize-icons 44)
+
+  # 	(treemacs-follow-mode t)
+  # 	(treemacs-filewatch-mode t)
+  # 	(treemacs-fringe-indicator-mode t)
+  # 	(pcase (cons (not (null (executable-find "git")))
+  # 		     (not (null (executable-find "python3"))))
+  # 	  (`(t . t)
+  # 	   (treemacs-git-mode 'deferred))
+  # 	  (`(t . _)
+  # 	   (treemacs-git-mode 'simple))))
+  #     :bind
+  #     (:map global-map
+  # 	    ("M-0"       . treemacs-select-window)
+  # 	    ("C-x t 1"   . treemacs-delete-other-windows)
+  # 	    ("C-x t t"   . treemacs)
+  # 	    ("C-x t B"   . treemacs-bookmark)
+  # 	    ("C-x t C-t" . treemacs-find-file)
+  # 	    ("C-x t M-t" . treemacs-find-tag)))
+
+  #   (use-package treemacs-projectile
+  #     :after treemacs projectile
+  #     :ensure t)
+
+  #   (use-package treemacs-icons-dired
+  #     :after treemacs dired
+  #     :ensure t
+  #     :config (treemacs-icons-dired-mode))
+
+  #   (use-package treemacs-magit
+  #     :after treemacs magit
+  #     :ensure t)
+  # #+END_SRC
+
+* Deft for notes
+  [[https://jblevins.org/projects/deft/][deft]]
   #+BEGIN_SRC emacs-lisp
-    (use-package treemacs
-      :ensure t
-      :defer t
-      :init
-      (with-eval-after-load 'winum
-	(define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+    (use-package deft
+      :bind ("C-c d" . deft)
+      :commands (deft)
       :config
-      (progn
-	(setq treemacs-collapse-dirs                 (if (executable-find "python3") 3 0)
-	      treemacs-deferred-git-apply-delay      0.5
-	      treemacs-display-in-side-window        t
-	      treemacs-eldoc-display                 t
-	      treemacs-file-event-delay              5000
-	      treemacs-file-follow-delay             0.2
-	      treemacs-follow-after-init             t
-	      treemacs-git-command-pipe              ""
-	      treemacs-goto-tag-strategy             'refetch-index
-	      treemacs-indentation                   2
-	      treemacs-indentation-string            " "
-	      treemacs-is-never-other-window         nil
-	      treemacs-max-git-entries               5000
-	      treemacs-missing-project-action        'ask
-	      treemacs-no-png-images                 nil
-	      treemacs-no-delete-other-windows       t
-	      treemacs-project-follow-cleanup        nil
-	      treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
-	      treemacs-recenter-distance             0.1
-	      treemacs-recenter-after-file-follow    nil
-	      treemacs-recenter-after-tag-follow     nil
-	      treemacs-recenter-after-project-jump   'always
-	      treemacs-recenter-after-project-expand 'on-distance
-	      treemacs-show-cursor                   nil
-	      treemacs-show-hidden-files             t
-	      treemacs-silent-filewatch              nil
-	      treemacs-silent-refresh                nil
-	      treemacs-sorting                       'alphabetic-desc
-	      treemacs-space-between-root-nodes      t
-	      treemacs-tag-follow-cleanup            t
-	      treemacs-tag-follow-delay              1.5
-	      treemacs-width                         35)
+      (setq deft-directory "~/Dropbox/notes"
+	    deft-extensions '("md" "org")
+	    deft-default-extension "org"
+	    deft-use-filename-as-title t
+	    deft-use-filter-string-for-filename t))
+  #+END_SRC
 
-	;; The default width and height of the icons is 22 pixels. If you are
-	;; using a Hi-DPI display, uncomment this to double the icon size.
-	;;(treemacs-resize-icons 44)
+* pdf
+  [[https://github.com/politza/pdf-tools/issues/480][pdf-tools issue-480]]
 
-	(treemacs-follow-mode t)
-	(treemacs-filewatch-mode t)
-	(treemacs-fringe-indicator-mode t)
-	(pcase (cons (not (null (executable-find "git")))
-		     (not (null (executable-find "python3"))))
-	  (`(t . t)
-	   (treemacs-git-mode 'deferred))
-	  (`(t . _)
-	   (treemacs-git-mode 'simple))))
-      :bind
-      (:map global-map
-	    ("M-0"       . treemacs-select-window)
-	    ("C-x t 1"   . treemacs-delete-other-windows)
-	    ("C-x t t"   . treemacs)
-	    ("C-x t B"   . treemacs-bookmark)
-	    ("C-x t C-t" . treemacs-find-file)
-	    ("C-x t M-t" . treemacs-find-tag)))
+  #+BEGIN_SRC emacs-lisp
+    (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig")
+    (use-package pdf-tools
+      :config
+      (pdf-loader-install))
+    (use-package org-pdfview)
 
-    (use-package treemacs-projectile
-      :after treemacs projectile
-      :ensure t)
+  #+END_SRC
 
-    (use-package treemacs-icons-dired
-      :after treemacs dired
-      :ensure t
-      :config (treemacs-icons-dired-mode))
+* [[https://emacsredux.com/blog/2013/03/27/open-file-in-external-program/][Open File in External Program]]
+  
+  #+BEGIN_SRC emacs-lisp
+    (defun er-open-with (arg)
+      "Open visited file in default external program.
 
-    (use-package treemacs-magit
-      :after treemacs magit
-      :ensure t)
+    With a prefix ARG always prompt for command to use."
+      (interactive "P")
+      (when buffer-file-name
+	(shell-command (concat
+			(cond
+			 ((and (not arg) (eq system-type 'darwin)) "open")
+			 ((and (not arg) (member system-type '(gnu gnu/linux gnu/kfreebsd))) "xdg-open")
+			 (t (read-shell-command "Open current file with: ")))
+			" "
+			(shell-quote-argument buffer-file-name)))))
+    (global-set-key (kbd "C-c o") #'er-open-with)
   #+END_SRC
 * Trouble Shoot
 ** Failed to initialize color list unarchiver
    #+BEGIN_SRC emacs-lisp
      (delete-file "~/Library/Colors/Emacs.clr")
    #+END_SRC
+
+* [[https://github.com/sachac/.emacs.d/blob/gh-pages/Sacha.org][Yank more]]
