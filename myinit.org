@@ -91,15 +91,24 @@
     (setq org-hide-emphasis-markers t)
     (require 'cl)				;for delete*
     (setq org-emphasis-alist
-	  (cons '("+" '(:strike-through t :foreground "gray"))
+	  (cons '("+" (:strike-through t :foreground "gray"))
 			    (delete* "+" org-emphasis-alist :key 'car :test 'equal)))
     (setq org-emphasis-alist
-	  (cons '("*" '(:emphasis t :foreground "orange"))
+	  (cons '("*" (bold :foreground "red"))
 		(delete* "*" org-emphasis-alist :key 'car :test 'equal)))
 
     ;; 使得中英文表格对其, 需要先安装https://www.google.co.kr/get/noto/
     (set-face-attribute 'org-table nil :family "Noto Sans Mono CJk SC")
+
+    ;; for python
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((python . t)))
   #+END_SRC
+** ox-*
+   #+BEGIN_SRC emacs-lisp
+     (use-package ox-twbs)
+   #+END_SRC
 * Ido commented
 #+BEGIN_SRC emacs-lisp
 ;; ;; ido-mode
@@ -209,7 +218,7 @@ functionality
    #+END_SRC
 ** Doom
    #+BEGIN_SRC emacs-lisp
-     (use-package doom-themes)
+     ;; (use-package doom-themes)
    #+END_SRC
 ** solarized-theme
    #+BEGIN_SRC emacs-lisp
@@ -610,11 +619,26 @@ functionality
 * Dictionary
 ** sdcv
    #+BEGIN_SRC emacs-lisp
+     (use-package showtip
+       :ensure t)
+     (use-package popup
+       :ensure t)
+     (use-package pos-tip
+       :ensure t)
+
      (use-package sdcv
        :load-path "~/workspace/git/sdcv.el"
+       :demand t
        :config
        (global-set-key (kbd "C-x t") 'sdcv-search-pointer))
    #+END_SRC
+
+* wsd-mode
+  #+BEGIN_SRC emacs-lisp
+    (use-package wsd-mode
+      :config
+      (setq wsd-style "napkin"))
+  #+END_SRC
 * Trouble Shoot
 ** Failed to initialize color list unarchiver
    #+BEGIN_SRC emacs-lisp
