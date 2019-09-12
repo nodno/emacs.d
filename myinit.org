@@ -73,38 +73,79 @@
   [[https://zzamboni.org/post/beautifying-org-mode-in-emacs/][maybe try this]]
 
   #+BEGIN_SRC emacs-lisp
-    (use-package org-bullets
-      :config
-      (add-hook 'org-mode-hook 'org-bullets-mode)
-      ;; The following lines are always needed.  Choose your own keys.
-      (global-set-key "\C-cl" 'org-store-link)
-      (global-set-key "\C-ca" 'org-agenda)
-      (global-set-key "\C-cc" 'org-capture)
-      (global-set-key "\C-cb" 'org-iswitchb))
 
-    (setq org-agenda-files (list "~/Dropbox/notes/schedule.org"))
+    (use-package org-bullets
+          :config
+          (add-hook 'org-mode-hook 'org-bullets-mode)
+          ;; The following lines are always needed.  Choose your own keys.
+          (global-set-key "\C-cl" 'org-store-link)
+          (global-set-key "\C-ca" 'org-agenda)
+          (global-set-key "\C-cc" 'org-capture)
+          (global-set-key "\C-cb" 'org-iswitchb))
+
+    ;; steal from hrs
+
+    (setq org-directory "~/Dropbox/notes")
+
+;;    (setq org-default-notes-file (concat org-directory "/notes.org"))
+    (defun org-file-path (filename)
+      "Return the absolute address of an org file, given its relative name."
+      (concat (file-name-as-directory org-directory) filename))
+
+    (setq org-index-file (org-file-path "index.org"))
+    (setq org-default-notes-file org-index-file)
+    (setq org-archive-location
+          (concat (org-file-path "archive.org") "::* From %s"))
+
+    (setq org-agenda-files (list org-index-file))
+
+    (defun hrs/mark-done-and-archive ()
+      "Mark the state of an org-mode item as DONE and archive it."
+      (interactive)
+      (org-todo 'done)
+      (org-archive-subtree))
+
+    (define-key org-mode-map (kbd "C-c C-x C-s") 'hrs/mark-done-and-archive)
+
+    (setq org-log-done 'time)
+    ;;(setq org-agenda-files (list "~/Dropbox/notes/schedule.org"))
+
     (add-to-list 'org-structure-template-alist
-		 '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))
+                 '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))
     (add-hook 'org-mode-hook
-	      '(lambda ()
-		 (visual-line-mode 1)))
+              '(lambda ()
+                 (visual-line-mode 1)))
     (setq org-hide-emphasis-markers t)
     (require 'cl)				;for delete*
     (setq org-emphasis-alist
-	  (cons '("+" (:strike-through t :foreground "gray"))
-			    (delete* "+" org-emphasis-alist :key 'car :test 'equal)))
+          (cons '("+" (:strike-through t :foreground "gray"))
+                (delete* "+" org-emphasis-alist :key 'car :test 'equal)))
     (setq org-emphasis-alist
-	  (cons '("*" (bold :foreground "red"))
-		(delete* "*" org-emphasis-alist :key 'car :test 'equal)))
-
+          (cons '("*" (bold :foreground "red"))
+                (delete* "*" org-emphasis-alist :key 'car :test 'equal)))
     ;; 使得中英文表格对其, 需要先安装https://www.google.co.kr/get/noto/
     (set-face-attribute 'org-table nil :family "Noto Sans Mono CJk SC")
-
     ;; for python
     (org-babel-do-load-languages
      'org-babel-load-languages
      '((python . t)))
   #+END_SRC
+** Refiling according to the document’s hierarchy.
+   #+BEGIN_SRC emacs-lisp
+     (setq org-refile-use-outline-path t)
+     (setq org-outline-path-complete-in-steps nil)
+   #+END_SRC
+** Hit C-c i to quickly open up my todo list.
+   #+BEGIN_SRC emacs-lisp
+     (defun my/open-index-file ()
+       "Open the master org TODO list."
+       (interactive)
+       (find-file org-index-file)
+       (flycheck-mode -1)
+       (end-of-buffer))
+
+     (global-set-key (kbd "C-c i") 'my/open-index-file)
+   #+END_SRC
 ** ox-*
    #+BEGIN_SRC emacs-lisp
      (use-package ox-twbs)
@@ -122,7 +163,18 @@
   ;;(defalias 'list-buffers 'ibuffer)
   (defalias 'list-buffers 'ibuffer-other-window)
 #+END_SRC
+* Backups
+  copy from SachaChua
+  #+BEGIN_SRC emacs-lisp
+    (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+  #+END_SRC
 
+  #+BEGIN_SRC emacs-lisp
+    (setq delete-old-versions -1)
+    (setq version-control t)
+    (setq vc-make-backup-files t)
+    (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
+  #+END_SRC
 * Ace window for easy window switching
 #+BEGIN_SRC emacs-lisp
   (use-package ace-window
@@ -135,6 +187,13 @@
        ((t (:inherit ace-jump-face-foreground :height 3.0))))))
 #+END_SRC
 
+* Winner-mode
+  #+BEGIN_SRC emacs-lisp
+    (use-package winner
+      :ensure t
+      :config
+      (winner-mode))
+  #+END_SRC
 * Swiper / Ivy / Counsel
   [[https://www.reddit.com/r/emacs/comments/910pga/tip_how_to_use_ivy_and_its_utilities_in_your/][TIP: How to use Ivy and its utilities in your workflow]]
 
@@ -143,6 +202,11 @@ expressions and Ivy / Counsel replace a lot of ido or helms completion
 functionality
 
   #+BEGIN_SRC emacs-lisp
+    (use-package ivy
+      :diminish (ivy-mode)
+      :config
+      (setq ivy-count-format "%d/%d "))
+
     (use-package counsel
       :after ivy
       :bind
@@ -151,10 +215,6 @@ functionality
       ;;  :map ivy-minibuffer-map
       ;;  ("M-y" . ivy-next-line)))
 
-    (use-package ivy
-      :diminish (ivy-mode)
-      :config
-      (setq ivy-count-format "%d/%d "))
 
     ;; Swiper
     (use-package swiper
@@ -182,7 +242,7 @@ functionality
 #+BEGIN_SRC emacs-lisp
   (use-package avy
     :bind
-    ("M-s" . avy-goto-char))
+    ("M-s a" . avy-goto-char))
 #+END_SRC
 
 * Company
@@ -287,22 +347,40 @@ functionality
    #+END_SRC
 ** Elpy
    #+BEGIN_SRC emacs-lisp
-	  (use-package elpy
-	    :ensure t
-	    :defer t
-	    :hook
-	    (python-mode . elpy-mode)
-	    :config
-	    (when (require 'flycheck nil t)
-	      (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)))
+     (use-package elpy
+       :ensure t
+       :defer t
+       :hook
+       (python-mode . elpy-mode)
+       :config
+       (setq eldoc-idle-delay 1)
+       (when (require 'flycheck nil t)
+         (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)))
 
-	      ;; force it to use balck, as there this function in elpy.el seems
-	      ;; can't find black
-	    (defun elpy-format-code ()
-	      "Format code using the available formatter."
-	      (interactive)
-	      (elpy-black-fix-code)))
+         ;; force it to use balck, as there this function in elpy.el seems
+         ;; can't find black
+       (defun elpy-format-code ()
+         "Format code using the available formatter."
+         (interactive)
+         (elpy-black-fix-code)))
    #+END_SRC
+* Web-mode
+  #+BEGIN_SRC emacs-lisp
+    (use-package web-mode
+        :ensure t
+        :config
+               (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+               (add-to-list 'auto-mode-alist '("\\.vue?\\'" . web-mode))
+               (setq web-mode-engines-alist
+                     '(("django"    . "\\.html\\'")))
+               (setq web-mode-ac-sources-alist
+               '(("css" . (ac-source-css-property))
+               ("vue" . (ac-source-words-in-buffer ac-source-abbrev))
+             ("html" . (ac-source-words-in-buffer ac-source-abbrev))))
+    (setq web-mode-enable-auto-closing t))
+    (setq web-mode-enable-auto-quoting t) ; this fixes the quote problem I mentioned
+
+  #+END_SRC
 * PHP
   #+BEGIN_SRC emacs-lisp
     (use-package php-mode)
@@ -354,6 +432,10 @@ functionality
   #+END_SRC
 
 * Misc packages
+** 
+   #+BEGIN_SRC emacs-lisp
+     (setq-default indent-tabs-mode nil)
+   #+END_SRC
 ** enable-recursive-minibuffer
    This makes M-y also works at minibuffer when using swiper 
    [[https://github.com/abo-abo/swiper/issues/31][Unable to do query-replace in swiper]]
@@ -451,8 +533,8 @@ functionality
    #+END_SRC
 ** auto revert mode
    #+BEGIN_SRC emacs-lisp
-     (global-auto-revert-mode 1) ;; you might not want this
-     (setq auto-revert-verbose nil) ;; or this
+     ;; (global-auto-revert-mode 1) ;; you might not want this
+     ;; (setq auto-revert-verbose nil) ;; or this
    #+END_SRC
 ** Diminish
    #+BEGIN_SRC emacs-lisp

@@ -29,7 +29,7 @@
  '(frame-background-mode (quote dark))
  '(package-selected-packages
    (quote
-    (wsd-mode ox-jira ox-md ox-twbs pos-tip popup showtip solarized-theme php-mode mu4e-alert org-pdfview nginx-mode smart-mode-line lua-mode lua git-gutter deft diminish moe-theme zenburn-theme yasnippet-snippets which-key use-package undo-tree try poet-theme org-bullets magit leuven-theme iedit hungry-delete htmlize flycheck-color-mode-line expand-region elpy doom-modeline counsel company-jedi color-theme-sanityinc-tomorrow color-theme-modern beacon ace-window)))
+    (winner-mode wsd-mode ox-jira ox-md ox-twbs pos-tip popup showtip solarized-theme php-mode mu4e-alert org-pdfview nginx-mode smart-mode-line lua-mode lua git-gutter deft diminish moe-theme zenburn-theme yasnippet-snippets which-key use-package undo-tree try poet-theme org-bullets magit leuven-theme iedit hungry-delete htmlize flycheck-color-mode-line expand-region elpy doom-modeline counsel company-jedi color-theme-sanityinc-tomorrow color-theme-modern beacon ace-window)))
  '(tramp-shell-prompt-pattern
    "\\(?:^\\|\\)[^]#$%>
 ]*#?[]#$%>].* *\\(\\[[0-9;]*[a-zA-Z] *\\)*"))
