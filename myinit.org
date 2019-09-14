@@ -3,23 +3,18 @@
 
 * Setting up
   #+BEGIN_SRC emacs-lisp
-    (setq use-package-always-ensure t)
-  #+END_SRC
-* exec path
-  #+BEGIN_SRC emacs-lisp
-    (use-package exec-path-from-shell)
-    (when (memq window-system '(mac ns x))
-      (exec-path-from-shell-initialize))
   #+END_SRC
 * interface tweaks
-#+BEGIN_SRC emacs-lisp
-  (setq inhibit-startup-message t)
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
-  (blink-cursor-mode -1)
-  (fset 'yes-or-no-p 'y-or-n-p)
-  (global-set-key (kbd "<f5>") 'revert-buffer)
-#+END_SRC
+  #+begin_src emacs-lisp :tangle yes
+    (setq use-package-always-ensure t)
+    (setq use-package-verbose t)
+    (setq inhibit-startup-message t)
+    (tool-bar-mode -1)
+    (scroll-bar-mode -1)
+    (blink-cursor-mode -1)
+    (fset 'yes-or-no-p 'y-or-n-p)
+    (global-set-key (kbd "<f5>") 'revert-buffer)
+  #+end_src
 
 * Display
 ** Opacity
@@ -52,19 +47,20 @@
 	       (convert-standard-filename buffer-file-name)))
 	   (buffer-name))))
    #+END_SRC
-* load prefer newer
+* load prfer newer commented
   #+BEGIN_SRC emacs-lisp
-    (setq load-prefer-newer t)
+    ;; (setq load-prefer-newer t)          
   #+END_SRC
 * try
 #+BEGIN_SRC emacs-lisp
-  (use-package try)
+  (use-package try
+    :defer 10)
 #+END_SRC
 
-* which-key
+* which-key commented maybe uncomment later
 #+BEGIN_SRC emacs-lisp
   (use-package which-key
-    :ensure t
+    :defer 3
     :config
     (which-key-mode))
 #+END_SRC
@@ -75,19 +71,18 @@
   #+BEGIN_SRC emacs-lisp
 
     (use-package org-bullets
-          :config
-          (add-hook 'org-mode-hook 'org-bullets-mode)
-          ;; The following lines are always needed.  Choose your own keys.
-          (global-set-key "\C-cl" 'org-store-link)
-          (global-set-key "\C-ca" 'org-agenda)
-          (global-set-key "\C-cc" 'org-capture)
-          (global-set-key "\C-cb" 'org-iswitchb))
+      :defer t
+      :bind (("C-c l" . org-store-link)
+	     ("C-c a" . org-agenda)
+	     ("C-c c" . org-iswitchb))
+      :hook (org-mode . org-bullets-mode))
 
-    ;; steal from hrs
 
+    ;;steal from hrs
     (setq org-directory "~/Dropbox/notes")
 
-;;    (setq org-default-notes-file (concat org-directory "/notes.org"))
+    (setq org-default-notes-file (concat org-directory "/notes.org"))
+
     (defun org-file-path (filename)
       "Return the absolute address of an org file, given its relative name."
       (concat (file-name-as-directory org-directory) filename))
@@ -95,7 +90,7 @@
     (setq org-index-file (org-file-path "index.org"))
     (setq org-default-notes-file org-index-file)
     (setq org-archive-location
-          (concat (org-file-path "archive.org") "::* From %s"))
+	  (concat (org-file-path "archive.org") "::* From %s"))
 
     (setq org-agenda-files (list org-index-file))
 
@@ -111,20 +106,21 @@
     ;;(setq org-agenda-files (list "~/Dropbox/notes/schedule.org"))
 
     (add-to-list 'org-structure-template-alist
-                 '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))
+		 '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))
     (add-hook 'org-mode-hook
-              '(lambda ()
-                 (visual-line-mode 1)))
+	      '(lambda ()
+		 (visual-line-mode 1)))
     (setq org-hide-emphasis-markers t)
     (require 'cl)				;for delete*
     (setq org-emphasis-alist
-          (cons '("+" (:strike-through t :foreground "gray"))
-                (delete* "+" org-emphasis-alist :key 'car :test 'equal)))
+	  (cons '("+" (:strike-through t :foreground "gray"))
+		(delete* "+" org-emphasis-alist :key 'car :test 'equal)))
     (setq org-emphasis-alist
-          (cons '("*" (bold :foreground "red"))
-                (delete* "*" org-emphasis-alist :key 'car :test 'equal)))
+	  (cons '("*" (bold :foreground "red"))
+		(delete* "*" org-emphasis-alist :key 'car :test 'equal)))
     ;; 使得中英文表格对其, 需要先安装https://www.google.co.kr/get/noto/
-    (set-face-attribute 'org-table nil :family "Noto Sans Mono CJk SC")
+    ;; (set-face-attribute 'org-table nil :family "Noto Sans Mono CJk SC")
+
     ;; for python
     (org-babel-do-load-languages
      'org-babel-load-languages
@@ -148,8 +144,14 @@
    #+END_SRC
 ** ox-*
    #+BEGIN_SRC emacs-lisp
-     (use-package ox-twbs)
+     (use-package ox-twbs
+       :after org-mode)
    #+END_SRC
+** org-pdfview
+   #+begin_src emacs-lisp :tangle yes
+     (use-package org-pdfview
+       :defer 4)
+   #+end_src
 * Ido commented
 #+BEGIN_SRC emacs-lisp
 ;; ;; ido-mode
@@ -158,10 +160,10 @@
 ;; (ido-mode 1)
 
 #+END_SRC
-* IBUFFER
+* IBUFFER commented
 #+BEGIN_SRC emacs-lisp
-  ;;(defalias 'list-buffers 'ibuffer)
-  (defalias 'list-buffers 'ibuffer-other-window)
+  ;; ;;(defalias 'list-buffers 'ibuffer)
+  ;; (defalias 'list-buffers 'ibuffer-other-window)
 #+END_SRC
 * Backups
   copy from SachaChua
@@ -190,51 +192,131 @@
 * Winner-mode
   #+BEGIN_SRC emacs-lisp
     (use-package winner
-      :ensure t
       :config
       (winner-mode))
   #+END_SRC
-* Swiper / Ivy / Counsel
-  [[https://www.reddit.com/r/emacs/comments/910pga/tip_how_to_use_ivy_and_its_utilities_in_your/][TIP: How to use Ivy and its utilities in your workflow]]
 
-Swiper gives us a really efficient incremental search with regular
-expressions and Ivy / Counsel replace a lot of ido or helms completion
-functionality
+* Helm
 
   #+BEGIN_SRC emacs-lisp
-    (use-package ivy
-      :diminish (ivy-mode)
+    ;; based on http://tuhdo.github.io/helm-intro.html
+    (use-package helm
+      :bind (("M-x" . helm-M-x)
+	     ("M-y" . helm-show-kill-ring)
+	     ("C-c h" . helm-command-prefix)
+	     ("C-h SPC" . helm-all-mark-rings)
+	     ("C-x r b" . helm-filtered-bookmarks)
+	     ("C-x C-f" . helm-find-files)
+	     ("C-x b" . helm-mini)
+	     :map helm-map
+	     ;; rebind tab to run persistent action
+	     ("<tab>" . helm-execute-persistent-action)
+	     ;; make Tab work in terminal
+	     ("C-i" . helm-execute-persistent-action)
+	     ("C-z" . helm-select-action))
       :config
-      (setq ivy-count-format "%d/%d "))
+      (require 'helm-config)
+      (global-unset-key (kbd "C-x c"))
+      (global-set-key (kbd "C-c h o") 'helm-occur)
+      (when (executable-find "curl")
+	(setq helm-google-suggest-use-curl-p t))
+      (when (string= system-type "darwin")       
+	;; brew info findutils
+	(setq helm-locate-command
+	      "glocate %s %s"
+	      helm-locate-create-db-command
+	      "gupdatedb --output='%s' --localpaths='%s'"))
 
-    (use-package counsel
-      :after ivy
-      :bind
-      ("M-y" . counsel-yank-pop))
-      ;; (("M-y" . counsel-yank-pop)
-      ;;  :map ivy-minibuffer-map
-      ;;  ("M-y" . ivy-next-line)))
+      (setq helm-split-window-inside-p t ; open helm buffer inside current window, not occupy whole other window
+	    ; helm-move-to-line-cycle-in-source t
+	    helm-ff-search-library-in-sexp t ; search for library in `require' and `declare-function' sexp
+	    helm-scroll-amount 8 ; scroll 8 lines other window using M-<next>/M-<prior>
+	    helm-ff-file-name-history-use-recentf t
+	    helm-echo-input-in-header-line t
+	    ;; helm-autoresize-max-height 0
+	    ;; helm-autoresize-min-height 20
+	    helm-M-x-fuzzy-match t
+	    helm-ff-auto-update-initial-value 1)
+	    ;; (helm-autoresize-mode 1)
+  
+      (custom-set-faces
+       '(helm-selection ((t (:background "systemPurpleColor" :foreground "white")))))
+      (helm-mode 1))
 
-
-    ;; Swiper
-    (use-package swiper
-      :bind
-       ("C-s" . swiper)
-       ("C-r" . swiper)
-       ;; ("C-c C-r" . ivy-resume)
-       ("M-x" . counsel-M-x)
-       ("C-x C-f" . counsel-find-file)
-       ("C-x b" . ivy-switch-buffer)
-       ("C-c g" . counsel-git)
-       ("C-c j" . counsel-git-grep)
-       ("C-c k" . counsel-ag)
-       ("C-x l" . counsel-locate)
-       ("C-S-o" . counsel-rhythmbox)
+  #+END_SRC
+** helm-ls-git
+  #+BEGIN_SRC emacs-lisp
+    (use-package helm-ls-git
+      :after
+      (helm-mode)
       :config
-      (ivy-mode 1)
-      (setq ivy-use-virtual-buffers t)
-      ;; (setq ivy-display-style 'fancy)
-      (define-key read-expression-map (kbd "C-r") 'counsel-expression-history))
+      (global-set-key (kbd "C-x C-d") 'helm-browse-project))
+  #+END_SRC
+* Projectile
+
+  #+BEGIN_SRC emacs-lisp
+    (use-package projectile
+      :bind-keymap
+      ("C-c p" . projectile-command-map)
+      ("s-p" . projectile-command-map)
+      :config
+      (setq projectile-completion-system 'helm)
+      (setq projectile-switch-project-action 'helm-projectile)
+      ;; (setq projectile-enable-caching t)
+      (projectile-mode +1))
+  #+END_SRC
+* Helm-projectile
+  #+BEGIN_SRC emacs-lisp
+    (use-package helm-projectile
+      :defer t
+      :ensure t
+      :config
+      (helm-projectile-on))
+  #+END_SRC
+* Helm descbinds
+  #+BEGIN_SRC emacs-lisp
+    (use-package helm-descbinds
+      :defer 7
+      :config
+      (helm-descbinds-mode))
+  #+END_SRC
+* Swiper / Ivy / Counsel commented
+#   [[https://www.reddit.com/r/emacs/comments/910pga/tip_how_to_use_ivy_and_its_utilities_in_your/][TIP: How to use Ivy and its utilities in your workflow]]
+# Swiper gives us a really efficient incremental search with regular
+# expressions and Ivy / Counsel replace a lot of ido or helms completion
+# functionality
+
+  #+BEGIN_SRC emacs-lisp
+    ;; (use-package ivy
+    ;;   :diminish (ivy-mode)
+    ;;   :config
+    ;;   (setq ivy-count-format "%d/%d "))
+
+    ;; (use-package counsel
+    ;;   :after ivy
+    ;;   :bind
+    ;;   ("M-y" . counsel-yank-pop))
+
+
+    ;; ;; Swiper
+    ;; (use-package swiper
+    ;;   :bind
+    ;;    ("C-s" . swiper)
+    ;;    ("C-r" . swiper)
+    ;;    ;; ("C-c C-r" . ivy-resume)
+    ;;    ("M-x" . counsel-M-x)
+    ;;    ("C-x C-f" . counsel-find-file)
+    ;;    ("C-x b" . ivy-switch-buffer)
+    ;;    ("C-c g" . counsel-git)
+    ;;    ("C-c j" . counsel-git-grep)
+    ;;    ("C-c k" . counsel-ag)
+    ;;    ("C-x l" . counsel-locate)
+    ;;    ("C-S-o" . counsel-rhythmbox)
+    ;;   :config
+    ;;   (ivy-mode 1)
+    ;;   (setq ivy-use-virtual-buffers t)
+    ;;   ;; (setq ivy-display-style 'fancy)
+    ;;   (define-key read-expression-map (kbd "C-r") 'counsel-expression-history))
   #+END_SRC
 
 * Avy - navigate by searching for a letter on the screen and jumping to it
@@ -247,24 +329,20 @@ functionality
 
 * Company
   #+BEGIN_SRC emacs-lisp
-      (use-package company
-	:diminish (company-mode)
-	:config
-	(setq company-idle-delay 0)
-	(setq company-minimum-prefix-lenth 3)
-	(global-company-mode t))
+    (use-package company
+      :diminish (company-mode)
+      :hook (prog-mode . company-mode)
+      :config
+      (setq company-idle-delay 0)
+      (setq company-minimum-prefix-lenth 3))
   #+END_SRC
 
 * Themes
-** Color theme modern
+** Color theme modern commented
    #+BEGIN_SRC emacs-lisp
-     (use-package color-theme-modern)
+     ;; (use-package color-theme-modern)
    #+END_SRC
-** Moe 
-   #+BEGIN_SRC emacs-lisp
-   (use-package moe-theme)
-   #+END_SRC
-** leuven
+** leuven commented
     # #+BEGIN_SRC emacs-lisp
     #   (use-package leuven-theme)
     # #+END_SRC
@@ -272,17 +350,15 @@ functionality
    #+BEGIN_SRC emacs-lisp
      (use-package color-theme-sanityinc-tomorrow)
    #+END_SRC
-** Zenburn
-   #+BEGIN_SRC emacs-lisp
-     (use-package zenburn-theme)
-   #+END_SRC
-** Doom
+
+** Doom commented
    #+BEGIN_SRC emacs-lisp
      ;; (use-package doom-themes)
    #+END_SRC
 ** solarized-theme
    #+BEGIN_SRC emacs-lisp
-     (use-package solarized-theme)
+     (use-package solarized-theme
+       :disabled t)
    #+END_SRC
 ** load theme
    #+BEGIN_SRC emacs-lisp
@@ -300,7 +376,9 @@ functionality
 
   #+BEGIN_SRC emacs-lisp
     (use-package ox-reveal
+      :defer 5
       :load-path "~/workspace/git/org-reveal")
+;;      :hook org-mode)
 
     ;;(setq org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
     (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/")
@@ -309,14 +387,11 @@ functionality
 
     (use-package htmlize)
   #+END_SRC
-* Flaycheck
+* Flycheck
   #+BEGIN_SRC emacs-lisp
     (use-package flycheck
-;      :diminish (flycheck-mode)
-      :init
-      (global-flycheck-mode t))
-      ;; :hook
-      ;; (prog-mode))
+      :hook
+      (prog-mode. flycheck-mode))
   #+END_SRC
 ** flycheck-color-mode-line
    #+BEGIN_SRC emacs-lisp
@@ -332,6 +407,13 @@ functionality
     (add-hook 'prog-mode-hook 'linum-mode)
   #+END_SRC
 * Python
+
+  #+BEGIN_SRC emacs-lisp
+    ;; The package is "python" but the mode is "python-mode":
+    (use-package python
+      :mode ("\\.py\\'" . python-mode)
+      :interpreter ("python" . python-mode))
+  #+END_SRC
 ** slince the guess indent warning
    #+BEGIN_SRC emacs-lisp
      (setq python-indent-guess-indent-offset t)
@@ -339,16 +421,18 @@ functionality
    #+END_SRC
 ** pyvenv
    #+BEGIN_SRC emacs-lisp
-     (use-package pyvenv)
-
-     (setenv "WORKON_HOME" "/usr/local/anaconda3/envs")
-     (pyvenv-workon "py3")
+     (use-package pyvenv
+       :hook (python-mode . pyvenv-mode)
+       :config
+       (setenv "WORKON_HOME" "/usr/local/anaconda3/envs")
+       (pyvenv-workon "py3"))
 
    #+END_SRC
+
 ** Elpy
    #+BEGIN_SRC emacs-lisp
      (use-package elpy
-       :ensure t
+       :disabled t
        :defer t
        :hook
        (python-mode . elpy-mode)
@@ -364,30 +448,70 @@ functionality
          (interactive)
          (elpy-black-fix-code)))
    #+END_SRC
+
+** anaconda mode with blacken
+   #+BEGIN_SRC emacs-lisp
+
+     (use-package anaconda-mode
+       :commands anaconda-mode
+       :ensure t
+       :init
+       (add-hook 'python-mode-hook 'anaconda-mode)
+       (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
+       :config
+       (define-key anaconda-mode-map  (kbd "M-/") 'anaconda-mode-show-doc)
+       (define-key anaconda-mode-map  (kbd "M-.") 'anaconda-mode-find-definitions)
+       (define-key anaconda-mode-map  (kbd "M-,") 'pop-tag-mark)
+       (define-key anaconda-mode-map  (kbd "M-r") nil)
+       (setq anaconda-mode-localhost-address "localhost"))
+
+     ;; Auto completion
+     (use-package company-anaconda
+       :after (anaconda-mode company)
+       :ensure t)
+     (eval-after-load "company"
+       '(add-to-list 'company-backends 'company-anaconda))
+
+     ;;black
+     (use-package blacken
+       :ensure t)
+   #+END_SRC
+*** https://github.com/proofit404/anaconda-mode/issues/255
+    #+BEGIN_SRC emacs-lisp
+      (setq url-proxy-services
+            '(("no_proxy" . "^\\(127.0.0.1\\|localhost\\|10.*\\)")
+              ("http" . "127.0.0.1:6152")
+              ("https" . "127.0.0.1:6152")))
+    #+END_SRC
+
 * Web-mode
   #+BEGIN_SRC emacs-lisp
     (use-package web-mode
-        :ensure t
-        :config
-               (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-               (add-to-list 'auto-mode-alist '("\\.vue?\\'" . web-mode))
-               (setq web-mode-engines-alist
-                     '(("django"    . "\\.html\\'")))
-               (setq web-mode-ac-sources-alist
-               '(("css" . (ac-source-css-property))
-               ("vue" . (ac-source-words-in-buffer ac-source-abbrev))
-             ("html" . (ac-source-words-in-buffer ac-source-abbrev))))
+      :defer 5
+      :config
+      (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+      (add-to-list 'auto-mode-alist '("\\.vue?\\'" . web-mode))
+      (setq web-mode-engines-alist
+            '(("django"    . "\\.html\\'")))
+      (setq web-mode-ac-sources-alist
+            '(("css" . (ac-source-css-property))
+              ("vue" . (ac-source-words-in-buffer ac-source-abbrev))
+              ("html" . (ac-source-words-in-buffer ac-source-abbrev))))
     (setq web-mode-enable-auto-closing t))
     (setq web-mode-enable-auto-quoting t) ; this fixes the quote problem I mentioned
 
   #+END_SRC
 * PHP
   #+BEGIN_SRC emacs-lisp
-    (use-package php-mode)
+    (use-package php-mode
+      :mode ("\\.php\\'" . php-mode)
+      :interpreter ("php" . python-mode))
   #+END_SRC
 * Lua
   #+BEGIN_SRC emacs-lisp
     (use-package lua-mode
+      :mode "\\.lua\\'"
+      :interpreter "lua"
       :config
       (setq lua-indent-level 4))
   #+END_SRC
@@ -398,6 +522,7 @@ functionality
 * Yasnippet
   #+BEGIN_SRC emacs-lisp
     (use-package yasnippet
+      :defer 3
       :diminish (yas-minor-mode)
       ;;:after flycheck
       :init
@@ -416,33 +541,35 @@ functionality
 ** Git gutter
    #+BEGIN_SRC emacs-lisp
      (use-package git-gutter
+       :defer 1
        :diminish git-gutter-mode
        :init
        (global-git-gutter-mode +1))
    #+END_SRC
-* Undo tree
+* Undo tree commented
   - use C-x u to see the visual undo tree
   - use C-x p / n / f b
   - q to quit the undo tree visualizer
   #+BEGIN_SRC emacs-lisp
     (use-package undo-tree
+      :disabled t
       :diminish (undo-tree-mode)
       :init
       (global-undo-tree-mode))
   #+END_SRC
 
 * Misc packages
-** 
+**  turn off indent-tabs-mode
    #+BEGIN_SRC emacs-lisp
      (setq-default indent-tabs-mode nil)
    #+END_SRC
-** enable-recursive-minibuffer
+** enable-recursive-minibuffer commented
    This makes M-y also works at minibuffer when using swiper 
    [[https://github.com/abo-abo/swiper/issues/31][Unable to do query-replace in swiper]]
    #+BEGIN_SRC emacs-lisp
-     (setq enable-recursive-minibuffers t)
+     ;; (setq enable-recursive-minibuffers t)
    #+END_SRC
-** Smart mode line
+** Smart mode line commented
    #+BEGIN_SRC emacs-lisp
      ;;  (use-package smart-mode-line
      ;;    :init
@@ -451,25 +578,25 @@ functionality
      ;;    :config
      ;;     (sml/setup))
    #+END_SRC
-** Highlight line mode
+** Highlight line mode commented
    # #+BEGIN_SRC emacs-lisp
    #   (global-hl-line-mode t)
    # #+END_SRC
 
-** Beacon mode
+** Beacon mode commented
    # #+BEGIN_SRC emacs-lisp
    #   (use-package beacon
    #     :ensure t
    #     :config
    #     (beacon-mode 1))
    #   ;; may need to change the color with differnt themes
-   #   (setq beacon-color "#666600")
+   #   (setq beacon-color "#666600")           
    # #+END_SRC
-** Hungry Delete mode
+** Hungry Delete mode commented
    #+BEGIN_SRC emacs-lisp
-     (use-package hungry-delete
-       :config
-       (global-hungry-delete-mode))
+     ;; (use-package hungry-delete
+     ;;   :config
+     ;;   (global-hungry-delete-mode))
    #+END_SRC
 ** Expand Region
    #+BEGIN_SRC emacs-lisp
@@ -531,11 +658,7 @@ functionality
    #+BEGIN_SRC emacs-lisp
      (setq save-interprogram-paste-before-kill t)
    #+END_SRC
-** auto revert mode
-   #+BEGIN_SRC emacs-lisp
-     ;; (global-auto-revert-mode 1) ;; you might not want this
-     ;; (setq auto-revert-verbose nil) ;; or this
-   #+END_SRC
+
 ** Diminish
    #+BEGIN_SRC emacs-lisp
    (use-package diminish)
@@ -559,22 +682,7 @@ functionality
 #   (setq tramp-shell-prompt-pattern "\\(?:^\\|\\)[^]#$%>
 # ]*#?[]#$%>].* *\\(\\[[0-9;]*[a-zA-Z] *\\)*")
 #   #+END_SRC
-* Projectile
-  #+BEGIN_SRC emacs-lisp
-    (use-package projectile
-    :bind
-    ("C-c p" . projectile-command-map)
-    ("s-p" . projectile-command-map)
-    :config
-    (projectile-mode +1)
-    (setq projectile-completion-system 'ivy))
-
-    ;; (use-package counsel-projectile
-    ;; :config
-    ;; (counsel-projectile-on))
-  #+END_SRC
-
-* Treemacs
+* Treemacs commented
   [[https://github.com/Alexander-Miller/treemacs][treeemacs]]
   # #+BEGIN_SRC emacs-lisp
   #   (use-package treemacs
@@ -673,9 +781,14 @@ functionality
   #+BEGIN_SRC emacs-lisp
     (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig")
     (use-package pdf-tools
+      :magic ("%PDF" . pdf-view-mode)
       :config
-      (pdf-loader-install))
-    (use-package org-pdfview)
+      (pdf-tools-install :no-query))
+
+    ;; (use-package pdf-tools
+    ;;   :config
+    ;;   (pdf-loader-install))
+
 
   #+END_SRC
 
@@ -718,6 +831,7 @@ functionality
 * wsd-mode
   #+BEGIN_SRC emacs-lisp
     (use-package wsd-mode
+      :defer 3
       :config
       (setq wsd-style "napkin"))
   #+END_SRC
@@ -726,5 +840,18 @@ functionality
    #+BEGIN_SRC emacs-lisp
      (delete-file "~/Library/Colors/Emacs.clr")
    #+END_SRC
+** dired-use-ls-dired
+   #+begin_src emacs-lisp :tangle yes
+     (when (string= system-type "darwin")       
+       (setq dired-use-ls-dired nil))
+   #+end_src
 
 * [[https://github.com/sachac/.emacs.d/blob/gh-pages/Sacha.org][Yank more]]
+
+* [[https://github.com/purcell/exec-path-from-shell][purcell/exec-path-from-shell]]
+  
+  #+BEGIN_SRC emacs-lisp
+    (use-package exec-path-from-shell)
+    (when (string= system-type "darwin")
+      (exec-path-from-shell-initialize))
+  #+END_SRC
