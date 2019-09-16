@@ -1,51 +1,49 @@
 #+STARTUP: overview
 #+REVEAL_THEME: sky
-
-* Setting up
-  #+BEGIN_SRC emacs-lisp
-  #+END_SRC
 * interface tweaks
-  #+begin_src emacs-lisp :tangle yes
+  #+BEGIN_SRC emacs-lisp
+    (message "test")
     (setq use-package-always-ensure t)
     (setq use-package-verbose t)
+    (setq ad-redefinition-action 'accept)
     (setq inhibit-startup-message t)
     (tool-bar-mode -1)
     (scroll-bar-mode -1)
     (blink-cursor-mode -1)
     (fset 'yes-or-no-p 'y-or-n-p)
     (global-set-key (kbd "<f5>") 'revert-buffer)
-  #+end_src
+  #+END_SRC
 
 * Display
 ** Opacity
   #+BEGIN_SRC emacs-lisp
-  (defun sanityinc/adjust-opacity (frame incr)
-      (let* ((oldalpha (or (frame-parameter frame 'alpha) 100))
-	     (newalpha (+ incr oldalpha)))
-	(when (and (<= frame-alpha-lower-limit newalpha) (>= 100 newalpha))
-	  (modify-frame-parameters frame (list (cons 'alpha newalpha))))))
+    (defun sanityinc/adjust-opacity (frame incr)
+        (let* ((oldalpha (or (frame-parameter frame 'alpha) 100))
+               (newalpha (+ incr oldalpha)))
+          (when (and (<= frame-alpha-lower-limit newalpha) (>= 100 newalpha))
+            (modify-frame-parameters frame (list (cons 'alpha newalpha))))))
 
-    (global-set-key
-     (kbd "M-C-8")
-     (lambda () (interactive) (sanityinc/adjust-opacity nil -2)))
-    (global-set-key
-     (kbd "M-C-9")
-     (lambda () (interactive) (sanityinc/adjust-opacity nil 2)))
-    (global-set-key
-     (kbd "M-C-0")
-     (lambda () (interactive) (modify-frame-parameters nil `((alpha . 100)))))
+      (global-set-key
+       (kbd "M-C-8")
+       (lambda () (interactive) (sanityinc/adjust-opacity nil -2)))
+      (global-set-key
+       (kbd "M-C-9")
+       (lambda () (interactive) (sanityinc/adjust-opacity nil 2)))
+      (global-set-key
+       (kbd "M-C-0")
+       (lambda () (interactive) (modify-frame-parameters nil `((alpha . 100)))))
   #+END_SRC
 ** frame-titile
    #+BEGIN_SRC emacs-lisp
      (setq frame-title-format
        '(:eval
-	 (if buffer-file-name
-	     (replace-regexp-in-string
-	      "\\\\" "/"
-	      (replace-regexp-in-string
-	       (regexp-quote (getenv "HOME")) "~"
-	       (convert-standard-filename buffer-file-name)))
-	   (buffer-name))))
+         (if buffer-file-name
+             (replace-regexp-in-string
+              "\\\\" "/"
+              (replace-regexp-in-string
+               (regexp-quote (getenv "HOME")) "~"
+               (convert-standard-filename buffer-file-name)))
+           (buffer-name))))
    #+END_SRC
 * load prfer newer commented
   #+BEGIN_SRC emacs-lisp
@@ -73,8 +71,8 @@
     (use-package org-bullets
       :defer t
       :bind (("C-c l" . org-store-link)
-	     ("C-c a" . org-agenda)
-	     ("C-c c" . org-iswitchb))
+             ("C-c a" . org-agenda)
+             ("C-c c" . org-iswitchb))
       :hook (org-mode . org-bullets-mode))
 
 
@@ -90,7 +88,7 @@
     (setq org-index-file (org-file-path "index.org"))
     (setq org-default-notes-file org-index-file)
     (setq org-archive-location
-	  (concat (org-file-path "archive.org") "::* From %s"))
+          (concat (org-file-path "archive.org") "::* From %s"))
 
     (setq org-agenda-files (list org-index-file))
 
@@ -106,18 +104,18 @@
     ;;(setq org-agenda-files (list "~/Dropbox/notes/schedule.org"))
 
     (add-to-list 'org-structure-template-alist
-		 '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))
+                 '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))
     (add-hook 'org-mode-hook
-	      '(lambda ()
-		 (visual-line-mode 1)))
+              '(lambda ()
+                 (visual-line-mode 1)))
     (setq org-hide-emphasis-markers t)
     (require 'cl)				;for delete*
     (setq org-emphasis-alist
-	  (cons '("+" (:strike-through t :foreground "gray"))
-		(delete* "+" org-emphasis-alist :key 'car :test 'equal)))
+          (cons '("+" (:strike-through t :foreground "gray"))
+                (delete* "+" org-emphasis-alist :key 'car :test 'equal)))
     (setq org-emphasis-alist
-	  (cons '("*" (bold :foreground "red"))
-		(delete* "*" org-emphasis-alist :key 'car :test 'equal)))
+          (cons '("*" (bold :foreground "red"))
+                (delete* "*" org-emphasis-alist :key 'car :test 'equal)))
     ;; 使得中英文表格对其, 需要先安装https://www.google.co.kr/get/noto/
     ;; (set-face-attribute 'org-table nil :family "Noto Sans Mono CJk SC")
 
@@ -128,6 +126,7 @@
   #+END_SRC
 ** Refiling according to the document’s hierarchy.
    #+BEGIN_SRC emacs-lisp
+
      (setq org-refile-use-outline-path t)
      (setq org-outline-path-complete-in-steps nil)
    #+END_SRC
@@ -202,43 +201,44 @@
     ;; based on http://tuhdo.github.io/helm-intro.html
     (use-package helm
       :bind (("M-x" . helm-M-x)
-	     ("M-y" . helm-show-kill-ring)
-	     ("C-c h" . helm-command-prefix)
-	     ("C-h SPC" . helm-all-mark-rings)
-	     ("C-x r b" . helm-filtered-bookmarks)
-	     ("C-x C-f" . helm-find-files)
-	     ("C-x b" . helm-mini)
-	     :map helm-map
-	     ;; rebind tab to run persistent action
-	     ("<tab>" . helm-execute-persistent-action)
-	     ;; make Tab work in terminal
-	     ("C-i" . helm-execute-persistent-action)
-	     ("C-z" . helm-select-action))
+             ("M-y" . helm-show-kill-ring)
+             ("C-c h" . helm-command-prefix)
+             ("C-h SPC" . helm-all-mark-rings)
+             ("C-x r b" . helm-filtered-bookmarks)
+             ("C-x C-f" . helm-find-files)
+             ("C-x b" . helm-mini)
+             :map helm-map
+             ;; rebind tab to run persistent action
+             ("<tab>" . helm-execute-persistent-action)
+             ;; make Tab work in terminal
+             ("C-i" . helm-execute-persistent-action)
+             ("C-z" . helm-select-action))
       :config
       (require 'helm-config)
       (global-unset-key (kbd "C-x c"))
       (global-set-key (kbd "C-c h o") 'helm-occur)
       (when (executable-find "curl")
-	(setq helm-google-suggest-use-curl-p t))
+        (setq helm-google-suggest-use-curl-p t))
       (when (string= system-type "darwin")       
-	;; brew info findutils
-	(setq helm-locate-command
-	      "glocate %s %s"
-	      helm-locate-create-db-command
-	      "gupdatedb --output='%s' --localpaths='%s'"))
+        ;; brew info findutils
+        (setq helm-locate-command
+              "glocate %s %s"
+              helm-locate-create-db-command
+              "gupdatedb --output='%s' --localpaths='%s'"))
 
-      (setq helm-split-window-inside-p t ; open helm buffer inside current window, not occupy whole other window
-	    ; helm-move-to-line-cycle-in-source t
-	    helm-ff-search-library-in-sexp t ; search for library in `require' and `declare-function' sexp
-	    helm-scroll-amount 8 ; scroll 8 lines other window using M-<next>/M-<prior>
-	    helm-ff-file-name-history-use-recentf t
-	    helm-echo-input-in-header-line t
-	    ;; helm-autoresize-max-height 0
-	    ;; helm-autoresize-min-height 20
-	    helm-M-x-fuzzy-match t
-	    helm-ff-auto-update-initial-value 1)
-	    ;; (helm-autoresize-mode 1)
-  
+      (setq
+       ;;helm-split-window-inside-p t ; open helm buffer inside current window, not occupy whole other window
+            ; helm-move-to-line-cycle-in-source t
+            helm-ff-search-library-in-sexp t ; search for library in `require' and `declare-function' sexp
+            ;;helm-scroll-amount 8 ; scroll 8 lines other window using M-<next>/M-<prior>
+            helm-ff-file-name-history-use-recentf t
+            helm-echo-input-in-header-line t
+            ;; helm-autoresize-max-height 0
+            ;; helm-autoresize-min-height 20
+            helm-M-x-fuzzy-match t
+            helm-ff-auto-update-initial-value 1)
+            ;; (helm-autoresize-mode 1)
+
       (custom-set-faces
        '(helm-selection ((t (:background "systemPurpleColor" :foreground "white")))))
       (helm-mode 1))
@@ -268,7 +268,7 @@
 * Helm-projectile
   #+BEGIN_SRC emacs-lisp
     (use-package helm-projectile
-      :defer t
+      :defer 10
       :ensure t
       :config
       (helm-projectile-on))
@@ -330,11 +330,11 @@
 * Company
   #+BEGIN_SRC emacs-lisp
     (use-package company
-      :diminish (company-mode)
+        :diminish (company-mode)
       :hook (prog-mode . company-mode)
       :config
       (setq company-idle-delay 0)
-      (setq company-minimum-prefix-lenth 3))
+      (setq company-minimum-prefix-lenth 1))
   #+END_SRC
 
 * Themes
@@ -391,7 +391,7 @@
   #+BEGIN_SRC emacs-lisp
     (use-package flycheck
       :hook
-      (prog-mode. flycheck-mode))
+      (prog-mode . flycheck-mode))
   #+END_SRC
 ** flycheck-color-mode-line
    #+BEGIN_SRC emacs-lisp
@@ -448,7 +448,19 @@
          (interactive)
          (elpy-black-fix-code)))
    #+END_SRC
-
+   #+BEGIN_SRC emacs-lisp
+     ;; as C-c C-o is so handy in elpy, I'll keep it with anaconda-mode, bind it to M-O
+     (defun elpy-occur-definitions ()
+       "Display an occur buffer of all definitions in the current buffer.
+     Also, switch to that buffer."
+       (interactive)
+       (let ((list-matching-lines-face nil))
+         (occur "^\s*\\(\\(async\s\\|\\)def\\|class\\)\s"))
+       (let ((window (get-buffer-window "*Occur*")))
+         (if window
+             (select-window window)
+           (switch-to-buffer "*Occur*"))))
+   #+END_SRC
 ** anaconda mode with blacken
    #+BEGIN_SRC emacs-lisp
 
@@ -463,25 +475,27 @@
        (define-key anaconda-mode-map  (kbd "M-.") 'anaconda-mode-find-definitions)
        (define-key anaconda-mode-map  (kbd "M-,") 'pop-tag-mark)
        (define-key anaconda-mode-map  (kbd "M-r") nil)
+       (define-key anaconda-mode-map  (kbd "M-O") 'elpy-occur-definitions)
        (setq anaconda-mode-localhost-address "localhost"))
 
      ;; Auto completion
      (use-package company-anaconda
-       :after (anaconda-mode company)
        :ensure t)
-     (eval-after-load "company"
-       '(add-to-list 'company-backends 'company-anaconda))
 
+     (defun my/python-mode-hook ()
+       (add-to-list 'company-backends 'company-anaconda))
+
+     (add-hook 'python-mode-hook 'my/python-mode-hook)
      ;;black
      (use-package blacken
        :ensure t)
    #+END_SRC
 *** https://github.com/proofit404/anaconda-mode/issues/255
     #+BEGIN_SRC emacs-lisp
-      (setq url-proxy-services
-            '(("no_proxy" . "^\\(127.0.0.1\\|localhost\\|10.*\\)")
-              ("http" . "127.0.0.1:6152")
-              ("https" . "127.0.0.1:6152")))
+      ;; (setq url-proxy-services
+      ;;       '(("no_proxy" . "^\\(127.0.0.1\\|localhost\\|10.*\\)")
+      ;;         ("http" . "127.0.0.1:6152")
+      ;;         ("https" . "127.0.0.1:6152")))
     #+END_SRC
 
 * Web-mode
