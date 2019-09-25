@@ -30,7 +30,7 @@
  '(frame-background-mode (quote dark))
  '(package-selected-packages
    (quote
-    (company-anaconda company helm-descbinds helm-projectile projectile helm-ls-git helm winner-mode wsd-mode ox-jira ox-md ox-twbs pos-tip popup showtip solarized-theme php-mode mu4e-alert org-pdfview nginx-mode smart-mode-line lua-mode lua git-gutter deft diminish moe-theme zenburn-theme yasnippet-snippets which-key use-package undo-tree try poet-theme org-bullets magit leuven-theme iedit hungry-delete htmlize flycheck-color-mode-line expand-region doom-modeline counsel color-theme-sanityinc-tomorrow color-theme-modern beacon ace-window)))
+    (ace-mc selected phi-search-mc multiple-cursors phi-search avy-zap leetcode helm-ag company-anaconda company helm-descbinds helm-projectile projectile helm-ls-git helm winner-mode wsd-mode ox-jira ox-md ox-twbs pos-tip popup showtip solarized-theme php-mode mu4e-alert org-pdfview nginx-mode smart-mode-line lua-mode lua git-gutter deft diminish moe-theme zenburn-theme yasnippet-snippets which-key use-package undo-tree try poet-theme org-bullets magit leuven-theme iedit hungry-delete htmlize flycheck-color-mode-line expand-region doom-modeline color-theme-sanityinc-tomorrow color-theme-modern beacon ace-window)))
  '(tramp-shell-prompt-pattern
    "\\(?:^\\|\\)[^]#$%>
 ]*#?[]#$%>].* *\\(\\[[0-9;]*[a-zA-Z] *\\)*"))
@@ -41,3 +41,5 @@
  ;; If there is more than one, they won't work right.
  '(aw-leading-char-face ((t (:inherit ace-jump-face-foreground :height 3.0))))
  '(helm-selection ((t (:background "systemPurpleColor" :foreground "white")))))
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)

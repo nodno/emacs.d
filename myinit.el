@@ -1,4 +1,9 @@
-;; use-package-setting
+;;; myinit.el --- Config file for my emacs
+;;; Commentary:
+;;; My config file, all the packages I'm using, except use-package.
+
+;;; Code:
+;; use-package-setting:
 (setq use-package-always-ensure t)
 (setq use-package-verbose t)
 ;; suppress warning
@@ -11,6 +16,35 @@
 (blink-cursor-mode -1)
 (fset 'yes-or-no-p 'y-or-n-p)
 (global-set-key (kbd "<f5>") 'revert-buffer)
+
+;; Keymaps
+
+
+(define-key input-decode-map [?\C-m] [C-m])
+
+(eval-and-compile
+  (mapc #'(lambda (entry)
+            (define-prefix-command (cdr entry))
+            (bind-key (car entry) (cdr entry)))
+        '(("C-,"   . my-ctrl-comma-map)
+          ("<C-m>" . my-ctrl-m-map)
+
+          ("C-h e" . my-ctrl-h-e-map)
+          ("C-h x" . my-ctrl-h-x-map)
+
+          ("C-c b" . my-ctrl-c-b-map)
+          ("C-c e" . my-ctrl-c-e-map)
+          ("C-c m" . my-ctrl-c-m-map)
+          ("C-c w" . my-ctrl-c-w-map)
+          ("C-c y" . my-ctrl-c-y-map)
+          ("C-c H" . my-ctrl-c-H-map)
+          ("C-c N" . my-ctrl-c-N-map)
+          ("C-c (" . my-ctrl-c-open-paren-map)
+          ("C-c -" . my-ctrl-c-minus-map)
+          ("C-c =" . my-ctrl-c-equals-map)
+          ("C-c ." . my-ctrl-c-r-map)
+          )))
+
 
 ;; Opacity
 (defun sanityinc/adjust-opacity (frame incr)
@@ -59,6 +93,7 @@
   :hook (org-mode . org-bullets-mode))
 
 (require 'org)
+(setq-default major-mode 'org-mode)
 ;;steal from hrs
 (setq org-directory "~/Dropbox/notes")
 
@@ -142,15 +177,16 @@
 (setq version-control t)
 (setq vc-make-backup-files t)
 (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
-;; Ace window for easy window switching
+
 (use-package ace-window
-  :init
-  (global-set-key [remap other-window] 'ace-window)
-  (global-set-key (kbd "M-o") 'ace-swap-window)
-  (setq aw-swap-invert t)
-  (custom-set-faces
-   '(aw-leading-char-face
-     ((t (:inherit ace-jump-face-foreground :height 3.0))))))
+  :bind* ("C-<return>" . ace-window))
+  ;; :init
+  ;; (global-set-key [remap other-window] 'ace-window)
+  ;; (global-set-key (kbd "M-o") 'ace-swap-window)
+  ;; (setq aw-swap-invert t)
+  ;; (custom-set-faces
+  ;;  '(aw-leading-char-face
+  ;;    ((t (:inherit ace-jump-face-foreground :height 3.0))))))
 
 (use-package winner
   :config
@@ -184,8 +220,7 @@
           helm-locate-create-db-command
           "gupdatedb --output='%s' --localpaths='%s'"))
 
-  (setq
-   ;;helm-split-window-inside-p t ; open helm buffer inside current window, not occupy whole other window
+  (setq helm-split-window-inside-p t ; open helm buffer inside current window, not occupy whole other window
         ; helm-move-to-line-cycle-in-source t
         helm-ff-search-library-in-sexp t ; search for library in `require' and `declare-function' sexp
         ;;helm-scroll-amount 8 ; scroll 8 lines other window using M-<next>/M-<prior>
@@ -194,6 +229,7 @@
         ;; helm-autoresize-max-height 0
         ;; helm-autoresize-min-height 20
         helm-M-x-fuzzy-match t
+        helm-dwim-target 'next-window
         helm-ff-auto-update-initial-value 1)
         ;; (helm-autoresize-mode 1)
 
@@ -212,16 +248,18 @@
   ("C-c p" . projectile-command-map)
   ("s-p" . projectile-command-map)
   :config
+  (use-package helm-projectile
+    :ensure t
+    :config
+    (use-package helm-ag
+      :config
+      (setq helm-ag-insert-at-point 'symbol))
+    (helm-projectile-on))
   (setq projectile-completion-system 'helm)
   (setq projectile-switch-project-action 'helm-projectile)
   ;; (setq projectile-enable-caching t)
   (projectile-mode +1))
 
-(use-package helm-projectile
-  :defer 10
-  :ensure t
-  :config
-  (helm-projectile-on))
 
 (use-package helm-descbinds
   :defer 7
@@ -264,15 +302,106 @@
 
 ;; Avy - navigate by searching for a letter on the screen and jumping to it
 (use-package avy
+  :bind* ("C-." . avy-goto-char-timer)
+  :config
+  (avy-setup-default))
+
+(use-package avy-zap
   :bind
-  ("M-s a" . avy-goto-char))
+  ("M-z" . avy-zap-to-char-dwim)
+  ("M-Z" . avy-zap-up-to-char-dwim))
+
+(use-package phi-search
+  :defer 5)
+
+(use-package phi-search-mc
+  :after (phi-search multiple-cursors)
+  :config
+  (phi-search-mc/setup-keys)
+  (add-hook 'isearch-mode-mode #'phi-search-from-isearch-mc/setup-keys))
+
+
+(use-package selected
+  :demand t
+  :diminish selected-minor-mode
+  :bind (:map selected-keymap
+              ("[" . align-code)
+              ("f" . fill-region)
+              ("U" . unfill-region)
+              ("d" . downcase-region)
+              ("u" . upcase-region)
+              ("r" . reverse-region)
+              ("s" . sort-lines))
+  :config
+  (selected-global-mode 1))
+
+(use-package multiple-cursors
+  :after (phi-search selected)
+  :defer 5
+
+  ;; - Sometimes you end up with cursors outside of your view. You can scroll
+  ;;   the screen to center on each cursor with `C-v` and `M-v`.
+  ;;
+  ;; - If you get out of multiple-cursors-mode and yank - it will yank only
+  ;;   from the kill-ring of main cursor. To yank from the kill-rings of every
+  ;;   cursor use yank-rectangle, normally found at C-x r y.
+
+  :bind (("<C-m> ^"     . mc/edit-beginnings-of-lines)
+         ("<C-m> `"     . mc/edit-beginnings-of-lines)
+         ("<C-m> $"     . mc/edit-ends-of-lines)
+         ("<C-m> '"     . mc/edit-ends-of-lines)
+         ("<C-m> R"     . mc/reverse-regions)
+         ("<C-m> S"     . mc/sort-regions)
+         ("<C-m> W"     . mc/mark-all-words-like-this)
+         ("<C-m> Y"     . mc/mark-all-symbols-like-this)
+         ("<C-m> a"     . mc/mark-all-like-this-dwim)
+         ("<C-m> c"     . mc/mark-all-dwim)
+         ("<C-m> l"     . mc/insert-letters)
+         ("<C-m> n"     . mc/insert-numbers)
+         ("<C-m> r"     . mc/mark-all-in-region)
+         ("<C-m> s"     . set-rectangular-region-anchor)
+         ("<C-m> %"     . mc/mark-all-in-region-regexp)
+         ("<C-m> t"     . mc/mark-sgml-tag-pair)         ("<C-m> w"     . mc/mark-next-like-this-word)
+         ("<C-m> x"     . mc/mark-more-like-this-extended)
+         ("<C-m> y"     . mc/mark-next-like-this-symbol)
+         ("<C-m> C-x"   . reactivate-mark)
+         ("<C-m> C-SPC" . mc/mark-pop)
+         ("<C-m> ("     . mc/mark-all-symbols-like-this-in-defun)
+         ("<C-m> C-("   . mc/mark-all-words-like-this-in-defun)
+         ("<C-m> M-("   . mc/mark-all-like-this-in-defun)
+         ("<C-m> ["     . mc/vertical-align-with-space)
+         ("<C-m> {"     . mc/vertical-align)
+
+         ("S-<down-mouse-1>")
+         ("S-<mouse-1>" . mc/add-cursor-on-click))
+
+  :bind (:map selected-keymap
+              ("c"   . mc/edit-lines)
+              ("."   . mc/mark-next-like-this)
+              ("<"   . mc/unmark-next-like-this)
+              ("C->" . mc/skip-to-next-like-this)
+              (","   . mc/mark-previous-like-this)
+              (">"   . mc/unmark-previous-like-this)
+              ("C-<" . mc/skip-to-previous-like-this)
+              ("y"   . mc/mark-next-symbol-like-this)
+              ("Y"   . mc/mark-previous-symbol-like-this)
+              ("w"   . mc/mark-next-word-like-this)
+              ("W"   . mc/mark-previous-word-like-this))
+
+  :preface
+  (defun reactivate-mark ()
+    (interactive)
+    (activate-mark)))
+
+(use-package ace-mc
+  :bind (("<C-m> h"   . ace-mc-add-multiple-cursors)
+         ("<C-m> M-h" . ace-mc-add-single-cursor)))
 
 (use-package company
     :diminish (company-mode)
   :hook (prog-mode . company-mode)
   :config
-  (setq company-idle-delay 0)
-  (setq company-minimum-prefix-lenth 2))
+  (setq company-idle-delay 0))
 
 (use-package color-theme-modern
   :disabled t)
@@ -342,7 +471,7 @@
     (interactive)
     (elpy-black-fix-code)))
 
-;; as C-c C-o is so handy in elpy, I'll keep it with anaconda-mode, bind it to M-O
+;; as C-c C-o is so handy in elpy, I'll keep it with anaconda-mode
 (defun elpy-occur-definitions ()
   "Display an occur buffer of all definitions in the current buffer.
 Also, switch to that buffer."
@@ -365,20 +494,17 @@ Also, switch to that buffer."
   (define-key anaconda-mode-map  (kbd "M-.") 'anaconda-mode-find-definitions)
   (define-key anaconda-mode-map  (kbd "M-,") 'pop-tag-mark)
   (define-key anaconda-mode-map  (kbd "M-r") nil)
-  (define-key anaconda-mode-map  (kbd "M-O") 'elpy-occur-definitions)
-  (setq anaconda-mode-localhost-address "localhost"))
-
-;; Auto completion
-(use-package company-anaconda
+  (define-key anaconda-mode-map  (kbd "C-c C-o") 'elpy-occur-definitions)
+  (setq anaconda-mode-localhost-address "localhost")
+  (use-package company-anaconda
   :ensure t)
+  (defun my/python-mode-hook ()
+    (add-to-list 'company-backends 'company-anaconda))
+  (add-hook 'python-mode-hook 'my/python-mode-hook))
 
-(defun my/python-mode-hook ()
-  (add-to-list 'company-backends 'company-anaconda))
-
-(add-hook 'python-mode-hook 'my/python-mode-hook)
 ;;black
 (use-package blacken
-  :ensure t)
+  :bind ("C-c b" . blacken-buffer))
 
 ;; https://github.com/proofit404/anaconda-mode/issues/255
 ;; (setq url-proxy-services
@@ -425,7 +551,7 @@ Also, switch to that buffer."
 (use-package magit
   :bind
   ("C-x g" . magit-status)
-  ("C-x M-g" . magit-dispatch-popup))
+  ("C-x M-g" . magit-dispatch))
 
 (use-package git-gutter
   :defer 1
@@ -465,14 +591,16 @@ Also, switch to that buffer."
 
 (defun narrow-or-widen-dwim (p)
   "Widen if buffer is narrowed, narrow-dwim otherwise.
+
 Dwim means: region, org-src-block, org-subtree, or
-defun, whichever applies first. Narrowing to
+defun, whichever applies first.  Narrowing to
 org-src-block actually calls `org-edit-src-code'.
 
 With prefix P, don't widen, just narrow even if buffer
 is already narrowed."
   (interactive "P")
   (declare (interactive-only))
+  (declare-function LaTeX-narrow-to-environment "tex-mode")
   (cond ((and (buffer-narrowed-p) (not p)) (widen))
 	((region-active-p)
 	 (narrow-to-region (region-beginning)
@@ -494,10 +622,10 @@ is already narrowed."
 ;; keymap, that's how much I like this command. Only
 ;; copy it if that's what you want.
 (define-key ctl-x-map "n" #'narrow-or-widen-dwim)
-(add-hook 'LaTeX-mode-hook
-	  (lambda ()
-	    (define-key LaTeX-mode-map "\C-xn"
-	      nil)))
+;; (add-hook 'LaTeX-mode-hook
+;; 	  (lambda ()
+;; 	    (define-key LaTeX-mode-map "\C-xn"
+;; 	      nil)))
 (eval-after-load 'org-src
   '(define-key org-src-mode-map
      "\C-x\C-s" #'org-edit-src-exit))
@@ -508,9 +636,6 @@ is already narrowed."
 
 
 ;; (load "~/Dropbox/mu4econfig.el" t)
-
-;; (setq tramp-shell-prompt-pattern "\\(?:^\\|\\)[^]#$%>
-;;  ]*#?[]#$%>].* *\\(\\[[0-9;]*[a-zA-Z] *\\)*")
 
 (use-package deft
   :bind ("C-c d" . deft)
@@ -572,6 +697,21 @@ is already narrowed."
 (when (string= system-type "darwin")       
   (setq dired-use-ls-dired nil))
 
+(define-key global-map (kbd "C-z") nil)
+
+
+(use-package leetcode
+  :bind
+  ("C-x l" . leetcode)
+  :config
+  (setq leetcode-prefer-language "python"))
+  
 (use-package exec-path-from-shell)
 (when (string= system-type "darwin")
+  ;;delete on macos
+  (setq delete-by-moving-to-trash t)
+  (setq trash-directory "~/.Trash")
   (exec-path-from-shell-initialize))
+
+(provide 'myinit)
+;;; myinit ends here
