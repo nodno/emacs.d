@@ -179,14 +179,9 @@
 (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
 
 (use-package ace-window
-  :bind* ("C-<return>" . ace-window))
-  ;; :init
-  ;; (global-set-key [remap other-window] 'ace-window)
-  ;; (global-set-key (kbd "M-o") 'ace-swap-window)
-  ;; (setq aw-swap-invert t)
-  ;; (custom-set-faces
-  ;;  '(aw-leading-char-face
-  ;;    ((t (:inherit ace-jump-face-foreground :height 3.0))))))
+  :init (setq aw-swap-invert t)
+  :bind* (("C-<return>" . ace-window)
+          ("M-o" . ace-swap-window)))
 
 (use-package winner
   :config
@@ -335,6 +330,7 @@
   :config
   (selected-global-mode 1))
 
+
 (use-package multiple-cursors
   :after (phi-search selected)
   :defer 5
@@ -346,35 +342,39 @@
   ;;   from the kill-ring of main cursor. To yank from the kill-rings of every
   ;;   cursor use yank-rectangle, normally found at C-x r y.
 
-  :bind (("<C-m> ^"     . mc/edit-beginnings-of-lines)
+  :bind (
+         ;; Mark one more occurrence
+         ("<C-m> w"     . mc/mark-next-like-this-word)
+         ("<C-m> y"     . mc/mark-next-like-this-symbol)          
+         ("<C-m> x"     . mc/mark-more-like-this-extended)
+         ;; Mark many occurrences
+         ("<C-m> c"     . mc/mark-all-dwim)
+         ("<C-m> ^"     . mc/edit-beginnings-of-lines)
          ("<C-m> `"     . mc/edit-beginnings-of-lines)
          ("<C-m> $"     . mc/edit-ends-of-lines)
          ("<C-m> '"     . mc/edit-ends-of-lines)
-         ("<C-m> R"     . mc/reverse-regions)
-         ("<C-m> S"     . mc/sort-regions)
          ("<C-m> W"     . mc/mark-all-words-like-this)
          ("<C-m> Y"     . mc/mark-all-symbols-like-this)
          ("<C-m> a"     . mc/mark-all-like-this-dwim)
-         ("<C-m> c"     . mc/mark-all-dwim)
-         ("<C-m> l"     . mc/insert-letters)
-         ("<C-m> n"     . mc/insert-numbers)
          ("<C-m> r"     . mc/mark-all-in-region)
-         ("<C-m> s"     . set-rectangular-region-anchor)
          ("<C-m> %"     . mc/mark-all-in-region-regexp)
-         ("<C-m> t"     . mc/mark-sgml-tag-pair)         ("<C-m> w"     . mc/mark-next-like-this-word)
-         ("<C-m> x"     . mc/mark-more-like-this-extended)
-         ("<C-m> y"     . mc/mark-next-like-this-symbol)
-         ("<C-m> C-x"   . reactivate-mark)
+         ("<C-m> t"     . mc/mark-sgml-tag-pair)
          ("<C-m> C-SPC" . mc/mark-pop)
          ("<C-m> ("     . mc/mark-all-symbols-like-this-in-defun)
          ("<C-m> C-("   . mc/mark-all-words-like-this-in-defun)
          ("<C-m> M-("   . mc/mark-all-like-this-in-defun)
          ("<C-m> ["     . mc/vertical-align-with-space)
          ("<C-m> {"     . mc/vertical-align)
-
          ("S-<down-mouse-1>")
-         ("S-<mouse-1>" . mc/add-cursor-on-click))
-
+         ("S-<mouse-1>" . mc/add-cursor-on-click)
+         ;; Special
+         ("<C-m> s"     . set-rectangular-region-anchor)
+         ("<C-m> R"     . mc/reverse-regions)
+         ("<C-m> S"     . mc/sort-regions)
+         ("<C-m> l"     . mc/insert-letters)
+         ("<C-m> n"     . mc/insert-numbers)
+         ("<C-m> C-x"   . reactivate-mark))
+ 
   :bind (:map selected-keymap
               ("c"   . mc/edit-lines)
               ("."   . mc/mark-next-like-this)
@@ -584,10 +584,10 @@ Also, switch to that buffer."
 ;;   (global-hungry-delete-mode))
 
 (use-package expand-region
-  :config
-  (global-set-key (kbd "C-=") 'er/expand-region))
+  :bind ("C-=" . er/expand-region))
 
-(use-package iedit)
+(use-package iedit
+  :disabled t)
 
 (defun narrow-or-widen-dwim (p)
   "Widen if buffer is narrowed, narrow-dwim otherwise.
@@ -713,5 +713,13 @@ is already narrowed."
   (setq trash-directory "~/.Trash")
   (exec-path-from-shell-initialize))
 
+;; (use-package personal
+;; ;;  :load-path "~/.emacs.d"
+;;   :bind (("M-A m" . my-open-Messages)
+;;          ("M-A t" . my-open-Things3)
+;;          ("M-A w" . my-open-WeChat)
+;;          ("M-A s" . my-open-Safari)
+;;          ("M-A f" . my-open-Finder)))
+  
 (provide 'myinit)
 ;;; myinit ends here
