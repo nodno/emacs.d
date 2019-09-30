@@ -4,6 +4,7 @@
 
 ;;; Code:
 ;; use-package-setting:
+
 (setq use-package-always-ensure t)
 (setq use-package-verbose t)
 ;; suppress warning
@@ -16,6 +17,8 @@
 (blink-cursor-mode -1)
 (fset 'yes-or-no-p 'y-or-n-p)
 (global-set-key (kbd "<f5>") 'revert-buffer)
+;; ns-popup-font-panel was bound to s-t.
+(global-unset-key (kbd "s-t"))
 
 ;; Keymaps
 
@@ -48,7 +51,7 @@
 
 ;; Opacity
 (defun sanityinc/adjust-opacity (frame incr)
-  "Adjust-opacity copied from SachaChua."
+  "Adjust-opacity copied from SachaChua.works on the current FRAME, INCR by 2/-1."
     (let* ((oldalpha (or (frame-parameter frame 'alpha) 100))
 	   (newalpha (+ incr oldalpha)))
       (when (and (<= frame-alpha-lower-limit newalpha) (>= 100 newalpha))
@@ -63,7 +66,7 @@
   (global-set-key
    (kbd "M-C-0")
    (lambda () (interactive) (modify-frame-parameters nil `((alpha . 100)))))
-;; frame-title
+
 (setq frame-title-format
   '(:eval
     (if buffer-file-name
@@ -74,16 +77,38 @@
 	  (convert-standard-filename buffer-file-name)))
       (buffer-name))))
 
+
+;; (defun er-open-with (arg)
+;;   "Open visited file in default external program.
+
+;; With a prefix ARG always prompt for command to use."
+;;   (interactive "P")
+;;   (when buffer-file-name
+;;     (shell-command (concat
+;; 		    (cond
+;; 		     ((and (not arg) (eq system-type 'darwin)) "open")
+;; 		     ((and (not arg) (member system-type '(gnu gnu/linux gnu/kfreebsd))) "xdg-open")
+;; 		     (t (read-shell-command "Open current file with: ")))
+;; 		    " "
+;; 		    (shell-quote-argument buffer-file-name)))))
+;; (global-set-key (kbd "C-c o") #'er-open-with)
+
+;;; Libraries
 (use-package diminish)
-;; try
+
+
 (use-package try
   :defer 10)
 
-;; which-key
 (use-package which-key
+  :diminish (which-key-mode)
   :defer 3
   :config
   (which-key-mode))
+
+(use-package eldoc
+  :diminish)
+
 ;; org-mode
 (use-package org-bullets
   :defer t
@@ -100,7 +125,7 @@
 (setq org-default-notes-file (concat org-directory "/notes.org"))
 
 (defun org-file-path (filename)
-  "Return the absolute address of an org file, given its relative name."
+  "Return the absolute address of an org file, given its relative name FILENAME."
   (concat (file-name-as-directory org-directory) filename))
 
 (setq org-index-file (org-file-path "index.org"))
@@ -140,7 +165,9 @@
 ;; for python
 (org-babel-do-load-languages
  'org-babel-load-languages
- '((python . t)))
+ '((python . t)
+   (emacs-lisp . t)
+   (shell . t)))
 ;; Refiling according to the document’s hierarchy.
 (setq org-refile-use-outline-path t)
 (setq org-outline-path-complete-in-steps nil)
@@ -189,6 +216,7 @@
 
 ;; based on http://tuhdo.github.io/helm-intro.html
 (use-package helm
+  :diminish (helm-mode)
   :bind (("M-x" . helm-M-x)
          ("M-y" . helm-show-kill-ring)
          ("C-c h" . helm-command-prefix)
@@ -238,6 +266,27 @@
   :config
   (global-set-key (kbd "C-x C-d") 'helm-browse-project))
 
+(use-package helm-dash
+  ;;  fixed dash-doc.el temporary-file-directory to /tmp/ for Catalina
+  :commands helm-dash
+  :config
+  (setq helm-dash-enable-debugging t)
+  (setq helm-dash-browser-func (quote eww))
+  (setq helm-dash-docsets-path "/Users/zhaoweipu/Library/Application Support/Dash/DocSets/")
+  (add-to-list 'helm-dash-common-docsets "Django")
+  (add-to-list 'helm-dash-common-docsets "Python 2")
+  (add-to-list 'helm-dash-common-docsets "Python 3")
+  (add-to-list 'helm-dash-common-docsets "Python 3")
+  (add-to-list 'helm-dash-common-docsets "Redis"))
+
+
+
+(use-package dash-at-point
+  :bind ("C-c D" . dash-at-point))
+  ;; (add-to-list 'dash-at-point-mode-alist
+  ;;              '(python-mode . "python")))
+
+
 (use-package projectile
   :bind-keymap
   ("C-c p" . projectile-command-map)
@@ -260,6 +309,12 @@
   :defer 7
   :config
   (helm-descbinds-mode))
+
+(use-package command-log-mode
+  :bind (("C-c e M" . command-log-mode)
+         ("C-c e L" . clm/open-command-log-buffer))
+  :config (setq clm/log-command-exceptions* nil))
+
 
 (use-package ivy
   :disabled t
@@ -435,6 +490,16 @@
 (use-package flycheck-color-mode-line
   :hook (flycheck-mode . flycheck-color-mode-line-mode))
 
+(use-package smart-mode-line
+  :disabled t
+  :config
+  ;; See https://github.com/Malabarba/smart-mode-line/issues/217
+  (setq mode-line-format (delq 'mode-line-position mode-line-format))
+  (sml/setup)
+
+  (sml/apply-theme 'dark)
+  (remove-hook 'display-time-hook 'sml/propertize-time-string))
+
 ;; (use-package linum-mode
 ;;   :hook
 ;;   (prog-mode))
@@ -495,15 +560,17 @@ Also, switch to that buffer."
   (define-key anaconda-mode-map  (kbd "M-,") 'pop-tag-mark)
   (define-key anaconda-mode-map  (kbd "M-r") nil)
   (define-key anaconda-mode-map  (kbd "C-c C-o") 'elpy-occur-definitions)
-  (setq anaconda-mode-localhost-address "localhost")
-  (use-package company-anaconda
-  :ensure t)
-  (defun my/python-mode-hook ()
-    (add-to-list 'company-backends 'company-anaconda))
-  (add-hook 'python-mode-hook 'my/python-mode-hook))
+  (setq anaconda-mode-localhost-address "localhost"))
+
+(use-package company-anaconda
+  :after (company anaconda-mode))
+
+(eval-after-load "company"
+  '(add-to-list 'company-backends 'company-anaconda))
 
 ;;black
 (use-package blacken
+  :ensure t
   :bind ("C-c b" . blacken-buffer))
 
 ;; https://github.com/proofit404/anaconda-mode/issues/255
@@ -517,14 +584,24 @@ Also, switch to that buffer."
   :config
   (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.vue?\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
   (setq web-mode-engines-alist
         '(("django"    . "\\.html\\'")))
   (setq web-mode-ac-sources-alist
         '(("css" . (ac-source-css-property))
           ("vue" . (ac-source-words-in-buffer ac-source-abbrev))
           ("html" . (ac-source-words-in-buffer ac-source-abbrev))))
-(setq web-mode-enable-auto-closing t))
-(setq web-mode-enable-auto-quoting t) ; this fixes the quote problem I mentioned
+  (setq-local standard-indent 2)
+  (setq web-mode-enable-current-element-highlight t)
+  (setq web-mode-enable-current-column-highlight t)
+  (setq web-mode-enable-auto-closing t)
+  (setq web-mode-enable-auto-quoting t)) ;; this fixes the quote problem I mentioned
 
 (use-package php-mode
   :mode ("\\.php\\'" . php-mode)
@@ -537,7 +614,7 @@ Also, switch to that buffer."
   (setq lua-indent-level 4))
 
 (use-package nginx-mode
-  :defer 6)
+  :commands nginx-mode)
 
 (use-package yasnippet
   :defer 3
@@ -547,6 +624,9 @@ Also, switch to that buffer."
   (yas-global-mode 1))
 
 (use-package yasnippet-snippets)
+
+(use-package expand-region
+  :bind ("C-=" . er/expand-region))
 
 (use-package magit
   :bind
@@ -558,6 +638,21 @@ Also, switch to that buffer."
   :diminish git-gutter-mode
   :init
   (global-git-gutter-mode +1))
+
+(use-package regex-tool
+  :commands regex-tool)
+
+(defun regex-tool-perl ()
+  "Set perl as backend and run regex-tool."
+  (interactive)
+  (setq regex-tool-backend 'perl)
+  (regex-tool))
+  
+(defun regex-tool-emacs ()
+  "Set perl as backend and run regex-tool."
+  (interactive)
+  (setq regex-tool-backend 'emacs)
+  (regex-tool))
 
 ;; use C-x u to see the visual undo tree
 ;; use C-x p / n / f b
@@ -658,20 +753,6 @@ is already narrowed."
 ;;   :config
 ;;   (pdf-loader-install))
 
-;; (defun er-open-with (arg)
-;;   "Open visited file in default external program.
-
-;; With a prefix ARG always prompt for command to use."
-;;   (interactive "P")
-;;   (when buffer-file-name
-;;     (shell-command (concat
-;; 		    (cond
-;; 		     ((and (not arg) (eq system-type 'darwin)) "open")
-;; 		     ((and (not arg) (member system-type '(gnu gnu/linux gnu/kfreebsd))) "xdg-open")
-;; 		     (t (read-shell-command "Open current file with: ")))
-;; 		    " "
-;; 		    (shell-quote-argument buffer-file-name)))))
-;; (global-set-key (kbd "C-c o") #'er-open-with)
 
 ;; sdcv
 (use-package showtip
@@ -704,7 +785,7 @@ is already narrowed."
   :bind
   ("C-x l" . leetcode)
   :config
-  (setq leetcode-prefer-language "python"))
+  (setq leetcode-prefer-language "python3"))
   
 (use-package exec-path-from-shell)
 (when (string= system-type "darwin")
@@ -720,6 +801,35 @@ is already narrowed."
 ;;          ("M-A w" . my-open-WeChat)
 ;;          ("M-A s" . my-open-Safari)
 ;;          ("M-A f" . my-open-Finder)))
+
+
+(use-package tramp
+  :defer 5
+  :config
+  ;; jww (2018-02-20): Without this change, tramp ends up sending hundreds of
+  ;; shell commands to the remote side to ask what the temporary directory is.
+  (put 'temporary-file-directory 'standard-value '("/tmp"))
+  (setq tramp-auto-save-directory "~/.cache/emacs/backups"
+        tramp-persistency-file-name "~/.emacs.d/data/tramp"))
+
+(use-package tramp-sh
+  :load-path "lisp")
+
+(use-package link-hint
+  :defer 10
+  :bind ("C-c C-o" . link-hint-open-link)
+  :config
+  (add-hook 'eww-mode-hook
+            #'(lambda () (bind-key "f" #'link-hint-open-link eww-mode-map))))
+  ;; :config
+  ;; (add-to-list 'tramp-remote-path "/run/current-system/sw/bin"))
+
+;; (use-package treemacs
+;;   :commands treemacs)
+
+;; (use-package treemacs-projectile
+;;   :after treemacs projectile
+;;   :ensure t)
   
 (provide 'myinit)
 ;;; myinit ends here
