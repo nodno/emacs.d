@@ -22,7 +22,6 @@
 
 ;; Keymaps
 
-
 (define-key input-decode-map [?\C-m] [C-m])
 
 (eval-and-compile
@@ -166,6 +165,7 @@
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((python . t)
+   (perl . t)
    (emacs-lisp . t)
    (shell . t)))
 ;; Refiling according to the document’s hierarchy.
@@ -273,6 +273,7 @@
   (setq helm-dash-enable-debugging t)
   (setq helm-dash-browser-func (quote eww))
   (setq helm-dash-docsets-path "/Users/zhaoweipu/Library/Application Support/Dash/DocSets/")
+  (add-to-list 'helm-dash-common-docsets "Go")  
   (add-to-list 'helm-dash-common-docsets "Django")
   (add-to-list 'helm-dash-common-docsets "Python 2")
   (add-to-list 'helm-dash-common-docsets "Python 3")
@@ -385,6 +386,43 @@
   :config
   (selected-global-mode 1))
 
+
+;; (use-package mule
+;;   :no-require t
+;;   :config
+;;   (prefer-coding-system 'utf-8)
+;;   (set-terminal-coding-system 'utf-8)
+;;   (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
+
+;; (use-package multi-term
+;;   :bind (("C-c t" . multi-term-next)
+;;          ("C-c T" . multi-term))
+;;   :init
+;;   (defun screen ()
+;;     (interactive)
+;;     (let (term-buffer)
+;;       ;; Set buffer.
+;;       (setq term-buffer
+;;             (let ((multi-term-program (executable-find "screen"))
+;;                   (multi-term-program-switches "-DR"))
+;;               (multi-term-get-buffer)))
+;;       (set-buffer term-buffer)
+;;       (multi-term-internal)
+;;       (switch-to-buffer term-buffer)))
+
+;;   :config
+;;   (require 'term)
+
+;;   (defalias 'my-term-send-raw-at-prompt 'term-send-raw)
+
+  ;; (defun my-term-end-of-buffer ()
+  ;;   (interactive)
+  ;;   (call-interactively #'end-of-buffer)
+  ;;   (if (and (eobp) (bolp))
+  ;;       (delete-char -1)))
+
+  ;; (defadvice term-process-pager (after term-process-rebind-keys activate)
+  ;;   (define-key term-pager-break-map  "\177" 'term-pager-back-page)))
 
 (use-package multiple-cursors
   :after (phi-search selected)
@@ -613,6 +651,11 @@ Also, switch to that buffer."
   :config
   (setq lua-indent-level 4))
 
+(use-package go-mode
+  :mode ("\\.go\\'" . go-mode))
+
+
+
 (use-package nginx-mode
   :commands nginx-mode)
 
@@ -787,12 +830,22 @@ is already narrowed."
   :config
   (setq leetcode-prefer-language "python3"))
   
-(use-package exec-path-from-shell)
+(use-package exec-path-from-shell
+  :config (dolist (var '("SSH_AUTH_SOCK" "SSH_AGENT_PID" "GPG_AGENT_INFO" "LANG" "LC_CTYPE"))
+            (add-to-list 'exec-path-from-shell-variables var)))
+
+
+;; (when (or (memq window-system '(mac ns x))
+;;           (unless (memq system-type '(ms-dos windows-nt))
+;;             (daemonp)))
+;;   (exec-path-from-shell-initialize))
+
 (when (string= system-type "darwin")
   ;;delete on macos
   (setq delete-by-moving-to-trash t)
   (setq trash-directory "~/.Trash")
   (exec-path-from-shell-initialize))
+
 
 ;; (use-package personal
 ;; ;;  :load-path "~/.emacs.d"
@@ -830,6 +883,7 @@ is already narrowed."
 ;; (use-package treemacs-projectile
 ;;   :after treemacs projectile
 ;;   :ensure t)
+
   
 (provide 'myinit)
 ;;; myinit ends here
