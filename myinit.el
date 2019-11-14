@@ -654,6 +654,12 @@ Also, switch to that buffer."
 (use-package go-mode
   :mode ("\\.go\\'" . go-mode))
 
+(add-hook 'go-mode-hook (lambda () (setq tab-width 4)))
+;; https://github.com/golangci/golangci-lint
+;; https://github.com/weijiangan/flycheck-golangci-lint
+(use-package flycheck-golangci-lint
+  :ensure t
+  :hook (go-mode . flycheck-golangci-lint-setup))
 
 
 (use-package nginx-mode
@@ -847,13 +853,14 @@ is already narrowed."
   (exec-path-from-shell-initialize))
 
 
-;; (use-package personal
-;; ;;  :load-path "~/.emacs.d"
-;;   :bind (("M-A m" . my-open-Messages)
-;;          ("M-A t" . my-open-Things3)
-;;          ("M-A w" . my-open-WeChat)
-;;          ("M-A s" . my-open-Safari)
-;;          ("M-A f" . my-open-Finder)))
+(use-package personal
+  :load-path "lisp"
+
+  :bind (("M-M" . my-open-Messages)
+         ("M-T" . my-open-Things3)
+         ("M-W" . my-open-WeChat)
+         ("M-S" . my-open-Safari)
+         ("M-F" . my-open-Finder)))
 
 
 (use-package tramp
