@@ -491,10 +491,12 @@
          ("<C-m> M-h" . ace-mc-add-single-cursor)))
 
 (use-package company
-    :diminish (company-mode)
+  :diminish (company-mode)
   :hook (prog-mode . company-mode)
   :config
-  (setq company-idle-delay 0))
+  (setq company-idle-delay 0)
+  (setq company-minimum-prefix-length 1))  
+
 
 (use-package color-theme-modern
   :disabled t)
@@ -657,9 +659,44 @@ Also, switch to that buffer."
 (add-hook 'go-mode-hook (lambda () (setq tab-width 4)))
 ;; https://github.com/golangci/golangci-lint
 ;; https://github.com/weijiangan/flycheck-golangci-lint
-(use-package flycheck-golangci-lint
+;; (use-package flycheck-golangci-lint
+;;   :ensure t
+;;   :hook (go-mode . flycheck-golangci-lint-setup))
+(setenv "GO111MODULE" "on")
+
+(use-package lsp-mode
   :ensure t
-  :hook (go-mode . flycheck-golangci-lint-setup))
+  :commands (lsp lsp-deferred)
+  :custom
+  ;; (lsp-auto-guess-root t)
+  (lsp-enable-snippet nil)
+  (lsp-prefer-flymake nil) ; Use flycheck instead of flymake
+  ;; :hook (go-mode . lsp-deferred))
+  :hook (go-mode . lsp))
+
+
+;; Set up before-save hooks to format buffer and add/delete imports.
+;; Make sure you don't have other gofmt/goimports hooks enabled.
+(defun lsp-go-install-save-hooks ()
+  (add-hook 'before-save-hook #'lsp-format-buffer t t)
+  (add-hook 'before-save-hook #'lsp-organize-imports t t))
+(add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
+
+;; Optional - provides fancier overlays.
+(use-package lsp-ui
+  :ensure t
+  :commands lsp-ui-mode)
+
+;; company-lsp integrates company mode completion with lsp-mode.
+;; completion-at-point also works out of the box but doesn't support snippets.
+(use-package company-lsp
+  :ensure t
+  :commands company-lsp)
+
+;; (lsp-register-custom-settings
+;;  '(("gopls.completeUnimported" t t)
+;;    ("gopls.staticcheck" t t)))
+;;; end go
 
 
 (use-package nginx-mode
