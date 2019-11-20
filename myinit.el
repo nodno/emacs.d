@@ -662,7 +662,7 @@ Also, switch to that buffer."
 ;; (use-package flycheck-golangci-lint
 ;;   :ensure t
 ;;   :hook (go-mode . flycheck-golangci-lint-setup))
-(setenv "GO111MODULE" "on")
+;;(setenv "GO111MODULE" "on")
 
 (use-package lsp-mode
   :ensure t
@@ -696,6 +696,8 @@ Also, switch to that buffer."
 ;; (lsp-register-custom-settings
 ;;  '(("gopls.completeUnimported" t t)
 ;;    ("gopls.staticcheck" t t)))
+
+(use-package go-playground)
 ;;; end go
 
 
