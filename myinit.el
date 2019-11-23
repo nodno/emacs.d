@@ -855,11 +855,11 @@ is already narrowed."
 (use-package pos-tip
   :ensure t)
 
-;;(use-package sdcv
-;;  :load-path "~/workspace/git/sdcv.el"
-;;  :demand t
-;;  :config
-;;  (global-set-key (kbd "C-x t") 'sdcv-search-pointer))
+(use-package sdcv
+  :load-path "lisp"
+  :demand t
+  :config
+  (global-set-key (kbd "C-x t") 'sdcv-search-pointer))
 
 (use-package wsd-mode
   :defer 3
