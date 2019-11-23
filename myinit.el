@@ -1,4 +1,4 @@
-;;; myinit.el --- Config file for my emacs
+;; myinit.el --- Config file for my emacs
 ;;; Commentary:
 ;;; My config file, all the packages I'm using, except use-package.
 
@@ -14,7 +14,6 @@
 (setq inhibit-startup-message t)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
-(blink-cursor-mode -1)
 (fset 'yes-or-no-p 'y-or-n-p)
 (global-set-key (kbd "<f5>") 'revert-buffer)
 ;; ns-popup-font-panel was bound to s-t.
@@ -107,6 +106,11 @@
 
 (use-package eldoc
   :diminish)
+(use-package smart-cursor-color
+  :ensure t
+  :defer 3
+  :config
+  (smart-cursor-color-mode +1))
 
 ;; org-mode
 (use-package org-bullets
@@ -274,10 +278,10 @@
   (setq helm-dash-browser-func (quote eww))
   (setq helm-dash-docsets-path "/Users/zhaoweipu/Library/Application Support/Dash/DocSets/")
   (add-to-list 'helm-dash-common-docsets "Go")  
-  (add-to-list 'helm-dash-common-docsets "Django")
-  (add-to-list 'helm-dash-common-docsets "Python 2")
-  (add-to-list 'helm-dash-common-docsets "Python 3")
-  (add-to-list 'helm-dash-common-docsets "Python 3")
+  ;; (add-to-list 'helm-dash-common-docsets "Django")
+  ;; (add-to-list 'helm-dash-common-docsets "Python 2")
+  ;; (add-to-list 'helm-dash-common-docsets "Python 3")
+  ;; (add-to-list 'helm-dash-common-docsets "Python 3")
   (add-to-list 'helm-dash-common-docsets "Redis"))
 
 
@@ -697,7 +701,8 @@ Also, switch to that buffer."
 ;;  '(("gopls.completeUnimported" t t)
 ;;    ("gopls.staticcheck" t t)))
 
-(use-package go-playground)
+(use-package go-playground
+  :bind ("C-c g" . go-playground-exec))
 ;;; end go
 
 
@@ -831,11 +836,11 @@ is already narrowed."
 	deft-use-filter-string-for-filename t))
 
 
-(setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig")
-(use-package pdf-tools
-  :magic ("%PDF" . pdf-view-mode)
-  :config
-  (pdf-tools-install :no-query))
+;; (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig")
+;; (use-package pdf-tools
+;;   :magic ("%PDF" . pdf-view-mode)
+;;   :config
+;;   (pdf-tools-install :no-query))
 
 ;; (use-package pdf-tools
 ;;   :config
@@ -850,11 +855,11 @@ is already narrowed."
 (use-package pos-tip
   :ensure t)
 
-(use-package sdcv
-  :load-path "~/workspace/git/sdcv.el"
-  :demand t
-  :config
-  (global-set-key (kbd "C-x t") 'sdcv-search-pointer))
+;;(use-package sdcv
+;;  :load-path "~/workspace/git/sdcv.el"
+;;  :demand t
+;;  :config
+;;  (global-set-key (kbd "C-x t") 'sdcv-search-pointer))
 
 (use-package wsd-mode
   :defer 3
