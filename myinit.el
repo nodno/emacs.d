@@ -18,7 +18,7 @@
 (global-set-key (kbd "<f5>") 'revert-buffer)
 ;; ns-popup-font-panel was bound to s-t.
 (global-unset-key (kbd "s-t"))
-
+(global-hl-line-mode 1)
 ;; Keymaps
 
 (define-key input-decode-map [?\C-m] [C-m])
