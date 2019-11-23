@@ -851,7 +851,7 @@ is already narrowed."
   :ensure t)
 
 (use-package sdcv
-  :load-path "~/workspace/git/sdcv.el"
+  :load-path "lisp"
   :demand t
   :config
   (global-set-key (kbd "C-x t") 'sdcv-search-pointer))
