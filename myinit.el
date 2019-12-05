@@ -112,6 +112,7 @@
   :config
   (smart-cursor-color-mode +1))
 
+
 ;; org-mode
 (use-package org-bullets
   :defer t
@@ -175,6 +176,8 @@
 ;; Refiling according to the document’s hierarchy.
 (setq org-refile-use-outline-path t)
 (setq org-outline-path-complete-in-steps nil)
+
+(setq org-src-tab-acts-natively t)
 
 ;; Hit C-c i to quickly open up my todo list.
 (defun my/open-index-file ()
@@ -291,6 +294,9 @@
   ;; (add-to-list 'dash-at-point-mode-alist
   ;;              '(python-mode . "python")))
 
+(use-package protobuf-mode
+  :ensure t
+  :mode ("\\.proto\\'" . protobuf-mode))
 
 (use-package projectile
   :bind-keymap
@@ -518,6 +524,7 @@
 (use-package ox-reveal
       :defer 5
       :load-path "~/workspace/git/org-reveal")
+;;      :load-path "lisp")
 ;;      :hook org-mode)
 
 ;;(setq org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
@@ -560,7 +567,7 @@
 (use-package pyvenv
   :hook (python-mode . pyvenv-mode)
   :config
-  (setenv "WORKON_HOME" "/usr/local/anaconda3/envs")
+  (setenv "WORKON_HOME" "/Users/zhaoweipu/opt/anaconda3/envs")
   (pyvenv-workon "py3"))
 
 (use-package elpy
@@ -657,8 +664,22 @@ Also, switch to that buffer."
   :config
   (setq lua-indent-level 4))
 
+(defun zwp/go-occour-definitions()
+  "Display an occur buffer of all definitions in the current buffer.
+Also, switch to that buffer."
+  (interactive)
+  (let ((list-matching-lines-face nil))
+    (occur "^\s*\\(type\\|func\\|var\\|const\\)\s"))
+  (let ((window (get-buffer-window "*Occur*")))
+    (if window
+        (select-window window)
+      (switch-to-buffer "*Occur*"))))
+
 (use-package go-mode
-  :mode ("\\.go\\'" . go-mode))
+  :mode ("\\.go\\'" . go-mode)
+  :config
+  ;; TODO: check where this C-c C-o doesn't work
+  (define-key go-mode-map  (kbd "C-c C-o") 'zwp/go-occour-definitions))
 
 (add-hook 'go-mode-hook (lambda () (setq tab-width 4)))
 ;; https://github.com/golangci/golangci-lint
@@ -928,8 +949,8 @@ is already narrowed."
   ;; :config
   ;; (add-to-list 'tramp-remote-path "/run/current-system/sw/bin"))
 
-;; (use-package treemacs
-;;   :commands treemacs)
+(use-package treemacs
+  :commands treemacs)
 
 ;; (use-package treemacs-projectile
 ;;   :after treemacs projectile
