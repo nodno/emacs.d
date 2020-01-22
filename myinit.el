@@ -106,6 +106,7 @@
 
 (use-package eldoc
   :diminish)
+
 (use-package smart-cursor-color
   :ensure t
   :defer 3
@@ -297,6 +298,13 @@
 (use-package protobuf-mode
   :ensure t
   :mode ("\\.proto\\'" . protobuf-mode))
+
+(defconst my-protobuf-style
+  '((c-basic-offset . 4)
+    (indent-tabs-mode . nil)))
+
+(add-hook 'protobuf-mode-hook
+          (lambda () (c-add-style "my-style" my-protobuf-style t)))
 
 (use-package projectile
   :bind-keymap
@@ -696,8 +704,8 @@ Also, switch to that buffer."
   ;; (lsp-auto-guess-root t)
   (lsp-enable-snippet nil)
   (lsp-prefer-flymake nil) ; Use flycheck instead of flymake
-  ;; :hook (go-mode . lsp-deferred))
-  :hook (go-mode . lsp))
+  :hook (go-mode . lsp-deferred))
+  ;; :hook ((go-mode . lsp))
 
 
 ;; Set up before-save hooks to format buffer and add/delete imports.
@@ -724,6 +732,7 @@ Also, switch to that buffer."
 
 (use-package go-playground
   :bind ("C-c g" . go-playground-exec))
+
 ;;; end go
 
 
@@ -858,15 +867,32 @@ is already narrowed."
 
 
 ;; (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig")
-;; (use-package pdf-tools
-;;   :magic ("%PDF" . pdf-view-mode)
-;;   :config
-;;   (pdf-tools-install :no-query))
+(use-package pdf-tools
+  :magic ("%PDF" . pdf-view-mode)
+  :config
+  (pdf-tools-install :no-query))
 
 ;; (use-package pdf-tools
 ;;   :config
 ;;   (pdf-loader-install))
 
+(use-package js2-mode
+  :mode ("\\.js\\'" . js2-mode))
+
+(setq js-indent-level 2)
+
+(use-package js2-refactor)
+(use-package xref-js2)
+(add-hook 'js2-mode-hook #'js2-refactor-mode)
+(js2r-add-keybindings-with-prefix "C-c C-r")
+(define-key js2-mode-map (kbd "C-k") #'js2r-kill)
+
+;; js-mode (which js2 is based on) binds "M-." which conflicts with xref, so
+;; unbind it.
+(define-key js-mode-map (kbd "M-.") nil)
+
+(add-hook 'js2-mode-hook (lambda ()
+  (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
 
 ;; sdcv
 (use-package showtip
@@ -885,7 +911,7 @@ is already narrowed."
 (use-package wsd-mode
   :defer 3
   :config
-  (setq wsd-style "napkin"))
+  (setq wsd-style "modern-blue"))
 
 (delete-file "~/Library/Colors/Emacs.clr")
 
@@ -927,6 +953,7 @@ is already narrowed."
          ("M-S" . my-open-Safari)
          ("M-F" . my-open-Finder)))
 
+(use-package sudo-edit)
 
 (use-package tramp
   :defer 5
@@ -936,7 +963,7 @@ is already narrowed."
   (put 'temporary-file-directory 'standard-value '("/tmp"))
   (setq tramp-auto-save-directory "~/.cache/emacs/backups"
         tramp-persistency-file-name "~/.emacs.d/data/tramp"))
-
+;;(setq tramp-default-user "zhaoweipu")
 (use-package tramp-sh
   :load-path "lisp")
 
