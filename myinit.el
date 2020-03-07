@@ -116,7 +116,7 @@
 
 ;; org-mode
 (use-package org-bullets
-  :defer t
+;;  :defer t
   :bind (("C-c l" . org-store-link)
 	 ("C-c a" . org-agenda)
 	 ("C-c c" . org-iswitchb))
@@ -444,7 +444,7 @@
 
 (use-package multiple-cursors
   :after (phi-search selected)
-  :defer 5
+;;  :defer 5
 
   ;; - Sometimes you end up with cursors outside of your view. You can scroll
   ;;   the screen to center on each cursor with `C-v` and `M-v`.
@@ -698,7 +698,6 @@ Also, switch to that buffer."
 ;;(setenv "GO111MODULE" "on")
 
 (use-package lsp-mode
-  :ensure t
   :commands (lsp lsp-deferred)
   :custom
   ;; (lsp-auto-guess-root t)
@@ -717,14 +716,16 @@ Also, switch to that buffer."
 
 ;; Optional - provides fancier overlays.
 (use-package lsp-ui
-  :ensure t
+  :init
+  (setq lsp-ui-doc-position 'top)
   :commands lsp-ui-mode)
 
 ;; company-lsp integrates company mode completion with lsp-mode.
 ;; completion-at-point also works out of the box but doesn't support snippets.
 (use-package company-lsp
-  :ensure t
   :commands company-lsp)
+
+(use-package helm-lsp :commands helm-lsp-workspace-symbol)
 
 ;; (lsp-register-custom-settings
 ;;  '(("gopls.completeUnimported" t t)
@@ -868,6 +869,7 @@ is already narrowed."
 
 ;; (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig")
 (use-package pdf-tools
+  :defer 6
   :magic ("%PDF" . pdf-view-mode)
   :config
   (pdf-tools-install :no-query))
@@ -879,10 +881,14 @@ is already narrowed."
 (use-package js2-mode
   :mode ("\\.js\\'" . js2-mode))
 
-(setq js-indent-level 2)
+(setq js-indent-level 4)
 
-(use-package js2-refactor)
-(use-package xref-js2)
+(use-package js2-refactor
+  :defer 6)
+
+(use-package xref-js2
+  :defer 7)
+
 (add-hook 'js2-mode-hook #'js2-refactor-mode)
 (js2r-add-keybindings-with-prefix "C-c C-r")
 (define-key js2-mode-map (kbd "C-k") #'js2r-kill)
@@ -893,6 +899,10 @@ is already narrowed."
 
 (add-hook 'js2-mode-hook (lambda ()
   (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
+
+
+;; (with-eval-after-load 'lsp-mode
+;;   (mapc #'lsp-flycheck-add-mode '(typescript-mode js-mode css-mode vue-html-mode)))
 
 ;; sdcv
 (use-package showtip
@@ -968,7 +978,7 @@ is already narrowed."
   :load-path "lisp")
 
 (use-package link-hint
-  :defer 10
+;;  :defer 10
   :bind ("C-c C-o" . link-hint-open-link)
   :config
   (add-hook 'eww-mode-hook
