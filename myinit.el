@@ -4,11 +4,18 @@
 
 ;;; Code:
 ;; use-package-setting:
-
 (setq use-package-always-ensure t)
 (setq use-package-verbose t)
 ;; suppress warning
 (setq ad-redefinition-action 'accept)
+
+;; backup copy from SachaChua
+(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+
+(setq delete-old-versions -1)
+(setq version-control t)
+(setq vc-make-backup-files t)
+(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
 
 ;; interface tweaks
 (setq inhibit-startup-message t)
@@ -23,37 +30,14 @@
 
 (define-key input-decode-map [?\C-m] [C-m])
 
-(eval-and-compile
-  (mapc #'(lambda (entry)
-            (define-prefix-command (cdr entry))
-            (bind-key (car entry) (cdr entry)))
-        '(("C-,"   . my-ctrl-comma-map)
-          ("<C-m>" . my-ctrl-m-map)
-
-          ("C-h e" . my-ctrl-h-e-map)
-          ("C-h x" . my-ctrl-h-x-map)
-
-          ("C-c b" . my-ctrl-c-b-map)
-          ("C-c e" . my-ctrl-c-e-map)
-          ("C-c m" . my-ctrl-c-m-map)
-          ("C-c w" . my-ctrl-c-w-map)
-          ("C-c y" . my-ctrl-c-y-map)
-          ("C-c H" . my-ctrl-c-H-map)
-          ("C-c N" . my-ctrl-c-N-map)
-          ("C-c (" . my-ctrl-c-open-paren-map)
-          ("C-c -" . my-ctrl-c-minus-map)
-          ("C-c =" . my-ctrl-c-equals-map)
-          ("C-c ." . my-ctrl-c-r-map)
-          )))
-
 
 ;; Opacity
 (defun sanityinc/adjust-opacity (frame incr)
   "Adjust-opacity copied from SachaChua.works on the current FRAME, INCR by 2/-1."
-    (let* ((oldalpha (or (frame-parameter frame 'alpha) 100))
-	   (newalpha (+ incr oldalpha)))
-      (when (and (<= frame-alpha-lower-limit newalpha) (>= 100 newalpha))
-	(modify-frame-parameters frame (list (cons 'alpha newalpha))))))
+  (let* ((oldalpha (or (frame-parameter frame 'alpha) 100))
+         (newalpha (+ incr oldalpha)))
+    (when (and (<= frame-alpha-lower-limit newalpha) (>= 100 newalpha))
+      (modify-frame-parameters frame (list (cons 'alpha newalpha))))))
 
   (global-set-key
    (kbd "M-C-8")
@@ -94,133 +78,117 @@
 ;;; Libraries
 (use-package diminish)
 
+;;; Packages
+(use-package ace-jump-mode
+  :defer t)
 
-(use-package try
-  :defer 10)
-
-(use-package which-key
-  :diminish (which-key-mode)
-  :defer 3
-  :config
-  (which-key-mode))
-
-(use-package eldoc
-  :diminish)
-
-(use-package smart-cursor-color
-  :ensure t
-  :defer 3
-  :config
-  (smart-cursor-color-mode +1))
-
-
-;; org-mode
-(use-package org-bullets
-;;  :defer t
-  :bind (("C-c l" . org-store-link)
-	 ("C-c a" . org-agenda)
-	 ("C-c c" . org-iswitchb))
-  :hook (org-mode . org-bullets-mode))
-
-(require 'org)
-(setq-default major-mode 'org-mode)
-;;steal from hrs
-(setq org-directory "~/Dropbox/notes")
-
-(setq org-default-notes-file (concat org-directory "/notes.org"))
-
-(defun org-file-path (filename)
-  "Return the absolute address of an org file, given its relative name FILENAME."
-  (concat (file-name-as-directory org-directory) filename))
-
-(setq org-index-file (org-file-path "index.org"))
-(setq org-default-notes-file org-index-file)
-(setq org-archive-location
-      (concat (org-file-path "archive.org") "::* From %s"))
-
-(setq org-agenda-files (list org-index-file))
-
-(defun hrs/mark-done-and-archive ()
-  "Mark the state of an org-mode item as DONE and archive it."
-  (interactive)
-  (org-todo 'done)
-  (org-archive-subtree))
-
-(define-key org-mode-map (kbd "C-c C-x C-s") 'hrs/mark-done-and-archive)
-
-(setq org-log-done 'time)
-;;(setq org-agenda-files (list "~/Dropbox/notes/schedule.org"))
-
-(add-to-list 'org-structure-template-alist
-	     '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))
-(add-hook 'org-mode-hook
-	  '(lambda ()
-	     (visual-line-mode 1)))
-(setq org-hide-emphasis-markers t)
-(require 'cl)				;for delete*
-(setq org-emphasis-alist
-      (cons '("+" (:strike-through t :foreground "gray"))
-	    (delete* "+" org-emphasis-alist :key 'car :test 'equal)))
-(setq org-emphasis-alist
-      (cons '("*" (bold :foreground "red"))
-	    (delete* "*" org-emphasis-alist :key 'car :test 'equal)))
-;; 使得中英文表格对其, 需要先安装https://www.google.co.kr/get/noto/
-;; (set-face-attribute 'org-table nil :family "Noto Sans Mono CJk SC")
-
-;; for python
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((python . t)
-   (perl . t)
-   (emacs-lisp . t)
-   (shell . t)))
-;; Refiling according to the document’s hierarchy.
-(setq org-refile-use-outline-path t)
-(setq org-outline-path-complete-in-steps nil)
-
-(setq org-src-tab-acts-natively t)
-
-;; Hit C-c i to quickly open up my todo list.
-(defun my/open-index-file ()
-  "Open the master org TODO list."
-  (interactive)
-  (find-file org-index-file)
-  (flycheck-mode -1)
-  (end-of-buffer))
-
-(global-set-key (kbd "C-c i") 'my/open-index-file)
-;; ox-*
-(use-package ox-twbs
-  :after org-mode)
-
-
-(use-package org-pdfview
-  :defer 4)
-
-;; ;; ido-mode
-;; (setq ido-enable-flex-matching t)
-;; (setq ido-everywhere t)
-;; (ido-mode 1)
-
-;; ;;(defalias 'list-buffers 'ibuffer)
-;; (defalias 'list-buffers 'ibuffer-other-window)
-
-;; backup copy from SachaChua
-(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
-
-(setq delete-old-versions -1)
-(setq version-control t)
-(setq vc-make-backup-files t)
-(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
+(use-package ace-mc
+  :bind (("<C-m> h"   . ace-mc-add-multiple-cursors)
+         ("<C-m> M-h" . ace-mc-add-single-cursor)))
 
 (use-package ace-window
   :init (setq aw-swap-invert t)
   :bind* (("C-<return>" . ace-window)
-          ("M-o" . ace-swap-window)))
+          ("M-O" . ace-swap-window)))
 
-(use-package winner
+(use-package aggressive-indent
+  :diminish
+  :hook (emacs-lisp-mode . aggressive-indent-mode))
+
+(use-package anaconda-mode
+  :commands anaconda-mode
+  :ensure t
+  :init
+  (add-hook 'python-mode-hook 'anaconda-mode)
+  (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
   :config
-  (winner-mode))
+  (define-key anaconda-mode-map  (kbd "M-/") 'anaconda-mode-show-doc)
+  (define-key anaconda-mode-map  (kbd "M-.") 'anaconda-mode-find-definitions)
+  (define-key anaconda-mode-map  (kbd "M-,") 'pop-tag-mark)
+  (define-key anaconda-mode-map  (kbd "M-r") nil)
+  (define-key anaconda-mode-map  (kbd "C-c C-o") 'elpy-occur-definitions)
+  (setq anaconda-mode-localhost-address "localhost")
+  ;; as C-c C-o is so handy in elpy, I'll keep it with anaconda-mode
+  (defun elpy-occur-definitions ()
+    "Display an occur buffer of all definitions in the current buffer.
+Also, switch to that buffer."
+    (interactive)
+    (let ((list-matching-lines-face nil))
+      (occur "^\s*\\(\\(async\s\\|\\)def\\|class\\)\s"))
+    (let ((window (get-buffer-window "*Occur*")))
+      (if window
+          (select-window window)
+        (switch-to-buffer "*Occur*")))))
+
+
+;; Avy - navigate by searching for a letter on the screen and jumping to it
+(use-package avy
+  :bind* ("C-." . avy-goto-char-timer)
+  :config
+  (avy-setup-default))
+
+(use-package avy-zap
+  :bind
+  ("M-z" . avy-zap-to-char-dwim)
+  ("M-Z" . avy-zap-up-to-char-dwim))
+
+(use-package beacon
+  :diminish
+  :commands beacon-mode)
+
+(use-package change-inner
+  :bind (("M-i"     . change-inner)
+         ("M-o M-o" . change-outer)))
+
+
+(use-package color-theme-modern
+  :disabled t)
+
+(use-package color-theme-sanityinc-tomorrow
+  :config
+  (load-theme 'sanityinc-tomorrow-bright t))
+
+(use-package command-log-mode
+  :bind (("C-c e M" . command-log-mode)
+         ("C-c e L" . clm/open-command-log-buffer))
+  :config (setq clm/log-command-exceptions* nil))
+
+
+(use-package company
+  :diminish (company-mode)
+  :hook (prog-mode . company-mode)
+  :config
+  (setq company-idle-delay 0)
+  (setq company-minimum-prefix-length 1))
+
+(use-package company-anaconda
+  :after (company anaconda-mode)
+  :config
+  (push 'company-anaconda company-backends))
+
+(use-package counsel
+  :disabled t
+  :after ivy
+  :bind
+  ("M-y" . counsel-yank-pop))
+
+
+
+(use-package dash-at-point
+  :bind ("C-c D" . dash-at-point)
+  :config
+  (add-to-list 'dash-at-point-mode-alist
+	       '(python-mode . "python")))
+
+
+(message "before dot-org")
+(use-package dot-org
+  :load-path "lisp")
+
+(message "after dot-org")
+
+(use-package eldoc
+  :diminish)
 
 ;; based on http://tuhdo.github.io/helm-intro.html
 (use-package helm
@@ -252,7 +220,7 @@
           "gupdatedb --output='%s' --localpaths='%s'"))
 
   (setq helm-split-window-inside-p t ; open helm buffer inside current window, not occupy whole other window
-        ; helm-move-to-line-cycle-in-source t
+					; helm-move-to-line-cycle-in-source t
         helm-ff-search-library-in-sexp t ; search for library in `require' and `declare-function' sexp
         ;;helm-scroll-amount 8 ; scroll 8 lines other window using M-<next>/M-<prior>
         helm-ff-file-name-history-use-recentf t
@@ -262,17 +230,11 @@
         helm-M-x-fuzzy-match t
         helm-dwim-target 'next-window
         helm-ff-auto-update-initial-value 1)
-        ;; (helm-autoresize-mode 1)
+  ;; (helm-autoresize-mode 1)
 
-  (custom-set-faces
-   '(helm-selection ((t (:background "systemPurpleColor" :foreground "white")))))
+  ;; (custom-set-faces
+  ;;  '(helm-selection ((t (:background "systemPurpleColor" :foreground "white")))))
   (helm-mode 1))
-
-(use-package helm-ls-git
-  :after
-  (helm-mode)
-  :config
-  (global-set-key (kbd "C-x C-d") 'helm-browse-project))
 
 (use-package helm-dash
   ;;  fixed dash-doc.el temporary-file-directory to /tmp/ for Catalina
@@ -288,23 +250,87 @@
   ;; (add-to-list 'helm-dash-common-docsets "Python 3")
   (add-to-list 'helm-dash-common-docsets "Redis"))
 
+(use-package helm-descbinds
+  :defer 7
+  :config
+  (helm-descbinds-mode))
 
+(use-package helm-ls-git
+  :after
+  (helm-mode)
+  :config
+  (global-set-key (kbd "C-x C-d") 'helm-browse-project))
 
-(use-package dash-at-point
-  :bind ("C-c D" . dash-at-point))
-  ;; (add-to-list 'dash-at-point-mode-alist
-  ;;              '(python-mode . "python")))
+(use-package link-hint
+  ;;  :defer 10
+  :bind ("C-c C-o" . link-hint-open-link)
+  :config
+  (add-hook 'eww-mode-hook
+            #'(lambda () (bind-key "f" #'link-hint-open-link eww-mode-map))))
+
+(use-package ivy
+  :disabled t
+  :diminish (ivy-mode)
+  :config
+  (setq ivy-count-format "%d/%d "))
+
+(use-package mule
+  :disabled t
+  :no-require t
+  :config
+  (prefer-coding-system 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
+
+(use-package multi-term
+  :disabled t
+  :bind (("C-c t" . multi-term-next)
+         ("C-c T" . multi-term))
+  :init
+  (defun screen ()
+    (interactive)
+    (let (term-buffer)
+      ;; Set buffer.
+      (setq term-buffer
+            (let ((multi-term-program (executable-find "screen"))
+                  (multi-term-program-switches "-DR"))
+              (multi-term-get-buffer)))
+      (set-buffer term-buffer)
+      (multi-term-internal)
+      (switch-to-buffer term-buffer)))
+
+  :config
+  (require 'term)
+
+  (defalias 'my-term-send-raw-at-prompt 'term-send-raw)
+
+  (defun my-term-end-of-buffer ()
+    (interactive)
+    (call-interactively #'end-of-buffer)
+    (if (and (eobp) (bolp))
+        (delete-char -1)))
+
+  (defadvice term-process-pager (after term-process-rebind-keys activate)
+    (define-key term-pager-break-map  "\177" 'term-pager-back-page)))
+
+(use-package phi-search
+  :defer 5)
+
+(use-package phi-search-mc
+  :after (phi-search multiple-cursors)
+  :config
+  (phi-search-mc/setup-keys)
+  (add-hook 'isearch-mode-mode #'phi-search-from-isearch-mc/setup-keys))
 
 (use-package protobuf-mode
   :ensure t
-  :mode ("\\.proto\\'" . protobuf-mode))
-
-(defconst my-protobuf-style
+  :mode ("\\.proto\\'" . protobuf-mode)
+  :config
+  (defconst my-protobuf-style
   '((c-basic-offset . 4)
     (indent-tabs-mode . nil)))
-
-(add-hook 'protobuf-mode-hook
-          (lambda () (c-add-style "my-style" my-protobuf-style t)))
+  (add-hook 'protobuf-mode-hook
+          (lambda () (c-add-style "my-style" my-protobuf-style t))))
 
 (use-package projectile
   :bind-keymap
@@ -324,29 +350,25 @@
   (projectile-mode +1))
 
 
-(use-package helm-descbinds
-  :defer 7
+(use-package selected
+  :demand t
+  :diminish selected-minor-mode
+  :bind (:map selected-keymap
+              ("[" . align-code)
+              ("f" . fill-region)
+              ("U" . unfill-region)
+              ("d" . downcase-region)
+              ("u" . upcase-region)
+              ("r" . reverse-region)
+              ("s" . sort-lines))
   :config
-  (helm-descbinds-mode))
+  (selected-global-mode 1))
 
-(use-package command-log-mode
-  :bind (("C-c e M" . command-log-mode)
-         ("C-c e L" . clm/open-command-log-buffer))
-  :config (setq clm/log-command-exceptions* nil))
-
-
-(use-package ivy
-  :disabled t
-  :diminish (ivy-mode)
+(use-package smart-cursor-color
+  :ensure t
+  :defer 3
   :config
-  (setq ivy-count-format "%d/%d "))
-
-(use-package counsel
-  :disabled t
-  :after ivy
-  :bind
-  ("M-y" . counsel-yank-pop))
-
+  (smart-cursor-color-mode +1))
 
 ;; Swiper
 (use-package swiper
@@ -369,78 +391,30 @@
   ;; (setq ivy-display-style 'fancy)
   (define-key read-expression-map (kbd "C-r") 'counsel-expression-history))
 
-;; Avy - navigate by searching for a letter on the screen and jumping to it
-(use-package avy
-  :bind* ("C-." . avy-goto-char-timer)
+
+
+(use-package try
+  :defer 10)
+
+(use-package which-key
+  :diminish (which-key-mode)
+  :defer 3
   :config
-  (avy-setup-default))
+  (which-key-mode))
 
-(use-package avy-zap
-  :bind
-  ("M-z" . avy-zap-to-char-dwim)
-  ("M-Z" . avy-zap-up-to-char-dwim))
 
-(use-package phi-search
-  :defer 5)
-
-(use-package phi-search-mc
-  :after (phi-search multiple-cursors)
+(use-package winner
   :config
-  (phi-search-mc/setup-keys)
-  (add-hook 'isearch-mode-mode #'phi-search-from-isearch-mc/setup-keys))
+  (winner-mode))
 
 
-(use-package selected
-  :demand t
-  :diminish selected-minor-mode
-  :bind (:map selected-keymap
-              ("[" . align-code)
-              ("f" . fill-region)
-              ("U" . unfill-region)
-              ("d" . downcase-region)
-              ("u" . upcase-region)
-              ("r" . reverse-region)
-              ("s" . sort-lines))
-  :config
-  (selected-global-mode 1))
 
 
-;; (use-package mule
-;;   :no-require t
-;;   :config
-;;   (prefer-coding-system 'utf-8)
-;;   (set-terminal-coding-system 'utf-8)
-;;   (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
 
-;; (use-package multi-term
-;;   :bind (("C-c t" . multi-term-next)
-;;          ("C-c T" . multi-term))
-;;   :init
-;;   (defun screen ()
-;;     (interactive)
-;;     (let (term-buffer)
-;;       ;; Set buffer.
-;;       (setq term-buffer
-;;             (let ((multi-term-program (executable-find "screen"))
-;;                   (multi-term-program-switches "-DR"))
-;;               (multi-term-get-buffer)))
-;;       (set-buffer term-buffer)
-;;       (multi-term-internal)
-;;       (switch-to-buffer term-buffer)))
 
-;;   :config
-;;   (require 'term)
 
-;;   (defalias 'my-term-send-raw-at-prompt 'term-send-raw)
 
-  ;; (defun my-term-end-of-buffer ()
-  ;;   (interactive)
-  ;;   (call-interactively #'end-of-buffer)
-  ;;   (if (and (eobp) (bolp))
-  ;;       (delete-char -1)))
 
-  ;; (defadvice term-process-pager (after term-process-rebind-keys activate)
-  ;;   (define-key term-pager-break-map  "\177" 'term-pager-back-page)))
 
 (use-package multiple-cursors
   :after (phi-search selected)
@@ -485,7 +459,7 @@
          ("<C-m> l"     . mc/insert-letters)
          ("<C-m> n"     . mc/insert-numbers)
          ("<C-m> C-x"   . reactivate-mark))
- 
+
   :bind (:map selected-keymap
               ("c"   . mc/edit-lines)
               ("."   . mc/mark-next-like-this)
@@ -504,30 +478,7 @@
     (interactive)
     (activate-mark)))
 
-(use-package ace-mc
-  :bind (("<C-m> h"   . ace-mc-add-multiple-cursors)
-         ("<C-m> M-h" . ace-mc-add-single-cursor)))
 
-(use-package company
-  :diminish (company-mode)
-  :hook (prog-mode . company-mode)
-  :config
-  (setq company-idle-delay 0)
-  (setq company-minimum-prefix-length 1))  
-
-
-(use-package color-theme-modern
-  :disabled t)
-
-(use-package color-theme-sanityinc-tomorrow)
-
-(use-package doom-themes
-  :disabled t)
-
-(use-package solarized-theme
-  :disabled t)
-
-(load-theme 'sanityinc-tomorrow-bright t)
 
 (use-package ox-reveal
       :defer 5
@@ -556,13 +507,19 @@
   (setq mode-line-format (delq 'mode-line-position mode-line-format))
   (sml/setup)
 
-  (sml/apply-theme 'dark)
+  (sml/apply-theme 'light)
   (remove-hook 'display-time-hook 'sml/propertize-time-string))
 
-;; (use-package linum-mode
-;;   :hook
-;;   (prog-mode))
-(add-hook 'prog-mode-hook 'linum-mode)
+(use-package smart-newline
+  :diminish
+  :commands smart-newline-mode)
+
+
+(use-package linum
+  :hook
+  (prog-mode . linum-mode))
+;;(add-hook 'prog-mode-hook 'linum-mode)
+
 
 ;; The package is "python" but the mode is "python-mode":
 (use-package python
@@ -595,37 +552,7 @@
     (interactive)
     (elpy-black-fix-code)))
 
-;; as C-c C-o is so handy in elpy, I'll keep it with anaconda-mode
-(defun elpy-occur-definitions ()
-  "Display an occur buffer of all definitions in the current buffer.
-Also, switch to that buffer."
-  (interactive)
-  (let ((list-matching-lines-face nil))
-    (occur "^\s*\\(\\(async\s\\|\\)def\\|class\\)\s"))
-  (let ((window (get-buffer-window "*Occur*")))
-    (if window
-        (select-window window)
-      (switch-to-buffer "*Occur*"))))
 
-(use-package anaconda-mode
-  :commands anaconda-mode
-  :ensure t
-  :init
-  (add-hook 'python-mode-hook 'anaconda-mode)
-  (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
-  :config
-  (define-key anaconda-mode-map  (kbd "M-/") 'anaconda-mode-show-doc)
-  (define-key anaconda-mode-map  (kbd "M-.") 'anaconda-mode-find-definitions)
-  (define-key anaconda-mode-map  (kbd "M-,") 'pop-tag-mark)
-  (define-key anaconda-mode-map  (kbd "M-r") nil)
-  (define-key anaconda-mode-map  (kbd "C-c C-o") 'elpy-occur-definitions)
-  (setq anaconda-mode-localhost-address "localhost"))
-
-(use-package company-anaconda
-  :after (company anaconda-mode))
-
-(eval-after-load "company"
-  '(add-to-list 'company-backends 'company-anaconda))
 
 ;;black
 (use-package blacken
@@ -755,9 +682,16 @@ Also, switch to that buffer."
 (use-package magit
   :bind
   ("C-x g" . magit-status)
-  ("C-x M-g" . magit-dispatch))
+  ("C-x M-g" . magit-dispatch)
+  :config
+  (setq magit-repository-directories
+        '((user-emacs-directory . 0)
+          ("~/workspace/github.com" . 2)
+          ("~/workspace/git" . 2)
+          ("~/go/src/gitlab.p1staff.com" . 2))))
 
 (use-package git-gutter
+  :disabled t
   :defer 1
   :diminish git-gutter-mode
   :init
@@ -771,7 +705,7 @@ Also, switch to that buffer."
   (interactive)
   (setq regex-tool-backend 'perl)
   (regex-tool))
-  
+
 (defun regex-tool-emacs ()
   "Set perl as backend and run regex-tool."
   (interactive)
@@ -936,7 +870,7 @@ is already narrowed."
   ("C-x l" . leetcode)
   :config
   (setq leetcode-prefer-language "python3"))
-  
+
 (use-package exec-path-from-shell
   :config (dolist (var '("SSH_AUTH_SOCK" "SSH_AGENT_PID" "GPG_AGENT_INFO" "LANG" "LC_CTYPE"))
             (add-to-list 'exec-path-from-shell-variables var)))
@@ -956,7 +890,6 @@ is already narrowed."
 
 (use-package personal
   :load-path "lisp"
-
   :bind (("M-M" . my-open-Messages)
          ("M-T" . my-open-Things3)
          ("M-W" . my-open-WeChat)
@@ -977,22 +910,8 @@ is already narrowed."
 (use-package tramp-sh
   :load-path "lisp")
 
-(use-package link-hint
-;;  :defer 10
-  :bind ("C-c C-o" . link-hint-open-link)
-  :config
-  (add-hook 'eww-mode-hook
-            #'(lambda () (bind-key "f" #'link-hint-open-link eww-mode-map))))
-  ;; :config
-  ;; (add-to-list 'tramp-remote-path "/run/current-system/sw/bin"))
-
 (use-package treemacs
   :commands treemacs)
 
-;; (use-package treemacs-projectile
-;;   :after treemacs projectile
-;;   :ensure t)
-
-  
 (provide 'myinit)
 ;;; myinit ends here
