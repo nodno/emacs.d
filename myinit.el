@@ -3,81 +3,8 @@
 ;;; My config file, all the packages I'm using, except use-package.
 
 ;;; Code:
-;; use-package-setting:
-(setq use-package-always-ensure t)
-(setq use-package-verbose t)
-;; suppress warning
-(setq ad-redefinition-action 'accept)
-
-;; backup copy from SachaChua
-(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
-
-(setq delete-old-versions -1)
-(setq version-control t)
-(setq vc-make-backup-files t)
-(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
-
-;; interface tweaks
-(setq inhibit-startup-message t)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
-(fset 'yes-or-no-p 'y-or-n-p)
-(global-set-key (kbd "<f5>") 'revert-buffer)
-;; ns-popup-font-panel was bound to s-t.
-(global-unset-key (kbd "s-t"))
-(global-hl-line-mode 1)
-;; Keymaps
-
-(define-key input-decode-map [?\C-m] [C-m])
-
-
-;; Opacity
-(defun sanityinc/adjust-opacity (frame incr)
-  "Adjust-opacity copied from SachaChua.works on the current FRAME, INCR by 2/-1."
-  (let* ((oldalpha (or (frame-parameter frame 'alpha) 100))
-         (newalpha (+ incr oldalpha)))
-    (when (and (<= frame-alpha-lower-limit newalpha) (>= 100 newalpha))
-      (modify-frame-parameters frame (list (cons 'alpha newalpha))))))
-
-  (global-set-key
-   (kbd "M-C-8")
-   (lambda () (interactive) (sanityinc/adjust-opacity nil -2)))
-  (global-set-key
-   (kbd "M-C-9")
-   (lambda () (interactive) (sanityinc/adjust-opacity nil 2)))
-  (global-set-key
-   (kbd "M-C-0")
-   (lambda () (interactive) (modify-frame-parameters nil `((alpha . 100)))))
-
-(setq frame-title-format
-  '(:eval
-    (if buffer-file-name
-	(replace-regexp-in-string
-	 "\\\\" "/"
-	 (replace-regexp-in-string
-	  (regexp-quote (getenv "HOME")) "~"
-	  (convert-standard-filename buffer-file-name)))
-      (buffer-name))))
-
-
-;; (defun er-open-with (arg)
-;;   "Open visited file in default external program.
-
-;; With a prefix ARG always prompt for command to use."
-;;   (interactive "P")
-;;   (when buffer-file-name
-;;     (shell-command (concat
-;; 		    (cond
-;; 		     ((and (not arg) (eq system-type 'darwin)) "open")
-;; 		     ((and (not arg) (member system-type '(gnu gnu/linux gnu/kfreebsd))) "xdg-open")
-;; 		     (t (read-shell-command "Open current file with: ")))
-;; 		    " "
-;; 		    (shell-quote-argument buffer-file-name)))))
-;; (global-set-key (kbd "C-c o") #'er-open-with)
-
 ;;; Libraries
 (use-package diminish)
-
 ;;; Packages
 (use-package ace-jump-mode
   :defer t)
@@ -110,8 +37,7 @@
   (setq anaconda-mode-localhost-address "localhost")
   ;; as C-c C-o is so handy in elpy, I'll keep it with anaconda-mode
   (defun elpy-occur-definitions ()
-    "Display an occur buffer of all definitions in the current buffer.
-Also, switch to that buffer."
+    "Display an occur buffer of all definitions in the current buffer. Also, switch to that buffer."
     (interactive)
     (let ((list-matching-lines-face nil))
       (occur "^\s*\\(\\(async\s\\|\\)def\\|class\\)\s"))
@@ -121,8 +47,9 @@ Also, switch to that buffer."
         (switch-to-buffer "*Occur*")))))
 
 
-;; Avy - navigate by searching for a letter on the screen and jumping to it
+
 (use-package avy
+  ;; Avy - navigate by searching for a letter on the screen and jumping to it
   :bind* ("C-." . avy-goto-char-timer)
   :config
   (avy-setup-default))
@@ -135,6 +62,19 @@ Also, switch to that buffer."
 (use-package beacon
   :diminish
   :commands beacon-mode)
+
+(use-package blacken
+  :ensure t
+  :bind ("C-c b" . blacken-buffer))
+
+(use-package cc-mode
+  :mode (("\\.h\\(h?\\|xx\\|pp\\)\\'" . c++-mode)
+         ("\\.m\\'" . c-mode)
+         ("\\.mm\\'" . c++-mode)))
+  ;; :bind (:map c-mode-map
+  ;;             ("<tab>" . company-complete))
+  ;; :bind (:map c++-mode-map
+  ;;             ("<tab>" . company-complete)))
 
 (use-package change-inner
   :bind (("M-i"     . change-inner)
@@ -159,7 +99,9 @@ Also, switch to that buffer."
   :hook (prog-mode . company-mode)
   :config
   (setq company-idle-delay 0)
-  (setq company-minimum-prefix-length 1))
+  (setq company-minimum-prefix-length 1)
+  (setq company-backends (delete 'company-semantic company-backends)))
+
 
 (use-package company-anaconda
   :after (company anaconda-mode)
@@ -172,26 +114,104 @@ Also, switch to that buffer."
   :bind
   ("M-y" . counsel-yank-pop))
 
-
-
 (use-package dash-at-point
   :bind ("C-c D" . dash-at-point)
   :config
   (add-to-list 'dash-at-point-mode-alist
 	       '(python-mode . "python")))
 
+(use-package deft
+  :bind ("C-c d" . deft)
+  :commands (deft)
+  :config
+  (setq deft-directory "~/Dropbox/notes"
+	deft-extensions '("org")
+	deft-default-extension "org"
+	deft-use-filename-as-title t
+	deft-use-filter-string-for-filename t))
 
-(message "before dot-org")
+
 (use-package dot-org
   :load-path "lisp")
 
-(message "after dot-org")
+
 
 (use-package eldoc
   :diminish)
 
-;; based on http://tuhdo.github.io/helm-intro.html
+(use-package elpy
+  :disabled t
+  :defer t
+  :hook
+  (python-mode . elpy-mode)
+  :config
+  (setq eldoc-idle-delay 1)
+  (when (require 'flycheck nil t)
+    (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)))
+
+  ;; force it to use balck, as there this function in elpy.el seems
+  ;; can't find black
+  (defun elpy-format-code ()
+    "Format code using the available formatter."
+    (interactive)
+    (elpy-black-fix-code)))
+
+(use-package exec-path-from-shell
+  :config (dolist (var '("SSH_AUTH_SOCK" "SSH_AGENT_PID" "GPG_AGENT_INFO" "LANG" "LC_CTYPE"))
+            (add-to-list 'exec-path-from-shell-variables var))
+  (exec-path-from-shell-initialize))
+
+(use-package expand-region
+  :bind ("C-=" . er/expand-region))
+
+(use-package flycheck
+  :hook
+  (prog-mode . flycheck-mode))
+
+(use-package flycheck-color-mode-line
+  :hook (flycheck-mode . flycheck-color-mode-line-mode))
+
+(use-package git-gutter
+  :disabled t
+  :defer 1
+  :diminish git-gutter-mode
+  :init
+  (global-git-gutter-mode +1))
+
+(use-package go-mode
+  :mode ("\\.go\\'" . go-mode)
+  :config
+  ;; TODO: check where this C-c C-o doesn't work
+  (define-key go-mode-map  (kbd "C-c C-o") 'zwp/go-occour-definitions)
+  (add-hook 'go-mode-hook (lambda () (setq tab-width 4)))
+  (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
+  :preface
+  (defun zwp/go-occour-definitions()
+    "Display an occur buffer of all definitions in the current buffer. Also, switch to that buffer."
+    (interactive)
+    (let ((list-matching-lines-face nil))
+      (occur "^\s*\\(type\\|func\\|var\\|const\\)\s"))
+    (let ((window (get-buffer-window "*Occur*")))
+      (if window
+          (select-window window)
+        (switch-to-buffer "*Occur*"))))
+  ;; Set up before-save hooks to format buffer and add/delete imports.
+  ;; Make sure you don't have other gofmt/goimports hooks enabled.
+  (defun lsp-go-install-save-hooks ()
+    (add-hook 'before-save-hook #'lsp-format-buffer t t)
+    (add-hook 'before-save-hook #'lsp-organize-imports t t)))
+
+(use-package go-playground
+  :bind ("C-c g" . go-playground-exec))
+
+(use-package google-c-style
+  :config
+  (add-hook 'c-mode-common-hook 'google-set-c-style)
+  (add-hook 'c-mode-common-hook 'google-make-newline-indent))
+
+
 (use-package helm
+  ;; based on http://tuhdo.github.io/helm-intro.html
   :diminish (helm-mode)
   :bind (("M-x" . helm-M-x)
          ("M-y" . helm-show-kill-ring)
@@ -261,6 +281,43 @@ Also, switch to that buffer."
   :config
   (global-set-key (kbd "C-x C-d") 'helm-browse-project))
 
+(use-package htmlize)
+(use-package hungry-delete
+  :disabled t
+  :config
+  (global-hungry-delete-mode))
+
+(use-package iedit
+  :defer 5)
+
+(use-package ivy
+  :disabled t
+  :diminish (ivy-mode)
+  :config
+  (setq ivy-count-format "%d/%d "))
+
+(use-package js2-mode
+  :mode ("\\.js\\'" . js2-mode)
+  :config
+  (setq js-indent-level 4)
+  (use-package js2-refactor)
+  (use-package xref-js2)
+  (add-hook 'js2-mode-hook #'js2-refactor-mode)
+  (js2r-add-keybindings-with-prefix "C-c C-r")
+  (define-key js2-mode-map (kbd "C-k") #'js2r-kill)
+  ;; js-mode (which js2 is based on) binds "M-." which conflicts with xref, so
+  ;; unbind it.
+  (define-key js-mode-map (kbd "M-.") nil)
+
+  (add-hook 'js2-mode-hook (lambda ()
+                             (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t))))
+
+(use-package leetcode
+  :bind
+  ("C-x l" . leetcode)
+  :config
+  (setq leetcode-prefer-language "python3"))
+
 (use-package link-hint
   ;;  :defer 10
   :bind ("C-c C-o" . link-hint-open-link)
@@ -268,11 +325,49 @@ Also, switch to that buffer."
   (add-hook 'eww-mode-hook
             #'(lambda () (bind-key "f" #'link-hint-open-link eww-mode-map))))
 
-(use-package ivy
-  :disabled t
-  :diminish (ivy-mode)
+(use-package linum
+  :hook
+  (prog-mode . linum-mode))
+
+(use-package lua-mode
+  :mode "\\.lua\\'"
+  :interpreter "lua"
   :config
-  (setq ivy-count-format "%d/%d "))
+  (setq lua-indent-level 4))
+
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :custom
+  ;; (lsp-auto-guess-root t)
+  (lsp-enable-snippet nil)
+  (lsp-prefer-flymake nil) ; Use flycheck instead of flymake
+  :hook (go-mode . lsp-deferred)
+  :config
+  (use-package company-lsp
+    :commands company-lsp)
+
+  (use-package helm-lsp :commands helm-lsp-workspace-symbol)
+  ;; :hook ((go-mode . lsp))
+
+  ;; Optional - provides fancier overlays.
+  (use-package lsp-ui
+    :init
+    (setq lsp-ui-doc-position 'top)
+    :commands lsp-ui-mode))
+
+(use-package macrostep
+  :bind ("C-c e m" . macrostep-expand))
+
+(use-package magit
+  :bind
+  ("C-x g" . magit-status)
+  ("C-x M-g" . magit-dispatch)
+  :config
+  (setq magit-repository-directories
+        '((user-emacs-directory . 0)
+          ("~/workspace/github.com" . 2)
+          ("~/workspace/git" . 2)
+          ("~/go/src/gitlab.p1staff.com" . 2))))
 
 (use-package mule
   :disabled t
@@ -282,143 +377,9 @@ Also, switch to that buffer."
   (set-terminal-coding-system 'utf-8)
   (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
 
-(use-package multi-term
-  :disabled t
-  :bind (("C-c t" . multi-term-next)
-         ("C-c T" . multi-term))
-  :init
-  (defun screen ()
-    (interactive)
-    (let (term-buffer)
-      ;; Set buffer.
-      (setq term-buffer
-            (let ((multi-term-program (executable-find "screen"))
-                  (multi-term-program-switches "-DR"))
-              (multi-term-get-buffer)))
-      (set-buffer term-buffer)
-      (multi-term-internal)
-      (switch-to-buffer term-buffer)))
-
-  :config
-  (require 'term)
-
-  (defalias 'my-term-send-raw-at-prompt 'term-send-raw)
-
-  (defun my-term-end-of-buffer ()
-    (interactive)
-    (call-interactively #'end-of-buffer)
-    (if (and (eobp) (bolp))
-        (delete-char -1)))
-
-  (defadvice term-process-pager (after term-process-rebind-keys activate)
-    (define-key term-pager-break-map  "\177" 'term-pager-back-page)))
-
-(use-package phi-search
-  :defer 5)
-
-(use-package phi-search-mc
-  :after (phi-search multiple-cursors)
-  :config
-  (phi-search-mc/setup-keys)
-  (add-hook 'isearch-mode-mode #'phi-search-from-isearch-mc/setup-keys))
-
-(use-package protobuf-mode
-  :ensure t
-  :mode ("\\.proto\\'" . protobuf-mode)
-  :config
-  (defconst my-protobuf-style
-  '((c-basic-offset . 4)
-    (indent-tabs-mode . nil)))
-  (add-hook 'protobuf-mode-hook
-          (lambda () (c-add-style "my-style" my-protobuf-style t))))
-
-(use-package projectile
-  :bind-keymap
-  ("C-c p" . projectile-command-map)
-  ("s-p" . projectile-command-map)
-  :config
-  (use-package helm-projectile
-    :ensure t
-    :config
-    (use-package helm-ag
-      :config
-      (setq helm-ag-insert-at-point 'symbol))
-    (helm-projectile-on))
-  (setq projectile-completion-system 'helm)
-  (setq projectile-switch-project-action 'helm-projectile)
-  ;; (setq projectile-enable-caching t)
-  (projectile-mode +1))
-
-
-(use-package selected
-  :demand t
-  :diminish selected-minor-mode
-  :bind (:map selected-keymap
-              ("[" . align-code)
-              ("f" . fill-region)
-              ("U" . unfill-region)
-              ("d" . downcase-region)
-              ("u" . upcase-region)
-              ("r" . reverse-region)
-              ("s" . sort-lines))
-  :config
-  (selected-global-mode 1))
-
-(use-package smart-cursor-color
-  :ensure t
-  :defer 3
-  :config
-  (smart-cursor-color-mode +1))
-
-;; Swiper
-(use-package swiper
-  :disabled t
-  :bind
-   ("C-s" . swiper)
-   ("C-r" . swiper)
-   ;; ("C-c C-r" . ivy-resume)
-   ("M-x" . counsel-M-x)
-   ("C-x C-f" . counsel-find-file)
-   ("C-x b" . ivy-switch-buffer)
-   ("C-c g" . counsel-git)
-   ("C-c j" . counsel-git-grep)
-   ("C-c k" . counsel-ag)
-   ("C-x l" . counsel-locate)
-   ("C-S-o" . counsel-rhythmbox)
-  :config
-  (ivy-mode 1)
-  (setq ivy-use-virtual-buffers t)
-  ;; (setq ivy-display-style 'fancy)
-  (define-key read-expression-map (kbd "C-r") 'counsel-expression-history))
-
-
-
-(use-package try
-  :defer 10)
-
-(use-package which-key
-  :diminish (which-key-mode)
-  :defer 3
-  :config
-  (which-key-mode))
-
-
-(use-package winner
-  :config
-  (winner-mode))
-
-
-
-
-
-
-
-
-
-
 (use-package multiple-cursors
   :after (phi-search selected)
-;;  :defer 5
+  ;;  :defer 5
 
   ;; - Sometimes you end up with cursors outside of your view. You can scroll
   ;;   the screen to center on each cursor with `C-v` and `M-v`.
@@ -478,56 +439,108 @@ Also, switch to that buffer."
     (interactive)
     (activate-mark)))
 
-
-
-(use-package ox-reveal
-      :defer 5
-      :load-path "~/workspace/git/org-reveal")
-;;      :load-path "lisp")
-;;      :hook org-mode)
-
-;;(setq org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
-(setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/")
-;;(setq org-reveal-root "file:/Users/zhaoweipu/workspace/git/reveal.js/")
-(setq org-reveal-mathjax t)
-
-(use-package htmlize)
-
-(use-package flycheck
-  :hook
-  (prog-mode . flycheck-mode))
-
-(use-package flycheck-color-mode-line
-  :hook (flycheck-mode . flycheck-color-mode-line-mode))
-
-(use-package smart-mode-line
+(use-package multi-term
   :disabled t
+  :bind (("C-c t" . multi-term-next)
+         ("C-c T" . multi-term))
+  :init
+  (defun screen ()
+    (interactive)
+    (let (term-buffer)
+      ;; Set buffer.
+      (setq term-buffer
+            (let ((multi-term-program (executable-find "screen"))
+                  (multi-term-program-switches "-DR"))
+              (multi-term-get-buffer)))
+      (set-buffer term-buffer)
+      (multi-term-internal)
+      (switch-to-buffer term-buffer)))
+
   :config
-  ;; See https://github.com/Malabarba/smart-mode-line/issues/217
-  (setq mode-line-format (delq 'mode-line-position mode-line-format))
-  (sml/setup)
+  (require 'term)
 
-  (sml/apply-theme 'light)
-  (remove-hook 'display-time-hook 'sml/propertize-time-string))
+  (defalias 'my-term-send-raw-at-prompt 'term-send-raw)
 
-(use-package smart-newline
-  :diminish
-  :commands smart-newline-mode)
+  (defun my-term-end-of-buffer ()
+    (interactive)
+    (call-interactively #'end-of-buffer)
+    (if (and (eobp) (bolp))
+        (delete-char -1)))
 
-
-(use-package linum
-  :hook
-  (prog-mode . linum-mode))
-;;(add-hook 'prog-mode-hook 'linum-mode)
+  (defadvice term-process-pager (after term-process-rebind-keys activate)
+    (define-key term-pager-break-map  "\177" 'term-pager-back-page)))
 
 
-;; The package is "python" but the mode is "python-mode":
+(use-package pdf-tools
+  ;; (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig")  
+  :defer 6
+  :magic ("%PDF" . pdf-view-mode)
+  :config
+  (pdf-tools-install :no-query))
+
+
+(use-package personal
+  :load-path "lisp"
+  :bind (("M-M" . my-open-Messages)
+         ("M-T" . my-open-Things3)
+         ("M-W" . my-open-WeChat)
+         ("M-S" . my-open-Safari)
+         ("M-F" . my-open-Finder)))
+
+
+(use-package phi-search
+  :defer 5)
+
+(use-package phi-search-mc
+  :after (phi-search multiple-cursors)
+  :config
+  (phi-search-mc/setup-keys)
+  (add-hook 'isearch-mode-mode #'phi-search-from-isearch-mc/setup-keys))
+
+(use-package php-mode
+  :mode ("\\.php\\'" . php-mode)
+  :interpreter ("php" . python-mode))
+
+(use-package popup
+  :ensure t)
+(use-package pos-tip
+  :ensure t)
+
+(use-package protobuf-mode
+  :ensure t
+  :mode ("\\.proto\\'" . protobuf-mode)
+  :config
+  (defconst my-protobuf-style
+    '((c-basic-offset . 4)
+      (indent-tabs-mode . nil)))
+  (add-hook 'protobuf-mode-hook
+            (lambda () (c-add-style "my-style" my-protobuf-style t))))
+
+(use-package projectile
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  ("s-p" . projectile-command-map)
+  :config
+  (use-package helm-projectile
+    :ensure t
+    :config
+    (use-package helm-ag
+      :config
+      (setq helm-ag-insert-at-point 'symbol))
+    (helm-projectile-on))
+  (setq projectile-completion-system 'helm)
+  (setq projectile-switch-project-action 'helm-projectile)
+  ;; (setq projectile-enable-caching t)
+  (projectile-mode +1))
+
+
 (use-package python
+  ;; The package is "python" but the mode is "python-mode":
   :mode ("\\.py\\'" . python-mode)
-  :interpreter ("python" . python-mode))
-
-(setq python-indent-guess-indent-offset t)
-(setq python-indent-guess-indent-offset-verbose nil)
+  :interpreter ("python" . python-mode)
+  :config
+  (setq python-indent-guess-indent-offset t)
+  (setq python-indent-guess-indent-offset-verbose nil))
 
 (use-package pyvenv
   :hook (python-mode . pyvenv-mode)
@@ -535,35 +548,124 @@ Also, switch to that buffer."
   (setenv "WORKON_HOME" "/Users/zhaoweipu/opt/anaconda3/envs")
   (pyvenv-workon "py3"))
 
-(use-package elpy
-  :disabled t
-  :defer t
-  :hook
-  (python-mode . elpy-mode)
-  :config
-  (setq eldoc-idle-delay 1)
-  (when (require 'flycheck nil t)
-    (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)))
+(use-package regex-tool
+  :commands regex-tool
+  :preface
 
-    ;; force it to use balck, as there this function in elpy.el seems
-    ;; can't find black
-  (defun elpy-format-code ()
-    "Format code using the available formatter."
+  (defun regex-tool-perl ()
+    "Set perl as backend and run regex-tool."
     (interactive)
-    (elpy-black-fix-code)))
+    (setq regex-tool-backend 'perl)
+    (regex-tool))
+
+  (defun regex-tool-emacs ()
+    "Set perl as backend and run regex-tool."
+    (interactive)
+    (setq regex-tool-backend 'emacs)
+    (regex-tool)))
 
 
+(use-package sdcv
+  :load-path "lisp"
+  :demand t
+  :config
+  (global-set-key (kbd "C-x t") 'sdcv-search-pointer))
 
-;;black
-(use-package blacken
+(use-package selected
+  :demand t
+  :diminish selected-minor-mode
+  :bind (:map selected-keymap
+              ("[" . align-code)
+              ("f" . fill-region)
+              ("U" . unfill-region)
+              ("d" . downcase-region)
+              ("u" . upcase-region)
+              ("r" . reverse-region)
+              ("s" . sort-lines))
+  :config
+  (selected-global-mode 1))
+
+(use-package showtip
+  :ensure t)
+
+(use-package smart-cursor-color
   :ensure t
-  :bind ("C-c b" . blacken-buffer))
+  :defer 3
+  :config
+  (smart-cursor-color-mode +1))
 
-;; https://github.com/proofit404/anaconda-mode/issues/255
-;; (setq url-proxy-services
-;;       '(("no_proxy" . "^\\(127.0.0.1\\|localhost\\|10.*\\)")
-;;         ("http" . "127.0.0.1:6152")
-;;         ("https" . "127.0.0.1:6152")))
+(use-package smart-mode-line
+  :disabled t
+  :config
+  ;; See https://github.com/Malabarba/smart-mode-line/issues/217
+  (setq mode-line-format (delq 'mode-line-position mode-line-format))
+  (sml/setup)
+  (sml/apply-theme 'light)
+  (remove-hook 'display-time-hook 'sml/propertize-time-string))
+
+
+(use-package smart-newline
+  :diminish
+  :commands smart-newline-mode)
+
+
+(use-package swiper
+  :disabled t
+  :bind
+  ("C-s" . swiper)
+  ("C-r" . swiper)
+  ;; ("C-c C-r" . ivy-resume)
+  ("M-x" . counsel-M-x)
+  ("C-x C-f" . counsel-find-file)
+  ("C-x b" . ivy-switch-buffer)
+  ("C-c g" . counsel-git)
+  ("C-c j" . counsel-git-grep)
+  ("C-c k" . counsel-ag)
+  ("C-x l" . counsel-locate)
+  ("C-S-o" . counsel-rhythmbox)
+  :config
+  (ivy-mode 1)
+  (setq ivy-use-virtual-buffers t)
+  ;; (setq ivy-display-style 'fancy)
+  (define-key read-expression-map (kbd "C-r") 'counsel-expression-history))
+
+(use-package tramp
+  :defer 5
+  :config
+  ;; jww (2018-02-20): Without this change, tramp ends up sending hundreds of
+  ;; shell commands to the remote side to ask what the temporary directory is.
+  (put 'temporary-file-directory 'standard-value '("/tmp"))
+  (setq tramp-auto-save-directory "~/.cache/emacs/backups"
+        ;;tramp-default-user "zhaoweipu"
+        tramp-persistency-file-name "~/.emacs.d/data/tramp"))
+
+(use-package tramp-sh
+  :load-path "lisp")
+
+(use-package treemacs
+  :commands treemacs)
+
+(use-package try
+  :defer 10)
+
+(use-package undo-tree
+  ;; use C-x u to see the visual undo tree
+  ;; use C-x p / n / f b
+  ;; q to quit the undo tree visualizer
+  :disabled t
+  :diminish (undo-tree-mode)
+  :init
+  (global-undo-tree-mode))
+
+(use-package which-key
+  :diminish (which-key-mode)
+  :defer 3
+  :config
+  (which-key-mode))
+
+(use-package winner
+  :config
+  (winner-mode))
 
 (use-package web-mode
   :defer 5
@@ -589,329 +691,21 @@ Also, switch to that buffer."
   (setq web-mode-enable-auto-closing t)
   (setq web-mode-enable-auto-quoting t)) ;; this fixes the quote problem I mentioned
 
-(use-package php-mode
-  :mode ("\\.php\\'" . php-mode)
-  :interpreter ("php" . python-mode))
-
-(use-package lua-mode
-  :mode "\\.lua\\'"
-  :interpreter "lua"
-  :config
-  (setq lua-indent-level 4))
-
-(defun zwp/go-occour-definitions()
-  "Display an occur buffer of all definitions in the current buffer.
-Also, switch to that buffer."
-  (interactive)
-  (let ((list-matching-lines-face nil))
-    (occur "^\s*\\(type\\|func\\|var\\|const\\)\s"))
-  (let ((window (get-buffer-window "*Occur*")))
-    (if window
-        (select-window window)
-      (switch-to-buffer "*Occur*"))))
-
-(use-package go-mode
-  :mode ("\\.go\\'" . go-mode)
-  :config
-  ;; TODO: check where this C-c C-o doesn't work
-  (define-key go-mode-map  (kbd "C-c C-o") 'zwp/go-occour-definitions))
-
-(add-hook 'go-mode-hook (lambda () (setq tab-width 4)))
-;; https://github.com/golangci/golangci-lint
-;; https://github.com/weijiangan/flycheck-golangci-lint
-;; (use-package flycheck-golangci-lint
-;;   :ensure t
-;;   :hook (go-mode . flycheck-golangci-lint-setup))
-;;(setenv "GO111MODULE" "on")
-
-(use-package lsp-mode
-  :commands (lsp lsp-deferred)
-  :custom
-  ;; (lsp-auto-guess-root t)
-  (lsp-enable-snippet nil)
-  (lsp-prefer-flymake nil) ; Use flycheck instead of flymake
-  :hook (go-mode . lsp-deferred))
-  ;; :hook ((go-mode . lsp))
-
-
-;; Set up before-save hooks to format buffer and add/delete imports.
-;; Make sure you don't have other gofmt/goimports hooks enabled.
-(defun lsp-go-install-save-hooks ()
-  (add-hook 'before-save-hook #'lsp-format-buffer t t)
-  (add-hook 'before-save-hook #'lsp-organize-imports t t))
-(add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
-
-;; Optional - provides fancier overlays.
-(use-package lsp-ui
-  :init
-  (setq lsp-ui-doc-position 'top)
-  :commands lsp-ui-mode)
-
-;; company-lsp integrates company mode completion with lsp-mode.
-;; completion-at-point also works out of the box but doesn't support snippets.
-(use-package company-lsp
-  :commands company-lsp)
-
-(use-package helm-lsp :commands helm-lsp-workspace-symbol)
-
-;; (lsp-register-custom-settings
-;;  '(("gopls.completeUnimported" t t)
-;;    ("gopls.staticcheck" t t)))
-
-(use-package go-playground
-  :bind ("C-c g" . go-playground-exec))
-
-;;; end go
-
-
-(use-package nginx-mode
-  :commands nginx-mode)
-
-(use-package yasnippet
-  :defer 3
-  :diminish (yas-minor-mode)
-  ;;:after flycheck
-  :init
-  (yas-global-mode 1))
-
-(use-package yasnippet-snippets)
-
-(use-package expand-region
-  :bind ("C-=" . er/expand-region))
-
-(use-package magit
-  :bind
-  ("C-x g" . magit-status)
-  ("C-x M-g" . magit-dispatch)
-  :config
-  (setq magit-repository-directories
-        '((user-emacs-directory . 0)
-          ("~/workspace/github.com" . 2)
-          ("~/workspace/git" . 2)
-          ("~/go/src/gitlab.p1staff.com" . 2))))
-
-(use-package git-gutter
-  :disabled t
-  :defer 1
-  :diminish git-gutter-mode
-  :init
-  (global-git-gutter-mode +1))
-
-(use-package regex-tool
-  :commands regex-tool)
-
-(defun regex-tool-perl ()
-  "Set perl as backend and run regex-tool."
-  (interactive)
-  (setq regex-tool-backend 'perl)
-  (regex-tool))
-
-(defun regex-tool-emacs ()
-  "Set perl as backend and run regex-tool."
-  (interactive)
-  (setq regex-tool-backend 'emacs)
-  (regex-tool))
-
-;; use C-x u to see the visual undo tree
-;; use C-x p / n / f b
-;; q to quit the undo tree visualizer
-(use-package undo-tree
-  :disabled t
-  :diminish (undo-tree-mode)
-  :init
-  (global-undo-tree-mode))
-
-(setq-default indent-tabs-mode nil)
-
-;; (setq enable-recursive-minibuffers t)
-
-;;  (use-package smart-mode-line
-;;    :init
-;; ;;   (setq sml/override-theme nil)
-;;    (setq sml/no-confirm-load-theme t)
-;;    :config
-;;     (sml/setup))
-
-;; (use-package hungry-delete
-;;   :config
-;;   (global-hungry-delete-mode))
-
-(use-package expand-region
-  :bind ("C-=" . er/expand-region))
-
-(use-package iedit
-  :disabled t)
-
-(defun narrow-or-widen-dwim (p)
-  "Widen if buffer is narrowed, narrow-dwim otherwise.
-
-Dwim means: region, org-src-block, org-subtree, or
-defun, whichever applies first.  Narrowing to
-org-src-block actually calls `org-edit-src-code'.
-
-With prefix P, don't widen, just narrow even if buffer
-is already narrowed."
-  (interactive "P")
-  (declare (interactive-only))
-  (declare-function LaTeX-narrow-to-environment "tex-mode")
-  (cond ((and (buffer-narrowed-p) (not p)) (widen))
-	((region-active-p)
-	 (narrow-to-region (region-beginning)
-			   (region-end)))
-	((derived-mode-p 'org-mode)
-	 ;; `org-edit-src-code' is not a real narrowing
-	 ;; command. Remove this first conditional if
-	 ;; you don't want it.
-	 (cond ((ignore-errors (org-edit-src-code) t)
-		(delete-other-windows))
-	       ((ignore-errors (org-narrow-to-block) t))
-	       (t (org-narrow-to-subtree))))
-	((derived-mode-p 'latex-mode)
-	 (LaTeX-narrow-to-environment))
-	(t (narrow-to-defun))))
-
-;; (define-key endless/toggle-map "n #'narrow-or-widen-dwim)
-;; This line actually replaces Emacs' entire narrowing
-;; keymap, that's how much I like this command. Only
-;; copy it if that's what you want.
-(define-key ctl-x-map "n" #'narrow-or-widen-dwim)
-;; (add-hook 'LaTeX-mode-hook
-;; 	  (lambda ()
-;; 	    (define-key LaTeX-mode-map "\C-xn"
-;; 	      nil)))
-(eval-after-load 'org-src
-  '(define-key org-src-mode-map
-     "\C-x\C-s" #'org-edit-src-exit))
-
-
-;; [[http://pragmaticemacs.com/emacs/add-the-system-clipboard-to-the-emacs-kill-ring/][ADD THE SYSTEM CLIPBOARD TO THE EMACS KILL-RING]]
-(setq save-interprogram-paste-before-kill t)
-
-
-;; (load "~/Dropbox/mu4econfig.el" t)
-
-(use-package deft
-  :bind ("C-c d" . deft)
-  :commands (deft)
-  :config
-  (setq deft-directory "~/Dropbox/notes"
-	deft-extensions '("org")
-	deft-default-extension "org"
-	deft-use-filename-as-title t
-	deft-use-filter-string-for-filename t))
-
-
-;; (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig")
-(use-package pdf-tools
-  :defer 6
-  :magic ("%PDF" . pdf-view-mode)
-  :config
-  (pdf-tools-install :no-query))
-
-;; (use-package pdf-tools
-;;   :config
-;;   (pdf-loader-install))
-
-(use-package js2-mode
-  :mode ("\\.js\\'" . js2-mode))
-
-(setq js-indent-level 4)
-
-(use-package js2-refactor
-  :defer 6)
-
-(use-package xref-js2
-  :defer 7)
-
-(add-hook 'js2-mode-hook #'js2-refactor-mode)
-(js2r-add-keybindings-with-prefix "C-c C-r")
-(define-key js2-mode-map (kbd "C-k") #'js2r-kill)
-
-;; js-mode (which js2 is based on) binds "M-." which conflicts with xref, so
-;; unbind it.
-(define-key js-mode-map (kbd "M-.") nil)
-
-(add-hook 'js2-mode-hook (lambda ()
-  (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
-
-
-;; (with-eval-after-load 'lsp-mode
-;;   (mapc #'lsp-flycheck-add-mode '(typescript-mode js-mode css-mode vue-html-mode)))
-
-;; sdcv
-(use-package showtip
-  :ensure t)
-(use-package popup
-  :ensure t)
-(use-package pos-tip
-  :ensure t)
-
-(use-package sdcv
-  :load-path "lisp"
-  :demand t
-  :config
-  (global-set-key (kbd "C-x t") 'sdcv-search-pointer))
 
 (use-package wsd-mode
   :defer 3
   :config
   (setq wsd-style "modern-blue"))
 
-(delete-file "~/Library/Colors/Emacs.clr")
-
-(when (string= system-type "darwin")       
-  (setq dired-use-ls-dired nil))
-
-(define-key global-map (kbd "C-z") nil)
-
-
-(use-package leetcode
-  :bind
-  ("C-x l" . leetcode)
+(use-package yasnippet
+  :defer 3
+  :diminish (yas-minor-mode)
+  ;;:after flycheck
+  :init
+  (yas-global-mode 1)
   :config
-  (setq leetcode-prefer-language "python3"))
+  (use-package yasnippet-snippets))
 
-(use-package exec-path-from-shell
-  :config (dolist (var '("SSH_AUTH_SOCK" "SSH_AGENT_PID" "GPG_AGENT_INFO" "LANG" "LC_CTYPE"))
-            (add-to-list 'exec-path-from-shell-variables var)))
-
-
-;; (when (or (memq window-system '(mac ns x))
-;;           (unless (memq system-type '(ms-dos windows-nt))
-;;             (daemonp)))
-;;   (exec-path-from-shell-initialize))
-
-(when (string= system-type "darwin")
-  ;;delete on macos
-  (setq delete-by-moving-to-trash t)
-  (setq trash-directory "~/.Trash")
-  (exec-path-from-shell-initialize))
-
-
-(use-package personal
-  :load-path "lisp"
-  :bind (("M-M" . my-open-Messages)
-         ("M-T" . my-open-Things3)
-         ("M-W" . my-open-WeChat)
-         ("M-S" . my-open-Safari)
-         ("M-F" . my-open-Finder)))
-
-(use-package sudo-edit)
-
-(use-package tramp
-  :defer 5
-  :config
-  ;; jww (2018-02-20): Without this change, tramp ends up sending hundreds of
-  ;; shell commands to the remote side to ask what the temporary directory is.
-  (put 'temporary-file-directory 'standard-value '("/tmp"))
-  (setq tramp-auto-save-directory "~/.cache/emacs/backups"
-        tramp-persistency-file-name "~/.emacs.d/data/tramp"))
-;;(setq tramp-default-user "zhaoweipu")
-(use-package tramp-sh
-  :load-path "lisp")
-
-(use-package treemacs
-  :commands treemacs)
 
 (provide 'myinit)
 ;;; myinit ends here
