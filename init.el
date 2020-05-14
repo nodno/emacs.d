@@ -37,7 +37,7 @@
  '(lsp-prefer-flymake nil t)
  '(package-selected-packages
    (quote
-    (c-mode google-c-style smart-mode-line iedit aggressive-indent bm beacon ascii abbrev helm-lsp yasnippet-snippets xref-js2 wsd-mode which-key web-mode use-package try treemacs sudo-edit smart-cursor-color showtip selected regex-tool pyvenv protobuf-mode pos-tip php-mode phi-search-mc ox-twbs org-pdfview org-bullets nginx-mode magit macrostep lua-mode lsp-ui link-hint leetcode js2-refactor htmlize helm-projectile helm-ls-git helm-descbinds helm-dash helm-ag go-playground git-gutter flycheck-color-mode-line expand-region exec-path-from-shell diminish deft dash-at-point company-lsp company-anaconda command-log-mode color-theme-sanityinc-tomorrow blacken avy-zap ace-mc))))
+    (diredfl dired-x gitlab-ci-mode-flycheck gitlab-ci-mode hs-minor-mode company-c-headers sr-speedbar function-args helm-gtags ob-go c-mode google-c-style smart-mode-line iedit aggressive-indent bm beacon ascii abbrev helm-lsp yasnippet-snippets xref-js2 wsd-mode which-key web-mode use-package try treemacs smart-cursor-color showtip selected regex-tool pyvenv protobuf-mode pos-tip php-mode phi-search-mc ox-twbs org-pdfview org-bullets nginx-mode magit macrostep lua-mode lsp-ui link-hint leetcode js2-refactor htmlize helm-projectile helm-ls-git helm-descbinds helm-dash helm-ag go-playground git-gutter flycheck-color-mode-line expand-region exec-path-from-shell diminish deft dash-at-point company-lsp company-anaconda command-log-mode color-theme-sanityinc-tomorrow blacken avy-zap ace-mc))))
 
 
 (put 'upcase-region 'disabled nil)

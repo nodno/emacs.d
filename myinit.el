@@ -46,8 +46,6 @@
           (select-window window)
         (switch-to-buffer "*Occur*")))))
 
-
-
 (use-package avy
   ;; Avy - navigate by searching for a letter on the screen and jumping to it
   :bind* ("C-." . avy-goto-char-timer)
@@ -108,6 +106,10 @@
   :config
   (push 'company-anaconda company-backends))
 
+(use-package company-c-headers
+  :config
+  (add-to-list 'company-backends 'company-c-headers))
+
 (use-package counsel
   :disabled t
   :after ivy
@@ -125,15 +127,16 @@
   :commands (deft)
   :config
   (setq deft-directory "~/Dropbox/notes"
-	deft-extensions '("org")
-	deft-default-extension "org"
-	deft-use-filename-as-title t
-	deft-use-filter-string-for-filename t))
+        deft-extensions '("org")
+        deft-default-extension "org"
+        deft-use-filename-as-title t
+        deft-use-filter-string-for-filename t))
 
+(use-package diredfl
+  :hook (dired-mode . diredfl-mode))
 
 (use-package dot-org
   :load-path "lisp")
-
 
 
 (use-package eldoc
@@ -171,12 +174,39 @@
 (use-package flycheck-color-mode-line
   :hook (flycheck-mode . flycheck-color-mode-line-mode))
 
+(use-package function-args
+  :config(fa-config-default))
+
+(use-package ggtags
+  :disabled t
+  :hook
+  (c-mode-common . (lambda ()
+                     (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
+                       (ggtags-mode 1))))
+  :bind (:map ggtags-mode-map
+              ("C-c g s" . ggtags-find-other-symbol)
+              ("C-c g h" . ggtags-view-tag-history)
+              ("C-c g r" . ggtags-find-reference)
+              ("C-c g f" . ggtags-find-file)
+              ("C-c g c" . ggtags-create-tags)
+              ("C-c g u" . ggtags-update-tags)
+              ("M-," . pop-tag-mark)))
+
+
 (use-package git-gutter
   :disabled t
   :defer 1
   :diminish git-gutter-mode
   :init
   (global-git-gutter-mode +1))
+
+(use-package gitlab-ci-mode
+  :defer 2)
+
+(use-package gitlab-ci-mode-flycheck
+  :after flycheck gitlab-ci-mode
+  :init
+  (gitlab-ci-mode-flycheck-enable))
 
 (use-package go-mode
   :mode ("\\.go\\'" . go-mode)
@@ -240,7 +270,7 @@
           "gupdatedb --output='%s' --localpaths='%s'"))
 
   (setq helm-split-window-inside-p t ; open helm buffer inside current window, not occupy whole other window
-					; helm-move-to-line-cycle-in-source t
+                                        ; helm-move-to-line-cycle-in-source t
         helm-ff-search-library-in-sexp t ; search for library in `require' and `declare-function' sexp
         ;;helm-scroll-amount 8 ; scroll 8 lines other window using M-<next>/M-<prior>
         helm-ff-file-name-history-use-recentf t
@@ -266,8 +296,8 @@
   (add-to-list 'helm-dash-common-docsets "Go")  
   ;; (add-to-list 'helm-dash-common-docsets "Django")
   ;; (add-to-list 'helm-dash-common-docsets "Python 2")
-  ;; (add-to-list 'helm-dash-common-docsets "Python 3")
-  ;; (add-to-list 'helm-dash-common-docsets "Python 3")
+  (add-to-list 'helm-dash-common-docsets "Python 3")
+  
   (add-to-list 'helm-dash-common-docsets "Redis"))
 
 (use-package helm-descbinds
@@ -275,11 +305,40 @@
   :config
   (helm-descbinds-mode))
 
+(use-package helm-gtags
+  :config (setq
+           helm-gtags-ignore-case t
+           helm-gtags-auto-update t
+           helm-gtags-use-input-at-cursor t
+           helm-gtags-pulse-at-cursor t
+           helm-gtags-prefix-key "\C-cg"
+           helm-gtags-suggested-key-mapping t)
+  :hook ((dired-mode . helm-gtags-mode)
+         (eshell-mode . helm-gtags-mode)
+         (c-mode . helm-gtags-mode)
+         (c++-mode . helm-gtags-mode)
+         (asm-mode . helm-gtags-mode))
+  :bind (:map helm-gtags-mode-map
+              ("C-c g a" . helm-gtags-tags-in-this-function)
+              ("C-j" . helm-gtags-select)
+              ("M-." . helm-gtags-dwim)
+              ("M-," . helm-gtags-pop-stack)
+              ("C-c <" . helm-gtags-previous-history)
+              ("C-c >" . helm-gtags-next-history)))
+
+
 (use-package helm-ls-git
   :after
   (helm-mode)
   :config
   (global-set-key (kbd "C-x C-d") 'helm-browse-project))
+
+(use-package hideshow
+  :diminish hs-minor-mode
+  :commands hs-minor-mode
+  :hook (prog-mode . hs-minor-mode)
+  :bind (:map prog-mode-map
+              ("M-[" . hs-toggle-hiding)))
 
 (use-package htmlize)
 (use-package hungry-delete
@@ -608,6 +667,7 @@
   :diminish
   :commands smart-newline-mode)
 
+(use-package sr-speedbar)
 
 (use-package swiper
   :disabled t

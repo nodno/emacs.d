@@ -1,4 +1,8 @@
-;; use-package-setting:
+;;; setting --- Summar
+;;; Commentary:
+;;; all settings
+
+;; yuse-package-setting:
 (setq use-package-always-ensure t)
 (setq use-package-verbose t)
 ;; suppress warning
@@ -27,11 +31,15 @@
 
 
 ;; Setting
+(setenv "LANG" "")
 (setq-default indent-tabs-mode nil)
+(setq-default tab-width 4)
 ;; (load "~/Dropbox/mu4econfig.el" t)
 (if (string= system-type "darwin")
     (progn (delete-file "~/Library/Colors/Emacs.clr")
            ;;delete on macos
+
+           (setq dired-use-ls-dired nil)
            (setq delete-by-moving-to-trash t)
            (setq trash-directory "~/.Trash")))
 

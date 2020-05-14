@@ -1,0 +1,242 @@
+;;;; Emacs Bookmark Format Version 1 ;;;; -*- coding: no-conversion -*- 
+;;; This format is meant to be slightly human-readable;
+;;; nevertheless, you probably don't want to edit it.
+;;; -*- End Of Bookmark File Format Version Stamp -*-
+(("mosn"
+ (filename . "~/go/src/mosn.io/mosn/")
+ (front-context-string . ".\n  drwxr-xr-x  ")
+ (rear-context-string . "32 May  7 18:51 ")
+ (position . 146))
+("algs4"
+ (filename . "~/workspace/algorithms/algs4/src/main/java/edu/princeton/cs/algs4/")
+ (front-context-string . "AVLTreeST.java\n ")
+ (rear-context-string . "07 Jul 10  2019 ")
+ (position . 307))
+("testipplus"
+ (filename . "~/workspace/myipplus/main.go")
+ (front-context-string . "import (\n	\"bytes")
+ (rear-context-string)
+ (position . 15))
+("tantan-live-socket"
+ (filename . "~/go/src/gitlab.p1staff.com/backend/tantan-live-socket/")
+ (front-context-string . ".git\n  -rw-r--r-")
+ (rear-context-string . "84 Apr 19 21:59 ")
+ (position . 292))
+("tantan-backend-socket"
+ (filename . "~/go/src/gitlab.p1staff.com/backend/tantan-backend-socket/")
+ (front-context-string . ".\n  drwxr-xr-x  ")
+ (rear-context-string . "12 Dec  4 09:24 ")
+ (position . 182))
+("openresty src"
+ (filename . "~/workspace/github.com/openresty/openresty/")
+ (front-context-string . ".\n  drwxr-xr-x  ")
+ (rear-context-string . "40 Apr 11 23:38 ")
+ (position . 169))
+("nginx"
+ (filename . "~/workspace/nginx/")
+ (front-context-string . "conf\n  drwxr-xr-")
+ (rear-context-string . "44 Apr 11 14:06 ")
+ (position . 250))
+("nginx-1.16.1-src"
+ (filename . "~/workspace/nginx-1.16.1/")
+ (front-context-string)
+ (rear-context-string . "88 Aug 13  2019 ")
+ (position . 947))
+("go-src"
+ (filename . "/usr/local/Cellar/go/1.13.4/libexec/src/")
+ (front-context-string . ".\n  drwxr-xr-x  ")
+ (rear-context-string . "04 Apr  9 09:36 ")
+ (position . 150))
+("tantan-backend-push"
+ (filename . "~/go/src/gitlab.p1staff.com/backend/tantan-backend-push/")
+ (front-context-string . ".\n  drwxr-xr-x  ")
+ (rear-context-string . "72 Mar  9 09:22 ")
+ (position . 180))
+("tantan-backend-device"
+ (filename . "~/go/src/gitlab.p1staff.com/backend/tantan-backend-device/")
+ (front-context-string . ".\n  drwxr-xr-x  ")
+ (rear-context-string . "72 Apr  9 14:13 ")
+ (position . 182))
+("bolt"
+ (filename . "~/workspace/github.com/boltdb/bolt/db.go")
+ (front-context-string . "package bolt\n\nim")
+ (rear-context-string)
+ (position . 1))
+("bbolt"
+ (filename . "~/workspace/github.com/etcd-io/bbolt/db.go")
+ (front-context-string . "package bbolt\n\ni")
+ (rear-context-string)
+ (position . 1))
+("ipdb"
+ (filename . "~/workspace/github.com/ipipdotnet/ipdb-go/reader.go")
+ (front-context-string . "package ipdb\n\nim")
+ (rear-context-string)
+ (position . 1))
+("backend"
+ (filename . "~/go/src/gitlab.p1staff.com/backend/")
+ (front-context-string . "  /Users/zhaowei")
+ (rear-context-string)
+ (position . 1))
+("jw-init"
+ (filename . "~/workspace/github.com/jwiegley/dot-emacs/init.el")
+ (front-context-string . ";; (require 'ema")
+ (rear-context-string)
+ (position . 1))
+("ffmpeg-slice"
+ (filename . "~/workspace/mytest/ffmpeg/main.go")
+ (front-context-string . "		\"-acodec\", \"co")
+ (rear-context-string . "iFile,\n		\"-vn\",\n")
+ (position . 1700))
+("kafka_2.12-2.4.0"
+ (filename . "~/workspace/kafka_2.12-2.4.0/")
+ (front-context-string . ".\n  drwxr-xr-x  ")
+ (rear-context-string . "88 Feb 20 09:31 ")
+ (position . 153))
+("myewma"
+ (filename . "~/workspace/myewma/main.go")
+ (front-context-string . "\nfunc parseFile(")
+ (rear-context-string . "anic(err)\n	}\n}\n\n")
+ (position . 561))
+("tantan-backend-chat"
+ (filename . "~/go/src/gitlab.p1staff.com/backend/tantan-backend-chat/")
+ (front-context-string . ".\n  drwxr-xr-x  ")
+ (rear-context-string . "40 Feb 19 14:06 ")
+ (position . 181))
+("tantan-backend-rtc"
+ (filename . "~/go/src/gitlab.p1staff.com/backend/tantan-backend-rtc/")
+ (front-context-string . ".\n  drwxr-xr-x  ")
+ (rear-context-string . "08 Feb 14 18:05 ")
+ (position . 178))
+("2019.08.02-video-talk-using-webrtc"
+ (filename . "~/workspace/2019.08.02-video-talk-using-webrtc/")
+ (front-context-string . ".DS_Store\n  drwx")
+ (rear-context-string . "44 Dec 15 13:23 ")
+ (position . 284))
+("mdn/webrtc-from-chat"
+ (filename . "~/workspace/github.com/mdn/samples-server/s/webrtc-from-chat/")
+ (front-context-string . ".\n  drwxr-xr-x  ")
+ (rear-context-string . "84 Feb 12 11:43 ")
+ (position . 185))
+("example-webrtc-applications"
+ (filename . "~/workspace/github.com/pion/example-webrtc-applications/")
+ (front-context-string . ".\n  drwxr-xr-x  ")
+ (rear-context-string . "28 Jan 17 16:53 ")
+ (position . 180))
+("tantan-backend-cd"
+ (filename . "~/go/src/gitlab.p1staff.com/backend/tantan-backend-cd/")
+ (front-context-string . ".\n  drwxr-xr-x  ")
+ (rear-context-string . "84 Jan  6 16:01 ")
+ (position . 176))
+("tantan-backend-rtc-demo"
+ (filename . "~/go/src/gitlab.p1staff.com/backend/tantan-backend-rtc-demo/")
+ (front-context-string . ".\n  drwxr-xr-x  ")
+ (rear-context-string . "28 Feb  3 10:50 ")
+ (position . 180))
+("sfu-minimal"
+ (filename . "~/workspace/github.com/pion/webrtc/examples/sfu-minimal/main.go")
+ (front-context-string . "package main\n\nim")
+ (rear-context-string)
+ (position . 1))
+("jwiegley"
+ (filename . "~/workspace/github.com/jwiegley/")
+ (front-context-string)
+ (rear-context-string . "04 Feb  2 18:52 ")
+ (position . 261))
+("use-package"
+ (front-context-string . "File: use-packag")
+ (rear-context-string)
+ (position . 787)
+ (filename . "/Users/zhaoweipu/.emacs.d/elpa/use-package-20191110.416/use-package")
+ (info-node . "Top")
+ (handler . Info-bookmark-jump))
+("gotest"
+ (filename . "~/workspace/mytest/gotest/main.go")
+ (front-context-string)
+ (rear-context-string . "println(rune)\n}\n")
+ (position . 157))
+("turn"
+ (filename . "~/workspace/github.com/pion/turn/")
+ (front-context-string . ".\n  drwxr-xr-x  ")
+ (rear-context-string . "32 Jan 17 16:07 ")
+ (position . 157))
+("NotifyHooks_AOF"
+ (filename . "~/workspace/github.com/tidwall/tile38/internal/server/aof.go")
+ (front-context-string . "	// Publish all ")
+ (rear-context-string . "Msgs(wmsgs)\n	}\n\n")
+ (position . 5942))
+("IntersectsPoly"
+ (filename . "~/go/pkg/mod/github.com/tidwall/geojson@v1.1.8/geometry/poly.go")
+ (front-context-string . "func (poly *Poly")
+ (rear-context-string . "ersectsPoly ...\n")
+ (position . 4221))
+("rbang.go"
+ (filename . "~/go/pkg/mod/github.com/tidwall/rbang@v1.1.0/rbang.go")
+ (front-context-string . "package rbang\n\ni")
+ (rear-context-string)
+ (position . 1))
+("github.com"
+ (filename . "~/workspace/github.com/")
+ (front-context-string . ".\n  drwxr-xr-x  ")
+ (rear-context-string . "56 Dec 25 18:00 ")
+ (position . 143))
+("Raycast"
+ (filename . "~/go/pkg/mod/github.com/tidwall/geojson@v1.1.8/geometry/segment.go")
+ (front-context-string . "func (seg Segmen")
+ (rear-context-string . "ycast operation\n")
+ (position . 1444))
+("ringContiansPoint"
+ (filename . "~/go/pkg/mod/github.com/tidwall/geojson@v1.1.8/geometry/ring.go")
+ (front-context-string . "ringContainsPoin")
+ (rear-context-string . "e index\n}\n\nfunc ")
+ (position . 478))
+("workspace"
+ (filename . "~/workspace/")
+ (front-context-string . ".\n  drwxr-xr-x+ ")
+ (rear-context-string . "96 Dec 19 11:46 ")
+ (position . 142))
+("tile38"
+ (filename . "~/workspace/github.com/tidwall/tile38/")
+ (front-context-string . "  total used in ")
+ (rear-context-string . "tidwall/tile38:\n")
+ (position . 57))
+("FindRegionByLocation"
+ (filename . "~/go/src/gitlab.p1staff.com/backend/tantan-backend-user/app/user-grpc/server/user2_server.go")
+ (front-context-string . "func (s *user2Se")
+ (rear-context-string . "vities}, nil\n}\n\n")
+ (position . 14586))
+("geohash.go"
+ (filename . "~/workspace/github.com/mmcloughlin/geohash/geohash.go")
+ (front-context-string . "string) []string")
+ (rear-context-string . " Neighbors(hash ")
+ (position . 5718))
+("net/http"
+ (filename . "/usr/local/Cellar/go/1.13.4/libexec/src/net/http/server.go")
+ (front-context-string . "package http\n\nim")
+ (rear-context-string . " through 7235.\n\n")
+ (position . 205))
+("common"
+ (filename . "~/go/src/gitlab.p1staff.com/backend/tantan-backend-common/")
+ (front-context-string)
+ (rear-context-string . "7 15:38 version\n")
+ (position . 2287))
+("user"
+ (filename . "~/go/src/gitlab.p1staff.com/backend/tantan-backend-user/")
+ (front-context-string . ".\n  drwxr-xr-x  ")
+ (rear-context-string . "76 Nov 27 16:35 ")
+ (position . 180))
+("DocSets"
+ (filename . "~/Library/Application Support/Dash/DocSets/")
+ (front-context-string . ".\n  drwxr-xr-x  ")
+ (rear-context-string . "96 Nov 23 18:12 ")
+ (position . 171))
+("location"
+ (filename . "~/go/src/gitlab.p1staff.com/backend/tantan-backend-location/")
+ (front-context-string . ".\n  drwxr-xr-x  ")
+ (rear-context-string . "72 Mar 30 10:47 ")
+ (position . 184))
+("myinit.el"
+ (filename . "~/.emacs.d/myinit.el")
+ (front-context-string . ";; myinit.el ---")
+ (rear-context-string)
+ (position . 1))
+)
