@@ -33,6 +33,7 @@
 
 (setq org-agenda-files (list org-index-file))
 
+
 (defun hrs/mark-done-and-archive ()
   "Mark the state of an org-mode item as DONE and archive it."
   (interactive)
@@ -45,7 +46,7 @@
 ;;(setq org-agenda-files (list "~/Dropbox/notes/schedule.org"))
 
 (add-to-list 'org-structure-template-alist
-	     '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))
+             '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))
 (add-hook 'org-mode-hook
 	  '(lambda ()
 	     (visual-line-mode 1)))

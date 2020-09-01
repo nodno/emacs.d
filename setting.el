@@ -1,7 +1,8 @@
 ;;; setting --- Summar
 ;;; Commentary:
 ;;; all settings
-
+;; cl warning
+(setq byte-compile-warnings '(cl-functions))
 ;; yuse-package-setting:
 (setq use-package-always-ensure t)
 (setq use-package-verbose t)
@@ -10,6 +11,9 @@
 
 ;; backup copy from SachaChua
 (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+;;emacs-mac 
+(setq mac-option-modifier 'meta)
+(setq mac-command-modifier 'super)
 
 (setq delete-old-versions -1)
 (setq version-control t)

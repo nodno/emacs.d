@@ -1,8 +1,80 @@
-;;;; Emacs Bookmark Format Version 1 ;;;; -*- coding: no-conversion -*- 
+;;;; Emacs Bookmark Format Version 1 ;;;; -*- coding: no-conversion -*-
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("mosn"
+(("package sort, search.go"
+ (filename . "/usr/local/Cellar/go/1.13.4/libexec/src/sort/search.go")
+ (front-context-string . "package sort\n\n//")
+ (rear-context-string . "binary search.\n\n")
+ (position . 201))
+("sort"
+ (filename . "/usr/local/Cellar/go/1.13.4/libexec/src/sort/search.go")
+ (front-context-string . "package sort\n\n//")
+ (rear-context-string . "binary search.\n\n")
+ (position . 201))
+("practice.sql"
+ (filename . "~/workspace/test/practice.sql")
+ (front-context-string)
+ (rear-context-string . " 'plpgsql';\n\n\n\n\n")
+ (position . 203))
+("postgresql.conf"
+ (filename . "/usr/local/var/postgres/postgresql.conf")
+ (front-context-string . "# --------------")
+ (rear-context-string)
+ (position . 1))
+("tantan-experiment"
+ (filename . "~/go/src/gitlab.p1staff.com/common-tech/tantan-experiment/")
+ (front-context-string . ".\n  drwxr-xr-x  ")
+ (rear-context-string . "92 Aug  3 10:14 ")
+ (position . 182))
+("http/client.go"
+ (filename . "/usr/local/Cellar/go/1.13.4/libexec/src/net/http/client.go")
+ (front-context-string . "\npackage http\n\ni")
+ (rear-context-string . "n transport.go.\n")
+ (position . 303))
+("web-websocket"
+ (filename . "~/go/src/gitlab.p1staff.com/backend/ttx-moderation-web/src/websocket/")
+ (front-context-string . "domain\n  -rw-r--")
+ (rear-context-string . "48 Jul 17 08:36 ")
+ (position . 302))
+("postgresql"
+ (filename . "~/workspace/postgresql/")
+ (front-context-string . ".\n  drwxr-xr-x  ")
+ (rear-context-string . "08 Nov 24  2019 ")
+ (position . 149))
+("strings.go"
+ (filename . "/usr/local/Cellar/go/1.13.4/libexec/src/strings/strings.go")
+ (front-context-string . "func Index(s, su")
+ (rear-context-string . "t present in s.\n")
+ (position . 25853))
+("(magit) Minor Mode for Buffers Visiting Files"
+ (front-context-string . "\342\200\230C-c M-g l\342\200\231     ")
+ (rear-context-string . " visited file.\n\n")
+ (position . 15123)
+ (filename . "/Users/zhaoweipu/.emacs.d/elpa/magit-20200313.1657/magit")
+ (info-node . "Minor Mode for Buffers Visiting Files")
+ (handler . Info-bookmark-jump))
+("heap.go"
+ (filename . "/usr/local/Cellar/go/1.13.4/libexec/src/container/heap/heap.go")
+ (front-context-string . "package heap\n\nim")
+ (rear-context-string . "lete source.\n//\n")
+ (position . 783))
+("tantan-backend-gateway"
+ (filename . "~/go/src/gitlab.p1staff.com/common-tech/tantan-backend-gateway/")
+ (front-context-string . ".gitignore\n  -rw")
+ (rear-context-string . "80 May 15 14:59 ")
+ (position . 358))
+("redis"
+ (filename . "~/workspace/github.com/antirez/redis/")
+ (front-context-string . "Makefile\n  -rw-r")
+ (rear-context-string . "51 May 15 08:48 ")
+ (position . 856))
+("schema"
+ (filename . "~/go/src/gitlab.p1staff.com/backend/tantan-domain-schema/_proto/")
+ (front-context-string . "Makefile\n  drwxr")
+ (rear-context-string . "08 Mar 23 15:28 ")
+ (position . 297))
+("mosn"
  (filename . "~/go/src/mosn.io/mosn/")
  (front-context-string . ".\n  drwxr-xr-x  ")
  (rear-context-string . "32 May  7 18:51 ")
@@ -17,11 +89,6 @@
  (front-context-string . "import (\n	\"bytes")
  (rear-context-string)
  (position . 15))
-("tantan-live-socket"
- (filename . "~/go/src/gitlab.p1staff.com/backend/tantan-live-socket/")
- (front-context-string . ".git\n  -rw-r--r-")
- (rear-context-string . "84 Apr 19 21:59 ")
- (position . 292))
 ("tantan-backend-socket"
  (filename . "~/go/src/gitlab.p1staff.com/backend/tantan-backend-socket/")
  (front-context-string . ".\n  drwxr-xr-x  ")
@@ -43,10 +110,10 @@
  (rear-context-string . "88 Aug 13  2019 ")
  (position . 947))
 ("go-src"
- (filename . "/usr/local/Cellar/go/1.13.4/libexec/src/")
- (front-context-string . ".\n  drwxr-xr-x  ")
- (rear-context-string . "04 Apr  9 09:36 ")
- (position . 150))
+ (filename . "~/workspace/github.com/golang/go/src/")
+ (front-context-string . "Make.dist\n  -rw-")
+ (rear-context-string . "53 May 20 00:19 ")
+ (position . 277))
 ("tantan-backend-push"
  (filename . "~/go/src/gitlab.p1staff.com/backend/tantan-backend-push/")
  (front-context-string . ".\n  drwxr-xr-x  ")

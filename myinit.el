@@ -161,7 +161,8 @@
 
 (use-package exec-path-from-shell
   :config (dolist (var '("SSH_AUTH_SOCK" "SSH_AGENT_PID" "GPG_AGENT_INFO" "LANG" "LC_CTYPE"))
-            (add-to-list 'exec-path-from-shell-variables var))
+            (add-to-list 'exec-path-from-shell-variables var)
+            (setq exec-path-from-shell-check-startup-files nil))
   (exec-path-from-shell-initialize))
 
 (use-package expand-region
@@ -211,7 +212,6 @@
 (use-package go-mode
   :mode ("\\.go\\'" . go-mode)
   :config
-  ;; TODO: check where this C-c C-o doesn't work
   (define-key go-mode-map  (kbd "C-c C-o") 'zwp/go-occour-definitions)
   (add-hook 'go-mode-hook (lambda () (setq tab-width 4)))
   (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
@@ -402,6 +402,9 @@
   (lsp-prefer-flymake nil) ; Use flycheck instead of flymake
   :hook (go-mode . lsp-deferred)
   :config
+  (setq lsp-gopls-staticcheck t)
+  (setq lsp-eldoc-render-all t)
+  (setq lsp-gopls-complete-unimported t)
   (use-package company-lsp
     :commands company-lsp)
 
@@ -668,6 +671,12 @@
   :commands smart-newline-mode)
 
 (use-package sr-speedbar)
+
+;; brew install pgformatter
+(use-package sqlformat
+  :config
+  (setq sqlformat-command 'pgformatter)
+  (setq sqlformat-args '("-s2" "-g")))
 
 (use-package swiper
   :disabled t
