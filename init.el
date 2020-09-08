@@ -32,10 +32,10 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    '("a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" "3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default))
- '(lsp-enable-snippet nil t)
+ '(lsp-enable-snippet nil)
  '(lsp-prefer-flymake nil t)
  '(package-selected-packages
-   '(sqlformat company-lsp diredfl dired-x gitlab-ci-mode-flycheck gitlab-ci-mode hs-minor-mode company-c-headers sr-speedbar function-args helm-gtags ob-go c-mode google-c-style smart-mode-line iedit aggressive-indent bm beacon ascii abbrev helm-lsp yasnippet-snippets xref-js2 wsd-mode which-key web-mode use-package try treemacs smart-cursor-color showtip selected regex-tool pyvenv protobuf-mode pos-tip php-mode phi-search-mc ox-twbs org-pdfview org-bullets nginx-mode magit macrostep lua-mode lsp-ui link-hint leetcode js2-refactor htmlize helm-projectile helm-ls-git helm-descbinds helm-dash helm-ag go-playground git-gutter flycheck-color-mode-line expand-region exec-path-from-shell diminish deft dash-at-point company-anaconda command-log-mode color-theme-sanityinc-tomorrow blacken avy-zap ace-mc)))
+   '(smartparens smartparens-config ido-springboard sqlformat company-lsp diredfl dired-x gitlab-ci-mode-flycheck gitlab-ci-mode hs-minor-mode company-c-headers sr-speedbar function-args helm-gtags ob-go c-mode google-c-style smart-mode-line iedit aggressive-indent bm beacon ascii abbrev helm-lsp yasnippet-snippets xref-js2 wsd-mode which-key web-mode use-package try treemacs smart-cursor-color showtip selected regex-tool pyvenv protobuf-mode pos-tip php-mode phi-search-mc ox-twbs org-pdfview org-bullets nginx-mode magit macrostep lua-mode lsp-ui link-hint leetcode js2-refactor htmlize helm-projectile helm-ls-git helm-descbinds helm-dash helm-ag go-playground git-gutter flycheck-color-mode-line expand-region exec-path-from-shell diminish deft dash-at-point company-anaconda command-log-mode color-theme-sanityinc-tomorrow blacken avy-zap ace-mc)))
 
 
 (put 'upcase-region 'disabled nil)
@@ -46,4 +46,11 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(erc-input-face ((t (:foreground "antique white"))))
+ '(helm-selection ((t (:background "ForestGreen" :foreground "black"))))
+ '(org-agenda-clocking ((t (:inherit secondary-selection :foreground "black"))))
+ '(org-agenda-done ((t (:foreground "dim gray" :strike-through nil))))
+ '(org-clock-overlay ((t (:background "SkyBlue4" :foreground "black"))))
+ '(org-done ((t (:foreground "PaleGreen" :weight normal :strike-through t))))
+ '(org-headline-done ((((class color) (min-colors 16) (background dark)) (:foreground "LightSalmon" :strike-through t))))
+ '(outline-1 ((t (:inherit font-lock-function-name-face :foreground "cornflower blue")))))

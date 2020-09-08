@@ -51,13 +51,14 @@
 	  '(lambda ()
 	     (visual-line-mode 1)))
 (setq org-hide-emphasis-markers t)
-(require 'cl)				;for delete*
-(setq org-emphasis-alist
-      (cons '("+" (:strike-through t :foreground "gray"))
-	    (delete* "+" org-emphasis-alist :key 'car :test 'equal)))
-(setq org-emphasis-alist
-      (cons '("*" (bold :foreground "red"))
-	    (delete* "*" org-emphasis-alist :key 'car :test 'equal)))
+
+;; (require 'cl)				;for delete*
+;; (setq org-emphasis-alist
+;;       (cons '("+" (:strike-through t :foreground "gray"))
+;; 	    (delete* "+" org-emphasis-alist :key 'car :test 'equal)))
+;; (setq org-emphasis-alist
+;;       (cons '("*" (bold :foreground "red"))
+;; 	    (delete* "*" org-emphasis-alist :key 'car :test 'equal)))
 ;; 使得中英文表格对其, 需要先安装https://www.google.co.kr/get/noto/
 ;; (set-face-attribute 'org-table nil :family "Noto Sans Mono CJk SC")
 

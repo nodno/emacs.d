@@ -14,6 +14,7 @@
          ("<C-m> M-h" . ace-mc-add-single-cursor)))
 
 (use-package ace-window
+  :disabled t
   :init (setq aw-swap-invert t)
   :bind* (("C-<return>" . ace-window)
           ("M-O" . ace-swap-window)))
@@ -168,6 +169,9 @@
 (use-package expand-region
   :bind ("C-=" . er/expand-region))
 
+(use-package f
+  :defer t)
+
 (use-package flycheck
   :hook
   (prog-mode . flycheck-mode))
@@ -280,10 +284,8 @@
         helm-M-x-fuzzy-match t
         helm-dwim-target 'next-window
         helm-ff-auto-update-initial-value 1)
-  ;; (helm-autoresize-mode 1)
+  (helm-autoresize-mode 1)
 
-  ;; (custom-set-faces
-  ;;  '(helm-selection ((t (:background "systemPurpleColor" :foreground "white")))))
   (helm-mode 1))
 
 (use-package helm-dash
@@ -297,7 +299,6 @@
   ;; (add-to-list 'helm-dash-common-docsets "Django")
   ;; (add-to-list 'helm-dash-common-docsets "Python 2")
   (add-to-list 'helm-dash-common-docsets "Python 3")
-  
   (add-to-list 'helm-dash-common-docsets "Redis"))
 
 (use-package helm-descbinds
@@ -332,6 +333,7 @@
   (helm-mode)
   :config
   (global-set-key (kbd "C-x C-d") 'helm-browse-project))
+
 
 (use-package hideshow
   :diminish hs-minor-mode
@@ -669,6 +671,15 @@
 (use-package smart-newline
   :diminish
   :commands smart-newline-mode)
+
+(use-package smartparens
+  :config
+  (setq sp-show-pair-from-inside nil)
+  (require 'smartparens-config)
+  :diminish smartparens-mode
+  :hook
+  (program-mode . smartparens-mode))
+
 
 (use-package sr-speedbar)
 

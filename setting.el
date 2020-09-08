@@ -11,9 +11,18 @@
 
 ;; backup copy from SachaChua
 (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
-;;emacs-mac 
+;;emacs-mac
+;; https://gist.github.com/railwaycat/3498096
 (setq mac-option-modifier 'meta)
-(setq mac-command-modifier 'super)
+(setq mac-command-modifier 'hyper)
+(global-set-key [(hyper a)] 'mark-whole-buffer)
+(global-set-key [(hyper v)] 'yank)
+(global-set-key [(hyper c)] 'kill-ring-save)
+(global-set-key [(hyper s)] 'save-buffer)
+;;(global-set-key [(hyper l)] 'goto-line)
+(global-set-key [(hyper w)]
+                (lambda () (interactive) (delete-window)))
+(global-set-key [(hyper z)] 'undo)
 
 (setq delete-old-versions -1)
 (setq version-control t)
@@ -124,7 +133,16 @@ is already narrowed."
               (convert-standard-filename buffer-file-name)))
           (buffer-name))))
 
-
+(when window-system
+  (custom-set-faces
+   '(erc-input-face ((t (:foreground "antique white"))))
+   '(helm-selection ((t (:background "ForestGreen" :foreground "black"))))
+   '(org-agenda-clocking ((t (:inherit secondary-selection :foreground "black"))) t)
+   '(org-agenda-done ((t (:foreground "dim gray" :strike-through nil))))
+   '(org-done ((t (:foreground "PaleGreen" :weight normal :strike-through t))))
+   '(org-clock-overlay ((t (:background "SkyBlue4" :foreground "black"))))
+   '(org-headline-done ((((class color) (min-colors 16) (background dark)) (:foreground "LightSalmon" :strike-through t))))
+   '(outline-1 ((t (:inherit font-lock-function-name-face :foreground "cornflower blue"))))))
 ;; (defun er-open-with (arg)
 ;;   "Open visited file in default external program.
 
@@ -139,3 +157,4 @@ is already narrowed."
 ;; 		    " "
 ;; 		    (shell-quote-argument buffer-file-name)))))
 ;; (global-set-key (kbd "C-c o") #'er-open-with)
+
