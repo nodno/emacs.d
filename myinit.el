@@ -5,6 +5,16 @@
 ;;; Code:
 ;;; Libraries
 (use-package diminish)
+(use-package deferred      :defer t)
+(use-package pkg-info      :defer t)
+(use-package popup         :defer t)
+(use-package popup-pos-tip :defer t)
+(use-package popwin        :defer t)
+(use-package pos-tip       :defer t)
+(use-package web           :defer t)
+(use-package web-server    :defer t)
+(use-package websocket     :defer t)
+(use-package with-editor   :defer t)
 ;;; Packages
 (use-package ace-jump-mode
   :defer t)
@@ -14,10 +24,9 @@
          ("<C-m> M-h" . ace-mc-add-single-cursor)))
 
 (use-package ace-window
-  :disabled t
   :init (setq aw-swap-invert t)
-  :bind* (("C-<return>" . ace-window)
-          ("M-O" . ace-swap-window)))
+  :bind (("C-x o" . ace-window)
+         ("M-O" . ace-swap-window)))
 
 (use-package aggressive-indent
   :diminish
@@ -110,6 +119,12 @@
 (use-package company-c-headers
   :config
   (add-to-list 'company-backends 'company-c-headers))
+
+(use-package company-quickhelp
+  :after company
+  :hook (company-mode . company-quickhelp-mode))
+;; :bind (:map company-active-map
+;;             ("C-c ?" . company-quickhelp-manual-begin)))
 
 (use-package counsel
   :disabled t
@@ -351,6 +366,10 @@
 (use-package iedit
   :defer 5)
 
+(use-package indium
+  :disabled t
+  )
+
 (use-package ivy
   :disabled t
   :diminish (ivy-mode)
@@ -360,7 +379,7 @@
 (use-package js2-mode
   :mode ("\\.js\\'" . js2-mode)
   :config
-  (setq js-indent-level 4)
+  (setq js-indent-level 2)
   (use-package js2-refactor)
   (use-package xref-js2)
   (add-hook 'js2-mode-hook #'js2-refactor-mode)
@@ -402,7 +421,7 @@
   ;; (lsp-auto-guess-root t)
   (lsp-enable-snippet nil)
   (lsp-prefer-flymake nil) ; Use flycheck instead of flymake
-  :hook (go-mode . lsp-deferred)
+  :hook ((js-mode css-mode scss-mode web-mode go-mode) . lsp-deferred)
   :config
   (setq lsp-gopls-staticcheck t)
   (setq lsp-eldoc-render-all t)
@@ -418,6 +437,8 @@
     :init
     (setq lsp-ui-doc-position 'top)
     :commands lsp-ui-mode))
+
+
 
 (use-package macrostep
   :bind ("C-c e m" . macrostep-expand))
@@ -534,6 +555,9 @@
   (defadvice term-process-pager (after term-process-rebind-keys activate)
     (define-key term-pager-break-map  "\177" 'term-pager-back-page)))
 
+(use-package tern :ensure t :defer 30
+  :if (locate-file "tern" exec-path)
+  :hook (js2-mode . tern-mode))
 
 (use-package pdf-tools
   ;; (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig")  
@@ -610,7 +634,7 @@
   :hook (python-mode . pyvenv-mode)
   :config
   (setenv "WORKON_HOME" "/Users/zhaoweipu/opt/anaconda3/envs")
-  (pyvenv-workon "py3"))
+  (pyvenv-workon "py38"))
 
 (use-package regex-tool
   :commands regex-tool
@@ -749,6 +773,8 @@
 
 (use-package web-mode
   :defer 5
+  :bind
+  ("C-c C-v" . browse-url-of-buffer)
   :config
   (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.vue?\\'" . web-mode))
@@ -768,9 +794,17 @@
   (setq-local standard-indent 2)
   (setq web-mode-enable-current-element-highlight t)
   (setq web-mode-enable-current-column-highlight t)
+  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-code-indent-offset 2)
   (setq web-mode-enable-auto-closing t)
+  (setq indent-tabs-mode nil)
   (setq web-mode-enable-auto-quoting t)) ;; this fixes the quote problem I mentioned
 
+;; (defun my-web-mode-hook ()
+;;   "Hooks for Web mode."
+;;   (setq web-mode-markup-indent-offset 2)
+;;   )
+;; (add-hook 'web-mode-hook  'my-web-mode-hook)
 
 (use-package wsd-mode
   :defer 3
