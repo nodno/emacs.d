@@ -16,8 +16,14 @@
 (use-package websocket     :defer t)
 (use-package with-editor   :defer t)
 ;;; Packages
+(use-package abbrev
+  :ensure nil
+  :hook
+  ((js2-mode web-mode) . abbrev-mode))
+
 (use-package ace-jump-mode
   :defer t)
+
 
 (use-package ace-mc
   :bind (("<C-m> h"   . ace-mc-add-multiple-cursors)
@@ -314,6 +320,7 @@
   ;; (add-to-list 'helm-dash-common-docsets "Django")
   ;; (add-to-list 'helm-dash-common-docsets "Python 2")
   (add-to-list 'helm-dash-common-docsets "Python 3")
+  (add-to-list 'helm-dash-common-docsets "JavaScript")  
   (add-to-list 'helm-dash-common-docsets "Redis"))
 
 (use-package helm-descbinds
@@ -391,6 +398,8 @@
 
   (add-hook 'js2-mode-hook (lambda ()
                              (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t))))
+
+(use-package json-mode)
 
 (use-package leetcode
   :bind
@@ -594,6 +603,10 @@
 (use-package pos-tip
   :ensure t)
 
+(use-package prettier-js
+  :hook
+  (web-mode . prettier-js-mode))
+
 (use-package protobuf-mode
   :ensure t
   :mode ("\\.proto\\'" . protobuf-mode)
@@ -777,6 +790,7 @@
   ("C-c C-v" . browse-url-of-buffer)
   :config
   (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.ts?\\'" . web-mode))  
   (add-to-list 'auto-mode-alist '("\\.vue?\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
