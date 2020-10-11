@@ -1,6 +1,7 @@
 ;;-*-coding: utf-8;-*-
 (define-abbrev-table 'global-abbrev-table
   '(
+    ("hrt" "❤️" nil :count 0)
     ("yn" "Your Name" nil :count 2)
    ))
 

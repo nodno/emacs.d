@@ -3,6 +3,20 @@
 ;;; My config file, all the packages I'm using, except use-package.
 
 ;;; Code:
+
+;;; Functions
+
+(defun nodno/insert-date()
+  "insert current date time.
+Insert date in this format: yyyy-mm-dd HH:MM:SS.
+for example: 2020-10-08 12:10:00."
+  (interactive)
+  (when (use-region-p) (delete-region (region-beginning) (region-end)))
+  (insert
+   (format-time-string "%Y-%m-%d %H:%M:%S")))
+
+(global-set-key (kbd "C-c t") 'nodno/insert-date)
+
 ;;; Libraries
 (use-package diminish)
 (use-package deferred      :defer t)
@@ -61,6 +75,10 @@
       (if window
           (select-window window)
         (switch-to-buffer "*Occur*")))))
+
+(use-package auto-rename-tag
+  :disabled t
+  :hook (web-mode . auto-rename-tag-mode))
 
 (use-package avy
   ;; Avy - navigate by searching for a letter on the screen and jumping to it
@@ -373,6 +391,9 @@
 (use-package iedit
   :defer 5)
 
+(use-package imenu-list
+  :commands imenu-list-minor-mode)
+
 (use-package indium
   :disabled t
   )
@@ -430,7 +451,7 @@
   ;; (lsp-auto-guess-root t)
   (lsp-enable-snippet nil)
   (lsp-prefer-flymake nil) ; Use flycheck instead of flymake
-  :hook ((js-mode css-mode scss-mode web-mode go-mode) . lsp-deferred)
+  :hook ((js-mode css-mode scss-mode typescript-mode web-mode go-mode) . lsp-deferred)
   :config
   (setq lsp-gopls-staticcheck t)
   (setq lsp-eldoc-render-all t)
@@ -745,6 +766,14 @@
   (setq ivy-use-virtual-buffers t)
   ;; (setq ivy-display-style 'fancy)
   (define-key read-expression-map (kbd "C-r") 'counsel-expression-history))
+
+(use-package tide
+  :ensure t
+  :after (typescript-mode company flycheck)
+  :hook ((typescript-mode . tide-setup)
+         (typescript-mode . tide-hl-identifier-mode)
+         (before-save . tide-format-before-save)))
+
 
 (use-package tramp
   :defer 5

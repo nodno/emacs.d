@@ -4,17 +4,26 @@
 
 ;;; Code:
 
-(use-package org-bullets
-;;  :defer t
-  :bind (("C-c l" . org-store-link)
-	 ("C-c a" . org-agenda)
-	 ("C-c c" . org-iswitchb))
-  :hook (org-mode . org-bullets-mode))
-
 (require 'org)
+
+(define-key global-map "\C-cl" 'org-store-link)
+(define-key global-map "\C-ca" 'org-agenda)
+(use-package org-superstar
+  :hook
+  (org-mode . org-superstar-mode)
+  :config
+  ;; This is usually the default, but keep in mind it must be nil
+  (setq org-hide-leading-stars nil)
+  ;; This line is necessary.
+  (setq org-superstar-leading-bullet ?\s))
 
 (use-package ob-go
   :defer t)
+
+(use-package ob-typescript
+  :defer t)
+
+
 
 (setq-default major-mode 'org-mode)
 ;;steal from hrs
@@ -32,7 +41,6 @@
       (concat (org-file-path "archive.org") "::* From %s"))
 
 (setq org-agenda-files (list org-index-file))
-
 
 (defun hrs/mark-done-and-archive ()
   "Mark the state of an org-mode item as DONE and archive it."
@@ -52,13 +60,15 @@
 	     (visual-line-mode 1)))
 (setq org-hide-emphasis-markers t)
 
-;; (require 'cl)				;for delete*
-;; (setq org-emphasis-alist
-;;       (cons '("+" (:strike-through t :foreground "gray"))
-;; 	    (delete* "+" org-emphasis-alist :key 'car :test 'equal)))
-;; (setq org-emphasis-alist
-;;       (cons '("*" (bold :foreground "red"))
-;; 	    (delete* "*" org-emphasis-alist :key 'car :test 'equal)))
+(require 'cl)				;for delete*
+(setq org-emphasis-alist
+      (cons '("+" (:strike-through t :foreground "gray"))
+	        (delete* "+" org-emphasis-alist :key 'car :test 'equal)))
+
+(setq org-emphasis-alist
+      (cons '("*" (bold :foreground "red"))
+	        (delete* "*" org-emphasis-alist :key 'car :test 'equal)))
+
 ;; 使得中英文表格对其, 需要先安装https://www.google.co.kr/get/noto/
 ;; (set-face-attribute 'org-table nil :family "Noto Sans Mono CJk SC")
 
@@ -69,6 +79,7 @@
    (perl . t)
    (emacs-lisp . t)
    (go . t)
+   (typescript . t)
    (shell . t)))
 ;; Refiling according to the document’s hierarchy.
 (setq org-refile-use-outline-path t)

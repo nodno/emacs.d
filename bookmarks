@@ -2,7 +2,32 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("package sort, search.go"
+(("tableDynamicColumn.vue"
+ (filename . "~/workspace/tsp/my-project/src/views/tableDynamicColumn.vue")
+ (front-context-string . "<template>\n    <")
+ (rear-context-string)
+ (position . 1))
+("operation-web"
+ (filename . "~/workspace/tsp/operation-web/")
+ (front-context-string)
+ (rear-context-string . "Sep 30 15:20 pm\n")
+ (position . 383))
+("abbrev_defs"
+ (filename . "~/.emacs.d/abbrev_defs")
+ (front-context-string . "(define-abbrev-t")
+ (rear-context-string . "ding: utf-8;-*-\n")
+ (position . 24))
+("tsp"
+ (filename . "~/workspace/tsp/")
+ (front-context-string . ".\n  drwxr-xr-x  ")
+ (rear-context-string . "92 Sep 23 17:54 ")
+ (position . 135))
+("cloud-web"
+ (filename . "~/workspace/tsp/cloud-web/")
+ (front-context-string . ".\n  drwxr-xr-x  ")
+ (rear-context-string . "96 Sep 23 16:23 ")
+ (position . 151))
+("package sort, search.go"
  (filename . "/usr/local/Cellar/go/1.13.4/libexec/src/sort/search.go")
  (front-context-string . "package sort\n\n//")
  (rear-context-string . "binary search.\n\n")
