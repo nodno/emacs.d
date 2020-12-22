@@ -17,6 +17,8 @@ for example: 2020-10-08 12:10:00."
 
 (global-set-key (kbd "C-c t") 'nodno/insert-date)
 
+(global-set-key (kbd "C-H-f") 'toggle-frame-fullscreen)
+
 ;;; Libraries
 (use-package diminish)
 (use-package deferred      :defer t)
@@ -37,7 +39,6 @@ for example: 2020-10-08 12:10:00."
 
 (use-package ace-jump-mode
   :defer t)
-
 
 (use-package ace-mc
   :bind (("<C-m> h"   . ace-mc-add-multiple-cursors)
@@ -93,7 +94,9 @@ for example: 2020-10-08 12:10:00."
 
 (use-package beacon
   :diminish
-  :commands beacon-mode)
+  ;;  :commands beacon-mode
+  :config
+  (beacon-mode t))
 
 (use-package blacken
   :ensure t
@@ -120,10 +123,38 @@ for example: 2020-10-08 12:10:00."
   :config
   (load-theme 'sanityinc-tomorrow-bright t))
 
+
 (use-package command-log-mode
   :bind (("C-c e M" . command-log-mode)
          ("C-c e L" . clm/open-command-log-buffer))
-  :config (setq clm/log-command-exceptions* nil))
+  :after posframe
+  :preface
+  (defvar dw/command-window-frame nil)
+  (defun dw/toggle-command-window ()
+    (interactive)
+    (if dw/command-window-frame
+        (progn
+          (posframe-delete-frame clm/command-log-buffer)
+          (setq dw/command-window-frame nil))
+      (progn
+        (global-command-log-mode t)
+        (with-current-buffer
+            (setq clm/command-log-buffer
+                  (get-buffer-create " *command-log*"))
+          (text-scale-set -1))
+        (setq dw/command-window-frame
+              (posframe-show
+               clm/command-log-buffer
+               :position `(,(- (x-display-pixel-width) 650) . 50)
+               :width 35
+               :height 5
+               :min-width 35
+               :min-height 5
+               :internal-border-width 2
+               :internal-border-color "#c792ea"
+               :override-parameters '((parent-frame . nil)))))))
+  :config
+  (setq clm/log-command-exceptions* nil))
 
 
 (use-package company
@@ -150,27 +181,63 @@ for example: 2020-10-08 12:10:00."
 ;; :bind (:map company-active-map
 ;;             ("C-c ?" . company-quickhelp-manual-begin)))
 
+(use-package company-irony
+  :after (company irony-mode)
+  :config
+  (add-to-list 'company-backends 'company-irony))
+
+(use-package company-irony-c-headers
+  :after (company-irony)
+  :config
+  (add-to-list 'company-backends 'company-irony-c-headers))
+
 (use-package counsel
   :disabled t
   :after ivy
   :bind
   ("M-y" . counsel-yank-pop))
 
+(use-package dap-mode
+  :config
+  (require 'dap-go)
+  (setq dap-print-io t) 
+  (dap-go-setup)
+  (dap-mode 1)
+  (dap-ui-mode 1)
+  ;; enables mouse hover support
+  (dap-tooltip-mode 1)
+  ;; use tooltips for mouse hover
+  ;; if it is not enabled `dap-mode' will use the minibuffer.
+  (tooltip-mode 1)
+  ;; displays floating panel with debug buttons
+  ;; requies emacs 26+
+  (dap-ui-controls-mode 1)
+
+  (require 'dap-hydra)
+  (add-hook 'dap-stopped-hook
+            (lambda (arg) (call-interactively #'dap-hydra))))
+
+
 (use-package dash-at-point
   :bind ("C-c D" . dash-at-point)
   :config
   (add-to-list 'dash-at-point-mode-alist
-	       '(python-mode . "python")))
+               '(lisp-mode . "Common Lisp")
+               
+	           '(python-mode . "Python3")))
 
 (use-package deft
   :bind ("C-c d" . deft)
   :commands (deft)
   :config
-  (setq deft-directory "~/Dropbox/notes"
+  (setq deft-directory "~/notes"
         deft-extensions '("org")
         deft-default-extension "org"
         deft-use-filename-as-title t
         deft-use-filter-string-for-filename t))
+
+(use-package go-dlv
+  :ensure t)
 
 (use-package diredfl
   :hook (dired-mode . diredfl-mode))
@@ -182,17 +249,99 @@ for example: 2020-10-08 12:10:00."
 (use-package eldoc
   :diminish)
 
+(use-package eglot
+  :disabled
+  :hook
+  (go-mode . eglot-ensure)
+  :config
+  (defvar-local flycheck-eglot-current-errors nil)
+
+  (defun flycheck-eglot-report-fn (diags &rest _)
+    (setq flycheck-eglot-current-errors
+          (mapcar (lambda (diag)
+                    (save-excursion
+                      (goto-char (flymake--diag-beg diag))
+                      (flycheck-error-new-at (line-number-at-pos)
+                                             (1+ (- (point) (line-beginning-position)))
+                                             (pcase (flymake--diag-type diag)
+                                               ('eglot-error 'error)
+                                               ('eglot-warning 'warning)
+                                               ('eglot-note 'info)
+                                               (_ (error "Unknown diag type, %S" diag)))
+                                             (flymake--diag-text diag)
+                                             :checker 'eglot)))
+                  diags))
+    (flycheck-buffer))
+
+  (defun flycheck-eglot--start (checker callback)
+    (funcall callback 'finished flycheck-eglot-current-errors))
+
+  (defun flycheck-eglot--available-p ()
+    (bound-and-true-p eglot--managed-mode))
+
+  (flycheck-define-generic-checker 'eglot
+    "Report `eglot' diagnostics using `flycheck'."
+    :start #'flycheck-eglot--start
+    :predicate #'flycheck-eglot--available-p
+    :modes '(prog-mode text-mode))
+
+  (push 'eglot flycheck-checkers)
+
+  (defun sanityinc/eglot-prefer-flycheck ()
+    (when eglot--managed-mode
+      (flycheck-add-mode 'eglot major-mode)
+      (flycheck-select-checker 'eglot)
+      (flycheck-mode)
+      (flymake-mode -1)
+      (setq eglot--current-flymake-report-fn 'flycheck-eglot-report-fn)))
+
+  (add-hook 'eglot--managed-mode-hook 'sanityinc/eglot-prefer-flycheck)  
+  )
+
+;; (setq-default eglot-workspace-configuration
+;;               '((:gopls .
+;;                         ((staticcheck . t)
+;;                          (matcher . "CaseSensitive")))))
+
+
+;; (defun eglot-format-buffer-on-save ()
+;;   (add-hook 'before-save-hook #'eglot-format-buffer -10 t))
+
+;; (add-hook 'go-mode-hook #'eglot-format-buffer-on-save)
+
+
+(use-package eyebrowse
+  :bind-keymap ("C-\\" . eyebrowse-mode-map)
+  :bind (:map eyebrowse-mode-map
+              ("C-\\ C-\\" . eyebrowse-last-window-config)
+              ("1" . eyebrowse-switch-to-window-config-1)
+              ("2" . eyebrowse-switch-to-window-config-2)
+              ("3" . eyebrowse-switch-to-window-config-3)
+              ("4" . eyebrowse-switch-to-window-config-4))
+  :config
+  (eyebrowse-mode t))
+
+
+(use-package go
+  :disabled
+  :load-path "lisp/el-go"
+  )
+
 (use-package elpy
   :disabled t
   :defer t
+  :init
+  (elpy-enable)
   :hook
   (python-mode . elpy-mode)
   :config
   (setq eldoc-idle-delay 1)
+  (setq python-shell-interpreter "ipython"
+        python-shell-interpreter-args "-i --simple-prompt")  
   (when (require 'flycheck nil t)
     (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)))
 
-  ;; force it to use balck, as there this function in elpy.el seems
+  ;; force it to use black, as there this function in elpy.el seems
   ;; can't find black
   (defun elpy-format-code ()
     "Format code using the available formatter."
@@ -222,7 +371,7 @@ for example: 2020-10-08 12:10:00."
   :config(fa-config-default))
 
 (use-package ggtags
-  :disabled t
+  :disabled
   :hook
   (c-mode-common . (lambda ()
                      (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
@@ -238,7 +387,7 @@ for example: 2020-10-08 12:10:00."
 
 
 (use-package git-gutter
-  :disabled t
+  :disabled
   :defer 1
   :diminish git-gutter-mode
   :init
@@ -257,7 +406,6 @@ for example: 2020-10-08 12:10:00."
   :config
   (define-key go-mode-map  (kbd "C-c C-o") 'zwp/go-occour-definitions)
   (add-hook 'go-mode-hook (lambda () (setq tab-width 4)))
-  (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
   :preface
   (defun zwp/go-occour-definitions()
     "Display an occur buffer of all definitions in the current buffer. Also, switch to that buffer."
@@ -268,24 +416,27 @@ for example: 2020-10-08 12:10:00."
       (if window
           (select-window window)
         (switch-to-buffer "*Occur*"))))
-  ;; Set up before-save hooks to format buffer and add/delete imports.
-  ;; Make sure you don't have other gofmt/goimports hooks enabled.
-  (defun lsp-go-install-save-hooks ()
-    (add-hook 'before-save-hook #'lsp-format-buffer t t)
-    (add-hook 'before-save-hook #'lsp-organize-imports t t)))
+  )
 
 (use-package go-playground
   :bind ("C-c g" . go-playground-exec))
+
+
 
 (use-package google-c-style
   :config
   (add-hook 'c-mode-common-hook 'google-set-c-style)
   (add-hook 'c-mode-common-hook 'google-make-newline-indent))
 
+(defun my-c-mode-hook ()
+  (setq c-basic-offset 4
+        ;;        c-indent-level 4
+        c-default-style "google"))
+(add-hook'c-mode-common-hook 'my-c-mode-hook)
 
 (use-package helm
   ;; based on http://tuhdo.github.io/helm-intro.html
-  :diminish (helm-mode)
+  ;;  :diminish (helm-mode)
   :bind (("M-x" . helm-M-x)
          ("M-y" . helm-show-kill-ring)
          ("C-c h" . helm-command-prefix)
@@ -303,6 +454,7 @@ for example: 2020-10-08 12:10:00."
   (require 'helm-config)
   (global-unset-key (kbd "C-x c"))
   (global-set-key (kbd "C-c h o") 'helm-occur)
+  (global-set-key (kbd "C-c h g") 'helm-google-suggest)  
   (when (executable-find "curl")
     (setq helm-google-suggest-use-curl-p t))
   (when (string= system-type "darwin")       
@@ -318,8 +470,6 @@ for example: 2020-10-08 12:10:00."
         ;;helm-scroll-amount 8 ; scroll 8 lines other window using M-<next>/M-<prior>
         helm-ff-file-name-history-use-recentf t
         helm-echo-input-in-header-line t
-        ;; helm-autoresize-max-height 0
-        ;; helm-autoresize-min-height 20
         helm-M-x-fuzzy-match t
         helm-dwim-target 'next-window
         helm-ff-auto-update-initial-value 1)
@@ -333,7 +483,7 @@ for example: 2020-10-08 12:10:00."
   :config
   (setq helm-dash-enable-debugging t)
   (setq helm-dash-browser-func (quote eww))
-  (setq helm-dash-docsets-path "/Users/zhaoweipu/Library/Application Support/Dash/DocSets/")
+  (setq helm-dash-docsets-path "/Users/bytedance/Library/Application Support/Dash/DocSets/")
   (add-to-list 'helm-dash-common-docsets "Go")  
   ;; (add-to-list 'helm-dash-common-docsets "Django")
   ;; (add-to-list 'helm-dash-common-docsets "Python 2")
@@ -357,7 +507,9 @@ for example: 2020-10-08 12:10:00."
   :hook ((dired-mode . helm-gtags-mode)
          (eshell-mode . helm-gtags-mode)
          (c-mode . helm-gtags-mode)
+         (python-mode . helm-gtags-mode)         
          (c++-mode . helm-gtags-mode)
+         (java-mode . helm-gtags-mode)
          (asm-mode . helm-gtags-mode))
   :bind (:map helm-gtags-mode-map
               ("C-c g a" . helm-gtags-tags-in-this-function)
@@ -365,7 +517,8 @@ for example: 2020-10-08 12:10:00."
               ("M-." . helm-gtags-dwim)
               ("M-," . helm-gtags-pop-stack)
               ("C-c <" . helm-gtags-previous-history)
-              ("C-c >" . helm-gtags-next-history)))
+              ("C-c >" . helm-gtags-next-history)
+              ("\C-x4." . helm-gtags-find-tag-other-window)))
 
 
 (use-package helm-ls-git
@@ -382,6 +535,18 @@ for example: 2020-10-08 12:10:00."
   :bind (:map prog-mode-map
               ("M-[" . hs-toggle-hiding)))
 
+(use-package hl-todo
+  :config
+  (setq hl-todo-keyword-faces
+        '(("TODO"   . "#FF0000")
+          ("FIXME"  . "#FF0000")
+          ("DEBUG"  . "#A020F0")
+          ("GOTCHA" . "#FF4500")
+          ("STUB"   . "#1E90FF")))
+  (global-hl-todo-mode)
+  )
+
+
 (use-package htmlize)
 (use-package hungry-delete
   :disabled t
@@ -397,6 +562,25 @@ for example: 2020-10-08 12:10:00."
 (use-package indium
   :disabled t
   )
+
+;; == irony-mode ==
+(use-package irony
+  :ensure t
+  :defer t
+  :init
+  (add-hook 'c++-mode-hook 'irony-mode)
+  (add-hook 'c-mode-hook 'irony-mode)
+  (add-hook 'objc-mode-hook 'irony-mode)
+  :config
+  ;; replace the `completion-at-point' and `complete-symbol' bindings in
+  ;; irony-mode's buffers by irony-mode's function
+  (defun my-irony-mode-hook ()
+    (define-key irony-mode-map [remap completion-at-point]
+      'irony-completion-at-point-async)
+    (define-key irony-mode-map [remap complete-symbol]
+      'irony-completion-at-point-async))
+  (add-hook 'irony-mode-hook 'my-irony-mode-hook)
+  (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
 
 (use-package ivy
   :disabled t
@@ -448,19 +632,22 @@ for example: 2020-10-08 12:10:00."
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
   :custom
-  ;; (lsp-auto-guess-root t)
+  ;;  (lsp-auto-guess-root t)
   (lsp-enable-snippet nil)
   (lsp-prefer-flymake nil) ; Use flycheck instead of flymake
-  :hook ((js-mode css-mode scss-mode typescript-mode web-mode go-mode) . lsp-deferred)
-  :config
-  (setq lsp-gopls-staticcheck t)
-  (setq lsp-eldoc-render-all t)
-  (setq lsp-gopls-complete-unimported t)
-  (use-package company-lsp
-    :commands company-lsp)
+  :hook
+  ((js-mode css-mode scss-mode typescript-mode web-mode go-mode) . lsp-deferred)
+  ;; ((js-mode css-mode scss-mode typescript-mode web-mode) . lsp-deferred)  
+  (lsp-mode . (lambda ()
+                (let ((lsp-keymap-prefix "H-l"))
+                  (lsp-enable-which-key-integration))))
 
+  :config
+  ;; (setq lsp-gopls-staticcheck t)
+  ;; (setq lsp-eldoc-render-all t)
+  ;; (setq lsp-gopls-complete-unimported t)
+  (define-key lsp-mode-map (kbd "H-l") lsp-command-map)
   (use-package helm-lsp :commands helm-lsp-workspace-symbol)
-  ;; :hook ((go-mode . lsp))
 
   ;; Optional - provides fancier overlays.
   (use-package lsp-ui
@@ -468,6 +655,12 @@ for example: 2020-10-08 12:10:00."
     (setq lsp-ui-doc-position 'top)
     :commands lsp-ui-mode))
 
+;; Set up before-save hooks to format buffer and add/delete imports.
+;; Make sure you don't have other gofmt/goimports hooks enabled.
+(defun lsp-go-install-save-hooks ()
+  (add-hook 'before-save-hook #'lsp-format-buffer t t)
+  (add-hook 'before-save-hook #'lsp-organize-imports t t))
+(add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
 
 
 (use-package macrostep
@@ -589,6 +782,10 @@ for example: 2020-10-08 12:10:00."
   :if (locate-file "tern" exec-path)
   :hook (js2-mode . tern-mode))
 
+(use-package thrift
+  :ensure t
+  :defer t)
+
 (use-package pdf-tools
   ;; (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig")  
   :defer 6
@@ -623,6 +820,9 @@ for example: 2020-10-08 12:10:00."
   :ensure t)
 (use-package pos-tip
   :ensure t)
+
+
+(use-package posframe)
 
 (use-package prettier-js
   :hook
@@ -661,14 +861,15 @@ for example: 2020-10-08 12:10:00."
   :mode ("\\.py\\'" . python-mode)
   :interpreter ("python" . python-mode)
   :config
+  (setq-default indent-tabs-mode nil)
   (setq python-indent-guess-indent-offset t)
   (setq python-indent-guess-indent-offset-verbose nil))
 
 (use-package pyvenv
   :hook (python-mode . pyvenv-mode)
   :config
-  (setenv "WORKON_HOME" "/Users/zhaoweipu/opt/anaconda3/envs")
-  (pyvenv-workon "py38"))
+  (setenv "WORKON_HOME" "/Users/bytedance/opt/anaconda3/envs")
+  (pyvenv-workon "py2"))
 
 (use-package regex-tool
   :commands regex-tool
@@ -709,6 +910,21 @@ for example: 2020-10-08 12:10:00."
 
 (use-package showtip
   :ensure t)
+
+(use-package slime
+  :commands slime
+  :init
+  (setq inferior-lisp-program "clisp"
+        slime-contribs '(slime-fancy)))
+
+
+
+(use-package slime-company
+  :after (slime company)
+  :config (setq slime-company-completion 'fuzzy
+                slime-company-after-completion 'slime-company-just-one-space))
+
+(slime-setup '(slime-fancy slime-company))
 
 (use-package smart-cursor-color
   :ensure t
@@ -810,8 +1026,12 @@ for example: 2020-10-08 12:10:00."
   (which-key-mode))
 
 (use-package winner
+  :unless noninteractive
+  :defer 5
+  :bind (("M-N" . winner-redo)
+         ("M-P" . winner-undo))
   :config
-  (winner-mode))
+  (winner-mode 1))
 
 (use-package web-mode
   :defer 5

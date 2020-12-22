@@ -5,9 +5,31 @@
 ;;; Code:
 
 (require 'org)
+(require 'org-agenda)
 
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
+
+
+(bind-keys :map org-agenda-mode-map
+           ("C-c C-x C-p" . my-org-publish-ical)
+           ("C-n" . next-line)
+           ("C-p" . previous-line)
+           ("M-n" . org-agenda-later)
+           ("M-p" . org-agenda-earlier)
+           (" "   . org-agenda-tree-to-indirect-buffer)
+           (">"   . org-agenda-filter-by-top-headline)
+           ("g"   . org-agenda-redo)
+           ("f"   . org-agenda-date-later)
+           ("b"   . org-agenda-date-earlier)
+           ("r"   . org-agenda-refile)
+           ("F"   . org-agenda-follow-mode)
+           ("q"   . delete-window)
+           ("x"   . org-todo-state-map)
+           ("z"   . pop-window-configuration))
+
+(unbind-key "M-m" org-agenda-keymap)
+
 (use-package org-superstar
   :hook
   (org-mode . org-superstar-mode)
@@ -23,14 +45,12 @@
 (use-package ob-typescript
   :defer t)
 
-
-
 (setq-default major-mode 'org-mode)
 ;;steal from hrs
 (setq org-directory "~/Dropbox/notes")
 
-(setq org-default-notes-file (concat org-directory "/notes.org"))
-
+;; (setq org-default-notes-file (concat org-directory "/notes.org"))
+(setq org-log-into-drawer t)
 (defun org-file-path (filename)
   "Return the absolute address of an org file, given its relative name FILENAME."
   (concat (file-name-as-directory org-directory) filename))
@@ -49,6 +69,7 @@
   (org-archive-subtree))
 
 (define-key org-mode-map (kbd "C-c C-x C-s") 'hrs/mark-done-and-archive)
+
 
 (setq org-log-done 'time)
 ;;(setq org-agenda-files (list "~/Dropbox/notes/schedule.org"))
@@ -99,13 +120,18 @@
 (use-package ox-twbs
   :after org-mode)
 
+(use-package org-pdftools
+  :hook (org-mode . org-pdftools-setup-link))
 
-(use-package org-pdfview
-  :defer 4)
+(use-package org-noter-pdftools
+  :after org-noter
+  :config
+  (with-eval-after-load 'pdf-annot
+    (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
 
 (use-package ox-reveal
   :defer 5
-  :load-path "~/workspace/git/org-reveal")
+  :load-path "lisp/org-reveal")
 ;;      :load-path "lisp")
 ;;      :hook org-mode)
 
@@ -113,7 +139,7 @@
 (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js@3.8.0/")
 ;;(setq org-reveal-root "file:/Users/zhaoweipu/workspace/git/reveal.js/")
 (setq org-reveal-mathjax t)
-
-
+(setq org-hide-block-startup t)
+(setq inhibit-compacting-font-caches t)
 (provide 'dot-org)
 ;;; dot-org.el ends here

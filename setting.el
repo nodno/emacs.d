@@ -16,6 +16,7 @@
 ;; https://gist.github.com/railwaycat/3498096
 (setq mac-option-modifier 'meta)
 (setq mac-command-modifier 'hyper)
+;; (setq mac-command-modifier 'super)
 (global-set-key [(hyper a)] 'mark-whole-buffer)
 (global-set-key [(hyper v)] 'yank)
 (global-set-key [(hyper c)] 'kill-ring-save)
@@ -38,7 +39,8 @@
 (global-set-key (kbd "<f5>") 'revert-buffer)
 ;; ns-popup-font-panel was bound to s-t.
 (global-unset-key (kbd "s-t"))
-(global-hl-line-mode 1)
+;; highlight the current line
+(global-hl-line-mode -1)
 ;; Keymaps
 
 (define-key input-decode-map [?\C-m] [C-m])
@@ -46,7 +48,7 @@
 
 ;; Setting
 (setenv "LANG" "")
-(setq-default indent-tabs-mode nil)
+;;(setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
 ;; (load "~/Dropbox/mu4econfig.el" t)
 (if (string= system-type "darwin")
