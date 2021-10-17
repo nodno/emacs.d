@@ -4,8 +4,9 @@
 ;;; Code:
 (require 'package)
 (setq package-enable-at-startup nil)
-(add-to-list 'package-archives
-	     '("melpa-china" . "https://elpa.emacs-china.org/melpa/"))
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;; (add-to-list 'package-archives
+;; 	         '("melpa-china" . "https://elpa.emacs-china.org/melpa/"))
 
 (package-initialize)
 
@@ -38,7 +39,7 @@
  '(lsp-prefer-flymake nil t)
  '(org-agenda-files '("~/notes/sicp.org" "~/Dropbox/notes/index.org"))
  '(package-selected-packages
-   '(lispy eyebrowse counsel-osx-app go-dlv dap-mode hl-todo company-irony-c-headers company-irony irony thrift slime-company dired-toggle-sudo sudo-edit imenu-list lsp-vue company-quickhelp smartparens smartparens-config ido-springboard sqlformat company-lsp diredfl dired-x gitlab-ci-mode-flycheck gitlab-ci-mode hs-minor-mode company-c-headers sr-speedbar function-args helm-gtags ob-go c-mode google-c-style smart-mode-line iedit aggressive-indent bm beacon ascii abbrev helm-lsp yasnippet-snippets xref-js2 wsd-mode which-key web-mode use-package try treemacs smart-cursor-color showtip selected regex-tool pyvenv protobuf-mode pos-tip php-mode phi-search-mc ox-twbs org-pdfview nginx-mode magit macrostep lua-mode lsp-ui link-hint leetcode js2-refactor htmlize helm-projectile helm-ls-git helm-descbinds helm-dash go-playground git-gutter flycheck-color-mode-line expand-region exec-path-from-shell diminish deft dash-at-point command-log-mode color-theme-sanityinc-tomorrow blacken avy-zap ace-mc))
+   '(org-pdftools org lispy eyebrowse counsel-osx-app go-dlv dap-mode hl-todo company-irony-c-headers company-irony irony thrift slime-company dired-toggle-sudo sudo-edit imenu-list lsp-vue company-quickhelp smartparens smartparens-config ido-springboard sqlformat company-lsp diredfl dired-x gitlab-ci-mode-flycheck gitlab-ci-mode hs-minor-mode company-c-headers sr-speedbar function-args helm-gtags ob-go c-mode google-c-style smart-mode-line iedit aggressive-indent bm beacon ascii abbrev helm-lsp yasnippet-snippets xref-js2 wsd-mode which-key web-mode use-package try treemacs smart-cursor-color showtip selected regex-tool pyvenv protobuf-mode pos-tip php-mode phi-search-mc ox-twbs org-pdfview nginx-mode magit macrostep lua-mode lsp-ui link-hint leetcode js2-refactor htmlize helm-projectile helm-ls-git helm-descbinds helm-dash go-playground git-gutter flycheck-color-mode-line expand-region exec-path-from-shell diminish deft dash-at-point command-log-mode color-theme-sanityinc-tomorrow blacken avy-zap ace-mc))
  '(safe-local-variable-values
    '((eval setq flycheck-clang-include-path
            (list
