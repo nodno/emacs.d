@@ -1,4 +1,4 @@
-;;; setting --- Summar
+;; setting --- Summar
 ;;; Commentary:
 ;;; all settings
 (setq load-prefer-newer t)

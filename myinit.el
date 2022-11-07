@@ -15,10 +15,34 @@ for example: 2020-10-08 12:10:00."
   (insert
    (format-time-string "%Y-%m-%d %H:%M:%S")))
 
+(defun nodno/go-tag-snakecase()
+  (interactive)
+  (setq go-tag-args (list "-transform" "snakecase")))
+
+
+(defun nodno/go-tag-camelcase()
+  (interactive)
+  (setq go-tag-args (list "-transform" "camelcase")))
+
+(defun nodno/go-tag-lispcase()
+  (interactive)
+  (setq go-tag-args (list "-transform" "lispcase")))
+
+(defun nodno/go-tag-pascalcase()
+  (interactive)
+  (setq go-tag-args (list "-transform" "pascalcase")))
+
+
+(defun nodno/go-tag-keep()
+  (interactive)
+  (setq go-tag-args (list "-transform" "keep")))
+
+
 (global-set-key (kbd "C-c t") 'nodno/insert-date)
 
 (global-set-key (kbd "C-H-f") 'toggle-frame-fullscreen)
 
+(global-unset-key "\C-x\C-z")
 ;;; Libraries
 (use-package diminish)
 (use-package deferred      :defer t)
@@ -54,6 +78,7 @@ for example: 2020-10-08 12:10:00."
   :hook (emacs-lisp-mode . aggressive-indent-mode))
 
 (use-package anaconda-mode
+  :disabled t
   :commands anaconda-mode
   :ensure t
   :init
@@ -100,16 +125,19 @@ for example: 2020-10-08 12:10:00."
 
 (use-package blacken
   :ensure t
-  :bind ("C-c b" . blacken-buffer))
+  :bind ("C-c b" . blacken-buffer)
+  :config
+  (setq blacken-line-length 114))
 
 (use-package cc-mode
   :mode (("\\.h\\(h?\\|xx\\|pp\\)\\'" . c++-mode)
          ("\\.m\\'" . c-mode)
          ("\\.mm\\'" . c++-mode)))
-  ;; :bind (:map c-mode-map
-  ;;             ("<tab>" . company-complete))
-  ;; :bind (:map c++-mode-map
-  ;;             ("<tab>" . company-complete)))
+;; :bind (:map c-mode-map
+;;             ("<tab>" . company-complete))
+;; :bind (:map c++-mode-map
+;;             ("<tab>" . company-complete)))
+
 
 (use-package change-inner
   :bind (("M-i"     . change-inner)
@@ -236,9 +264,6 @@ for example: 2020-10-08 12:10:00."
         deft-use-filename-as-title t
         deft-use-filter-string-for-filename t))
 
-(use-package go-dlv
-  :ensure t)
-
 (use-package diredfl
   :hook (dired-mode . diredfl-mode))
 
@@ -250,12 +275,13 @@ for example: 2020-10-08 12:10:00."
   :diminish)
 
 (use-package eglot
-  :disabled
   :hook
   (go-mode . eglot-ensure)
+  (python-mode . eglot-ensure)
   :config
   (defvar-local flycheck-eglot-current-errors nil)
-
+  (add-to-list 'eglot-server-programs '(python-mode . ("pyright-langserver" "--stdio")))
+  ;;(add-to-list 'eglot-server-programs '(python-mode . ("pylsp")))
   (defun flycheck-eglot-report-fn (diags &rest _)
     (setq flycheck-eglot-current-errors
           (mapcar (lambda (diag)
@@ -322,18 +348,12 @@ for example: 2020-10-08 12:10:00."
   (eyebrowse-mode t))
 
 
-(use-package go
-  :disabled
-  :load-path "lisp/el-go"
-  )
-
 (use-package elpy
-  :disabled t
+  :disabled t  
+  :ensure t
   :defer t
   :init
-  (elpy-enable)
-  :hook
-  (python-mode . elpy-mode)
+  (advice-add 'python-mode :before 'elpy-enable)
   :config
   (setq eldoc-idle-delay 1)
   (setq python-shell-interpreter "ipython"
@@ -346,7 +366,28 @@ for example: 2020-10-08 12:10:00."
   (defun elpy-format-code ()
     "Format code using the available formatter."
     (interactive)
-    (elpy-black-fix-code)))
+    (elpy-black-fix-code))
+  (elpy-enable))  
+
+;; (use-package elpy
+;;   :defer t
+;;   :init
+;;   (elpy-enable)
+;;   :hook
+;;   (python-mode . elpy-mode)
+;;   :config
+;;   (setq eldoc-idle-delay 1)
+;;   (setq python-shell-interpreter "ipython"
+;;         python-shell-interpreter-args "-i --simple-prompt")  
+;;   (when (require 'flycheck nil t)
+;;     (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)))
+
+;;   ;; force it to use black, as there this function in elpy.el seems
+;;   ;; can't find black
+;;   (defun elpy-format-code ()
+;;     "Format code using the available formatter."
+;;     (interactive)
+;;     (elpy-black-fix-code)))
 
 (use-package exec-path-from-shell
   :config (dolist (var '("SSH_AUTH_SOCK" "SSH_AGENT_PID" "GPG_AGENT_INFO" "LANG" "LC_CTYPE"))
@@ -401,6 +442,14 @@ for example: 2020-10-08 12:10:00."
   :init
   (gitlab-ci-mode-flycheck-enable))
 
+(use-package go
+  :disabled t
+  :load-path "lisp/el-go")
+
+
+(use-package go-dlv
+  :ensure t)
+
 (use-package go-mode
   :mode ("\\.go\\'" . go-mode)
   :config
@@ -421,18 +470,30 @@ for example: 2020-10-08 12:10:00."
 (use-package go-playground
   :bind ("C-c g" . go-playground-exec))
 
-
-
-(use-package google-c-style
+(use-package go-tag
+  :ensure t
   :config
-  (add-hook 'c-mode-common-hook 'google-set-c-style)
-  (add-hook 'c-mode-common-hook 'google-make-newline-indent))
+  (nodno/go-tag-keep))
 
-(defun my-c-mode-hook ()
-  (setq c-basic-offset 4
-        ;;        c-indent-level 4
-        c-default-style "google"))
-(add-hook'c-mode-common-hook 'my-c-mode-hook)
+;; (use-package google-c-style
+;;   :config
+;;   (add-hook 'c-mode-common-hook 'google-set-c-style)
+;;   (add-hook 'c-mode-common-hook 'google-make-newline-indent))
+
+;; (defun my-c-mode-hook ()
+;;   (setq c-basic-offset 4
+;;         c-indent-level 4
+;;         c-default-style "google"))
+;; (add-hook'c-mode-common-hook 'my-c-mode-hook)
+;;(add-to-list 'c-default-style '(c++-mode . "k&r"))
+;;(add-to-list 'c-default-style '(c-mode . "k&r"))
+
+;;(setq c-default-style "linux"
+;;      c-basic-offset 4)
+
+(setq-default c-basic-offset 4
+              tab-width 4
+              indent-tabs-mode t)
 
 (use-package helm
   ;; based on http://tuhdo.github.io/helm-intro.html
@@ -484,12 +545,13 @@ for example: 2020-10-08 12:10:00."
   (setq helm-dash-enable-debugging t)
   (setq helm-dash-browser-func (quote eww))
   (setq helm-dash-docsets-path "/Users/bytedance/Library/Application Support/Dash/DocSets/")
-  (add-to-list 'helm-dash-common-docsets "Go")  
+  ;;  (add-to-list 'helm-dash-common-docsets "Go")  
   ;; (add-to-list 'helm-dash-common-docsets "Django")
   ;; (add-to-list 'helm-dash-common-docsets "Python 2")
   (add-to-list 'helm-dash-common-docsets "Python 3")
-  (add-to-list 'helm-dash-common-docsets "JavaScript")  
-  (add-to-list 'helm-dash-common-docsets "Redis"))
+  ;;  (add-to-list 'helm-dash-common-docsets "JavaScript")  
+  ;;  (add-to-list 'helm-dash-common-docsets "Redis")
+  )
 
 (use-package helm-descbinds
   :defer 7
@@ -507,7 +569,7 @@ for example: 2020-10-08 12:10:00."
   :hook ((dired-mode . helm-gtags-mode)
          (eshell-mode . helm-gtags-mode)
          (c-mode . helm-gtags-mode)
-         (python-mode . helm-gtags-mode)         
+         ;; (python-mode . helm-gtags-mode)         
          (c++-mode . helm-gtags-mode)
          (java-mode . helm-gtags-mode)
          (asm-mode . helm-gtags-mode))
@@ -630,13 +692,16 @@ for example: 2020-10-08 12:10:00."
   (setq lua-indent-level 4))
 
 (use-package lsp-mode
+  :disabled t
   :commands (lsp lsp-deferred)
   :custom
   ;;  (lsp-auto-guess-root t)
   (lsp-enable-snippet nil)
   (lsp-prefer-flymake nil) ; Use flycheck instead of flymake
   :hook
-  ((js-mode css-mode scss-mode typescript-mode web-mode go-mode) . lsp-deferred)
+  ;;  ((js-mode css-mode scss-mode typescript-mode web-mode go-mode) . lsp-deferred)
+  ((go-mode python-mode) . lsp-deferred)
+  ;;((go-mode) . lsp-deferred)    
   ;; ((js-mode css-mode scss-mode typescript-mode web-mode) . lsp-deferred)  
   (lsp-mode . (lambda ()
                 (let ((lsp-keymap-prefix "H-l"))
@@ -646,6 +711,10 @@ for example: 2020-10-08 12:10:00."
   ;; (setq lsp-gopls-staticcheck t)
   ;; (setq lsp-eldoc-render-all t)
   ;; (setq lsp-gopls-complete-unimported t)
+  (add-to-list 'lsp-file-watch-ignored-directories "/usr/local/go/src")
+  ;; don't scan 3rd party javascript libraries
+  (push "[/\\\\][^/\\\\]*\\.\\(json\\|html\\|jade\\)$" lsp-file-watch-ignored) ; json
+  
   (define-key lsp-mode-map (kbd "H-l") lsp-command-map)
   (use-package helm-lsp :commands helm-lsp-workspace-symbol)
 
@@ -784,7 +853,10 @@ for example: 2020-10-08 12:10:00."
 
 (use-package thrift
   :ensure t
-  :defer t)
+  :defer t
+  :config
+  (setq thrift-indent-level 4)
+  )
 
 (use-package pdf-tools
   ;; (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig")  
@@ -868,8 +940,8 @@ for example: 2020-10-08 12:10:00."
 (use-package pyvenv
   :hook (python-mode . pyvenv-mode)
   :config
-  (setenv "WORKON_HOME" "/Users/bytedance/opt/anaconda3/envs")
-  (pyvenv-workon "py2"))
+  (setenv "WORKON_HOME" "/Users/bytedance/miniconda3/envs")
+  (pyvenv-workon "pydata-book"))
 
 (use-package regex-tool
   :commands regex-tool

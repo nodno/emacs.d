@@ -30,6 +30,20 @@
 
 (unbind-key "M-m" org-agenda-keymap)
 
+;; org-show-two-levels
+(defun org-show-two-levels ()
+  (interactive)
+  (org-content 2))
+(with-eval-after-load 'org
+  (define-key org-mode-map (kbd "C-c 2") 'org-show-two-levels))
+(defun org-show-three-levels ()
+  (interactive)
+  (org-content 3))
+(with-eval-after-load 'org
+  (define-key org-mode-map (kbd "C-c 3") 'org-show-three-levels))
+
+(add-hook 'org-mode-hook 'org-show-three-levels)
+
 (use-package org-superstar
   :hook
   (org-mode . org-superstar-mode)
@@ -37,7 +51,12 @@
   ;; This is usually the default, but keep in mind it must be nil
   (setq org-hide-leading-stars nil)
   ;; This line is necessary.
-  (setq org-superstar-leading-bullet ?\s))
+  (setq org-superstar-leading-bullet ?\s)
+  ;; If you use Org Indent you also need to add this, otherwise the
+  ;; above has no effect while Indent is enabled.
+  (setq org-indent-mode-turns-on-hiding-stars nil))
+
+
 
 (use-package ob-go
   :defer t)
@@ -117,6 +136,12 @@
 
 (global-set-key (kbd "C-c i") 'my/open-index-file)
 ;; ox-*
+
+(use-package ox-hugo
+  :ensure t   ;Auto-install the package from Melpa
+  :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
+  :after ox)
+
 (use-package ox-twbs
   :after org-mode)
 
@@ -141,5 +166,7 @@
 (setq org-reveal-mathjax t)
 (setq org-hide-block-startup t)
 (setq inhibit-compacting-font-caches t)
+(setq org-edit-src-content-indentation 0)
+
 (provide 'dot-org)
 ;;; dot-org.el ends here
