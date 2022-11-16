@@ -247,6 +247,7 @@ for example: 2020-10-08 12:10:00."
 
 
 (use-package dash-at-point
+  :disabled
   :bind ("C-c D" . dash-at-point)
   :config
   (add-to-list 'dash-at-point-mode-alist
@@ -255,6 +256,7 @@ for example: 2020-10-08 12:10:00."
 	           '(python-mode . "Python3")))
 
 (use-package deft
+  :disabled
   :bind ("C-c d" . deft)
   :commands (deft)
   :config
@@ -265,6 +267,7 @@ for example: 2020-10-08 12:10:00."
         deft-use-filter-string-for-filename t))
 
 (use-package diredfl
+  :disabled
   :hook (dired-mode . diredfl-mode))
 
 (use-package dot-org
@@ -542,6 +545,7 @@ for example: 2020-10-08 12:10:00."
   (helm-mode 1))
 
 (use-package helm-dash
+  :disabled
   ;;  fixed dash-doc.el temporary-file-directory to /tmp/ for Catalina
   :commands helm-dash
   :config
@@ -672,6 +676,7 @@ for example: 2020-10-08 12:10:00."
 (use-package json-mode)
 
 (use-package leetcode
+  :disabled
   :bind
   ("C-x l" . leetcode)
   :config
@@ -862,6 +867,7 @@ for example: 2020-10-08 12:10:00."
   )
 
 (use-package pdf-tools
+  :disabled
   ;; (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig")  
   :defer 6
   :magic ("%PDF" . pdf-view-mode)
@@ -870,6 +876,7 @@ for example: 2020-10-08 12:10:00."
 
 
 (use-package personal
+  :disabled
   :load-path "lisp"
   :bind (("M-M" . my-open-Messages)
          ("M-T" . my-open-Things3)
@@ -964,6 +971,7 @@ for example: 2020-10-08 12:10:00."
 
 
 (use-package sdcv
+  :disabled
   :load-path "lisp"
   :demand t
   :config
