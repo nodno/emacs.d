@@ -279,8 +279,11 @@ for example: 2020-10-08 12:10:00."
   (go-mode . eglot-ensure)
   (python-mode . eglot-ensure)
   :config
+  (setq python-shell-interpreter "ipython"
+        python-shell-interpreter-args "-i --simple-prompt")    
   (defvar-local flycheck-eglot-current-errors nil)
   (add-to-list 'eglot-server-programs '(python-mode . ("pyright-langserver" "--stdio")))
+  
   ;;(add-to-list 'eglot-server-programs '(python-mode . ("pylsp")))
   (defun flycheck-eglot-report-fn (diags &rest _)
     (setq flycheck-eglot-current-errors
