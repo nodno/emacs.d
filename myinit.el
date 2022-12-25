@@ -283,60 +283,67 @@ for example: 2020-10-08 12:10:00."
         python-shell-interpreter-args "-i --simple-prompt")    
   (defvar-local flycheck-eglot-current-errors nil)
   (add-to-list 'eglot-server-programs '(python-mode . ("pyright-langserver" "--stdio")))
-  
-  ;;(add-to-list 'eglot-server-programs '(python-mode . ("pylsp")))
-  (defun flycheck-eglot-report-fn (diags &rest _)
-    (setq flycheck-eglot-current-errors
-          (mapcar (lambda (diag)
-                    (save-excursion
-                      (goto-char (flymake--diag-beg diag))
-                      (flycheck-error-new-at (line-number-at-pos)
-                                             (1+ (- (point) (line-beginning-position)))
-                                             (pcase (flymake--diag-type diag)
-                                               ('eglot-error 'error)
-                                               ('eglot-warning 'warning)
-                                               ('eglot-note 'info)
-                                               (_ (error "Unknown diag type, %S" diag)))
-                                             (flymake--diag-text diag)
-                                             :checker 'eglot)))
-                  diags))
-    (flycheck-buffer))
 
-  (defun flycheck-eglot--start (checker callback)
-    (funcall callback 'finished flycheck-eglot-current-errors))
+  (setq-default eglot-workspace-configuration
+		        '((:pyright .
+			                ((useLibraryCodeForTypes . t)))))  
 
-  (defun flycheck-eglot--available-p ()
-    (bound-and-true-p eglot--managed-mode))
 
-  (flycheck-define-generic-checker 'eglot
-    "Report `eglot' diagnostics using `flycheck'."
-    :start #'flycheck-eglot--start
-    :predicate #'flycheck-eglot--available-p
-    :modes '(prog-mode text-mode))
+  ;; (defun flycheck-eglot-report-fn (diags &rest _)
+  ;;   (setq flycheck-eglot-current-errors
+  ;;         (mapcar (lambda (diag)
+  ;;                   (save-excursion
+  ;;                     (goto-char (flymake--diag-beg diag))
+  ;;                     (flycheck-error-new-at (line-number-at-pos)
+  ;;                                            (1+ (- (point) (line-beginning-position)))
+  ;;                                            (pcase (flymake--diag-type diag)
+  ;;                                              ('eglot-error 'error)
+  ;;                                              ('eglot-warning 'warning)
+  ;;                                              ('eglot-note 'info)
+  ;;                                              (_ (error "Unknown diag type, %S" diag)))
+  ;;                                            (flymake--diag-text diag)
+  ;;                                            :checker 'eglot)))
+  ;;                 diags))
+  ;;   (flycheck-buffer))
 
-  (push 'eglot flycheck-checkers)
+  ;; (defun flycheck-eglot--start (checker callback)
+  ;;   (funcall callback 'finished flycheck-eglot-current-errors))
 
-  (defun sanityinc/eglot-prefer-flycheck ()
-    (when eglot--managed-mode
-      (flycheck-add-mode 'eglot major-mode)
-      (flycheck-select-checker 'eglot)
-      (flycheck-mode)
-      (flymake-mode -1)
-      (setq eglot--current-flymake-report-fn 'flycheck-eglot-report-fn)))
+  ;; (defun flycheck-eglot--available-p ()
+  ;;   (bound-and-true-p eglot--managed-mode))
 
-  (add-hook 'eglot--managed-mode-hook 'sanityinc/eglot-prefer-flycheck)  
+  ;; (flycheck-define-generic-checker 'eglot
+  ;;   "Report `eglot' diagnostics using `flycheck'."
+  ;;   :start #'flycheck-eglot--start
+  ;;   :predicate #'flycheck-eglot--available-p
+  ;;   :modes '(prog-mode text-mode))
+
+  ;; (push 'eglot flycheck-checkers)
+
+  ;; (defun sanityinc/eglot-prefer-flycheck ()
+  ;;   (when eglot--managed-mode
+  ;;     (flycheck-add-mode 'eglot major-mode)
+  ;;     (flycheck-select-checker 'eglot)
+  ;;     (flycheck-mode)
+  ;;     (flymake-mode -1)
+  ;;     (setq eglot--current-flymake-report-fn 'flycheck-eglot-report-fn)))
+
+  ;; (add-hook 'eglot--managed-mode-hook 'sanityinc/eglot-prefer-flycheck)
+
+  (define-key eglot-mode-map  (kbd "C-c C-o") 'elpy-occur-definitions)
+  ;; as C-c C-o is so handy in elpy, I'll keep it with anaconda-mode
+  (defun elpy-occur-definitions ()
+    "Display an occur buffer of all definitions in the current buffer. Also, switch to that buffer."
+    (interactive)
+    (let ((list-matching-lines-face nil))
+      (occur "^\s*\\(\\(async\s\\|\\)def\\|class\\)\s"))
+    (let ((window (get-buffer-window "*Occur*")))
+      (if window
+          (select-window window)
+        (switch-to-buffer "*Occur*"))))
+
   )
 
-;; (setq-default eglot-workspace-configuration
-;;               '((:gopls .
-;;                         ((staticcheck . t)
-;;                          (matcher . "CaseSensitive")))))
-
-
-;; (defun eglot-format-buffer-on-save ()
-;;   (add-hook 'before-save-hook #'eglot-format-buffer -10 t))
-
-;; (add-hook 'go-mode-hook #'eglot-format-buffer-on-save)
 
 
 (use-package eyebrowse
@@ -494,9 +501,12 @@ for example: 2020-10-08 12:10:00."
 ;;(setq c-default-style "linux"
 ;;      c-basic-offset 4)
 
+;; (setq-default c-basic-offset 4
+;;               tab-width 4
+;;               indent-tabs-mode t)
 (setq-default c-basic-offset 4
-              tab-width 4
-              indent-tabs-mode t)
+              c-indent-level 4
+              c-default-style "google")
 
 (use-package helm
   ;; based on http://tuhdo.github.io/helm-intro.html
@@ -515,7 +525,7 @@ for example: 2020-10-08 12:10:00."
          ("C-i" . helm-execute-persistent-action)
          ("C-z" . helm-select-action))
   :config
-  (require 'helm-config)
+  ;;  (require 'helm-config)
   (global-unset-key (kbd "C-x c"))
   (global-set-key (kbd "C-c h o") 'helm-occur)
   (global-set-key (kbd "C-c h g") 'helm-google-suggest)  
@@ -694,6 +704,8 @@ for example: 2020-10-08 12:10:00."
   :config
   (setq lua-indent-level 4))
 
+
+
 (use-package lsp-mode
   :disabled t
   :commands (lsp lsp-deferred)
@@ -734,6 +746,11 @@ for example: 2020-10-08 12:10:00."
   (add-hook 'before-save-hook #'lsp-organize-imports t t))
 (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
 
+
+(use-package markdown-mode
+  :ensure t
+  :mode ("README\\.md\\'" . gfm-mode)
+  :init (setq markdown-command "multimarkdown"))
 
 (use-package macrostep
   :bind ("C-c e m" . macrostep-expand))

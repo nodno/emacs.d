@@ -41,7 +41,7 @@
  '(org-agenda-files
    '("~/notes/Go.org" "/Users/bytedance/notes/sicp.org" "/Users/bytedance/Dropbox/notes/index.org"))
  '(package-selected-packages
-   '(elpy dash company ox-hugo go-tag anaconda-mode org-pdftools org lispy eyebrowse counsel-osx-app go-dlv dap-mode hl-todo company-irony-c-headers company-irony irony thrift slime-company dired-toggle-sudo sudo-edit imenu-list lsp-vue company-quickhelp smartparens smartparens-config ido-springboard sqlformat company-lsp diredfl dired-x gitlab-ci-mode-flycheck gitlab-ci-mode hs-minor-mode company-c-headers sr-speedbar function-args helm-gtags ob-go c-mode google-c-style smart-mode-line iedit aggressive-indent bm beacon ascii abbrev helm-lsp yasnippet-snippets xref-js2 wsd-mode which-key web-mode use-package try treemacs smart-cursor-color showtip selected regex-tool pyvenv protobuf-mode pos-tip php-mode phi-search-mc ox-twbs org-pdfview nginx-mode magit macrostep lua-mode lsp-ui link-hint leetcode js2-refactor htmlize helm-projectile helm-ls-git helm-descbinds helm-dash go-playground git-gutter flycheck-color-mode-line expand-region exec-path-from-shell diminish deft dash-at-point command-log-mode color-theme-sanityinc-tomorrow blacken avy-zap ace-mc))
+   '(jsonrpc lsp-pyright elpy dash company ox-hugo go-tag anaconda-mode org-pdftools org lispy eyebrowse counsel-osx-app go-dlv dap-mode hl-todo company-irony-c-headers company-irony irony thrift slime-company dired-toggle-sudo sudo-edit imenu-list lsp-vue company-quickhelp smartparens smartparens-config ido-springboard sqlformat company-lsp diredfl dired-x gitlab-ci-mode-flycheck gitlab-ci-mode hs-minor-mode company-c-headers sr-speedbar function-args helm-gtags ob-go c-mode google-c-style smart-mode-line iedit aggressive-indent bm beacon ascii abbrev helm-lsp yasnippet-snippets xref-js2 wsd-mode which-key web-mode use-package try treemacs smart-cursor-color showtip selected regex-tool pyvenv protobuf-mode pos-tip php-mode phi-search-mc ox-twbs org-pdfview nginx-mode magit macrostep lua-mode lsp-ui link-hint leetcode js2-refactor htmlize helm-ls-git helm-descbinds helm-dash go-playground git-gutter flycheck-color-mode-line expand-region exec-path-from-shell diminish deft dash-at-point command-log-mode color-theme-sanityinc-tomorrow blacken avy-zap ace-mc))
  '(safe-local-variable-values
    '((eval setq flycheck-clang-include-path
            (list
@@ -49,7 +49,8 @@
             (expand-file-name "/Users/bytedance/workspace/git/glibc/")))
      (eval setq flycheck-clang-include-path
            (list
-            (expand-file-name "/Users/bytedance/workspace/git/redis/deps/lua/src/"))))))
+            (expand-file-name "/Users/bytedance/workspace/git/redis/deps/lua/src/")))))
+ '(warning-suppress-types '((use-package))))
 
 
 (put 'upcase-region 'disabled nil)
