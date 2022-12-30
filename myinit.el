@@ -38,11 +38,30 @@ for example: 2020-10-08 12:10:00."
   (setq go-tag-args (list "-transform" "keep")))
 
 
+
 (global-set-key (kbd "C-c t") 'nodno/insert-date)
 
 (global-set-key (kbd "C-H-f") 'toggle-frame-fullscreen)
 
 (global-unset-key "\C-x\C-z")
+
+
+(use-package python
+  :config
+  (define-key python-mode-map  (kbd "C-c C-o") 'elpy-occur-definitions)
+  :preface
+  (defun elpy-occur-definitions ()
+	"Display an occur buffer of all definitions in the current buffer.
+Also, switch to that buffer"
+	(interactive)
+	(let ((list-matching-lines-face nil))
+      (occur "^\s*\\(\\(async\s\\|\\)def\\|class\\)\s"))
+	(let ((window (get-buffer-window "*Occur*")))
+      (if window
+          (select-window window)
+		(switch-to-buffer "*Occur*"))))
+  )
+
 ;;; Libraries
 (use-package diminish)
 (use-package deferred      :defer t)
@@ -89,18 +108,7 @@ for example: 2020-10-08 12:10:00."
   (define-key anaconda-mode-map  (kbd "M-.") 'anaconda-mode-find-definitions)
   (define-key anaconda-mode-map  (kbd "M-,") 'pop-tag-mark)
   (define-key anaconda-mode-map  (kbd "M-r") nil)
-  (define-key anaconda-mode-map  (kbd "C-c C-o") 'elpy-occur-definitions)
-  (setq anaconda-mode-localhost-address "localhost")
-  ;; as C-c C-o is so handy in elpy, I'll keep it with anaconda-mode
-  (defun elpy-occur-definitions ()
-    "Display an occur buffer of all definitions in the current buffer. Also, switch to that buffer."
-    (interactive)
-    (let ((list-matching-lines-face nil))
-      (occur "^\s*\\(\\(async\s\\|\\)def\\|class\\)\s"))
-    (let ((window (get-buffer-window "*Occur*")))
-      (if window
-          (select-window window)
-        (switch-to-buffer "*Occur*")))))
+  (setq anaconda-mode-localhost-address "localhost"))
 
 (use-package auto-rename-tag
   :disabled t
@@ -258,7 +266,7 @@ for example: 2020-10-08 12:10:00."
   :bind ("C-c d" . deft)
   :commands (deft)
   :config
-  (setq deft-directory "~/notes"
+  (setq deft-directory "~/Library/CloudStorage/Dropbox/notes"
         deft-extensions '("org")
         deft-default-extension "org"
         deft-use-filename-as-title t
@@ -289,58 +297,58 @@ for example: 2020-10-08 12:10:00."
 			                ((useLibraryCodeForTypes . t)))))  
 
 
-  ;; (defun flycheck-eglot-report-fn (diags &rest _)
-  ;;   (setq flycheck-eglot-current-errors
-  ;;         (mapcar (lambda (diag)
-  ;;                   (save-excursion
-  ;;                     (goto-char (flymake--diag-beg diag))
-  ;;                     (flycheck-error-new-at (line-number-at-pos)
-  ;;                                            (1+ (- (point) (line-beginning-position)))
-  ;;                                            (pcase (flymake--diag-type diag)
-  ;;                                              ('eglot-error 'error)
-  ;;                                              ('eglot-warning 'warning)
-  ;;                                              ('eglot-note 'info)
-  ;;                                              (_ (error "Unknown diag type, %S" diag)))
-  ;;                                            (flymake--diag-text diag)
-  ;;                                            :checker 'eglot)))
-  ;;                 diags))
-  ;;   (flycheck-buffer))
+  (defun flycheck-eglot-report-fn (diags &rest _)
+    (setq flycheck-eglot-current-errors
+          (mapcar (lambda (diag)
+                    (save-excursion
+                      (goto-char (flymake--diag-beg diag))
+                      (flycheck-error-new-at (line-number-at-pos)
+                                             (1+ (- (point) (line-beginning-position)))
+                                             (pcase (flymake--diag-type diag)
+                                               ('eglot-error 'error)
+                                               ('eglot-warning 'warning)
+                                               ('eglot-note 'info)
+                                               (_ (error "Unknown diag type, %S" diag)))
+                                             (flymake--diag-text diag)
+                                             :checker 'eglot)))
+                  diags))
+    (flycheck-buffer))
 
-  ;; (defun flycheck-eglot--start (checker callback)
-  ;;   (funcall callback 'finished flycheck-eglot-current-errors))
+  (defun flycheck-eglot--start (checker callback)
+    (funcall callback 'finished flycheck-eglot-current-errors))
 
-  ;; (defun flycheck-eglot--available-p ()
-  ;;   (bound-and-true-p eglot--managed-mode))
+  (defun flycheck-eglot--available-p ()
+    (bound-and-true-p eglot--managed-mode))
 
-  ;; (flycheck-define-generic-checker 'eglot
-  ;;   "Report `eglot' diagnostics using `flycheck'."
-  ;;   :start #'flycheck-eglot--start
-  ;;   :predicate #'flycheck-eglot--available-p
-  ;;   :modes '(prog-mode text-mode))
+  (flycheck-define-generic-checker 'eglot
+    "Report `eglot' diagnostics using `flycheck'."
+    :start #'flycheck-eglot--start
+    :predicate #'flycheck-eglot--available-p
+    :modes '(prog-mode text-mode))
 
-  ;; (push 'eglot flycheck-checkers)
+  (push 'eglot flycheck-checkers)
 
-  ;; (defun sanityinc/eglot-prefer-flycheck ()
-  ;;   (when eglot--managed-mode
-  ;;     (flycheck-add-mode 'eglot major-mode)
-  ;;     (flycheck-select-checker 'eglot)
-  ;;     (flycheck-mode)
-  ;;     (flymake-mode -1)
-  ;;     (setq eglot--current-flymake-report-fn 'flycheck-eglot-report-fn)))
+  (defun sanityinc/eglot-prefer-flycheck ()
+    (when eglot--managed-mode
+      (flycheck-add-mode 'eglot major-mode)
+      (flycheck-select-checker 'eglot)
+      (flycheck-mode)
+      (flymake-mode -1)
+      (setq eglot--current-flymake-report-fn 'flycheck-eglot-report-fn)))
 
-  ;; (add-hook 'eglot--managed-mode-hook 'sanityinc/eglot-prefer-flycheck)
+  (add-hook 'eglot--managed-mode-hook 'sanityinc/eglot-prefer-flycheck)
 
-  (define-key eglot-mode-map  (kbd "C-c C-o") 'elpy-occur-definitions)
-  ;; as C-c C-o is so handy in elpy, I'll keep it with anaconda-mode
-  (defun elpy-occur-definitions ()
-    "Display an occur buffer of all definitions in the current buffer. Also, switch to that buffer."
-    (interactive)
-    (let ((list-matching-lines-face nil))
-      (occur "^\s*\\(\\(async\s\\|\\)def\\|class\\)\s"))
-    (let ((window (get-buffer-window "*Occur*")))
-      (if window
-          (select-window window)
-        (switch-to-buffer "*Occur*"))))
+  ;; (define-key eglot-mode-map  (kbd "C-c C-o") 'elpy-occur-definitions)
+  ;; ;; as C-c C-o is so handy in elpy, I'll keep it with anaconda-mode
+  ;; (defun elpy-occur-definitions ()
+  ;;   "Display an occur buffer of all definitions in the current buffer. Also, switch to that buffer."
+  ;;   (interactive)
+  ;;   (let ((list-matching-lines-face nil))
+  ;;     (occur "^\s*\\(\\(async\s\\|\\)def\\|class\\)\s"))
+  ;;   (let ((window (get-buffer-window "*Occur*")))
+  ;;     (if window
+  ;;         (select-window window)
+  ;;       (switch-to-buffer "*Occur*"))))
 
   )
 
@@ -886,13 +894,13 @@ for example: 2020-10-08 12:10:00."
   (pdf-tools-install :no-query))
 
 
-(use-package personal
-  :load-path "lisp"
-  :bind (("M-M" . my-open-Messages)
-         ("M-T" . my-open-Things3)
-         ("M-W" . my-open-WeChat)
-         ("M-S" . my-open-Safari)
-         ("M-F" . my-open-Finder)))
+;; (use-package personal
+;;   :load-path "lisp"
+;;   :bind (("M-M" . my-open-Messages)
+;;          ("M-T" . my-open-Things3)
+;;          ("M-W" . my-open-WeChat)
+;;          ("M-S" . my-open-Safari)
+;;          ("M-F" . my-open-Finder)))
 
 
 (use-package phi-search
