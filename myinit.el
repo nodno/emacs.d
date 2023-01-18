@@ -46,21 +46,6 @@ for example: 2020-10-08 12:10:00."
 (global-unset-key "\C-x\C-z")
 
 
-(use-package python
-  :config
-  (define-key python-mode-map  (kbd "C-c C-o") 'elpy-occur-definitions)
-  :preface
-  (defun elpy-occur-definitions ()
-	"Display an occur buffer of all definitions in the current buffer.
-Also, switch to that buffer"
-	(interactive)
-	(let ((list-matching-lines-face nil))
-      (occur "^\s*\\(\\(async\s\\|\\)def\\|class\\)\s"))
-	(let ((window (get-buffer-window "*Occur*")))
-      (if window
-          (select-window window)
-		(switch-to-buffer "*Occur*"))))
-  )
 
 ;;; Libraries
 (use-package diminish)
@@ -565,7 +550,7 @@ Also, switch to that buffer"
   :config
   (setq helm-dash-enable-debugging t)
   (setq helm-dash-browser-func (quote eww))
-  (setq helm-dash-docsets-path "/Users/bytedance/Library/Application Support/Dash/DocSets/")
+  (setq helm-dash-docsets-path "/Users/zhaoweipu/Library/Application Support/Dash/DocSets/")
   ;;  (add-to-list 'helm-dash-common-docsets "Go")  
   ;; (add-to-list 'helm-dash-common-docsets "Django")
   ;; (add-to-list 'helm-dash-common-docsets "Python 2")
@@ -955,20 +940,35 @@ Also, switch to that buffer"
   ;; (setq projectile-enable-caching t)
   (projectile-mode +1))
 
-
 (use-package python
   ;; The package is "python" but the mode is "python-mode":
   :mode ("\\.py\\'" . python-mode)
   :interpreter ("python" . python-mode)
   :config
   (setq-default indent-tabs-mode nil)
-  (setq python-indent-guess-indent-offset t)
-  (setq python-indent-guess-indent-offset-verbose nil))
+  
+  ;;  (setq python-indent-level 4))
+  (setq python-indent-guess-indent-offset t)  
+  (setq python-indent-guess-indent-offset-verbose nil)
+  (define-key python-mode-map  (kbd "C-c C-o") 'elpy-occur-definitions)
+  :preface
+  (defun elpy-occur-definitions ()
+	"Display an occur buffer of all definitions in the current buffer.
+Also, switch to that buffer"
+	(interactive)
+	(let ((list-matching-lines-face nil))
+      (occur "^\s*\\(\\(async\s\\|\\)def\\|class\\)\s"))
+	(let ((window (get-buffer-window "*Occur*")))
+      (if window
+          (select-window window)
+		(switch-to-buffer "*Occur*"))))
+  )
+
 
 (use-package pyvenv
   :hook (python-mode . pyvenv-mode)
   :config
-  (setenv "WORKON_HOME" "/Users/bytedance/miniconda3/envs")
+  (setenv "WORKON_HOME" "/Users/zhaoweipu/miniconda3/envs")
   (pyvenv-workon "pydata-book"))
 
 (use-package regex-tool
